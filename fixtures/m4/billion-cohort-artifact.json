@@ -1,0 +1,881 @@
+{
+  "manifest": {
+    "api_version": "experiments.fips.network/run-artifact/v1alpha1",
+    "artifact_id": "scale-artifact-e0b952c6d74edb96f0ce4ca9e5ed3375",
+    "run_id": "scale-run-e0b952c6d74edb96f0ce4ca9",
+    "fidelity": {
+      "wire": "modeled",
+      "protocol": "cohort",
+      "compute": "operation-counted",
+      "scale": "cohort",
+      "bloom": "cohort-fpr",
+      "represented_nodes": 1000000000,
+      "approximations": [
+        {
+          "method": "bounded-depth-degree-cohorts/v1",
+          "parameters": {
+            "maximum-cohorts": "64"
+          },
+          "validated_range": "2..=1000000 matched against individual engine; larger scales unvalidated",
+          "uncertainty": "per-metric deterministic bounds and calibration warnings"
+        }
+      ],
+      "sampled_regions": []
+    },
+    "provenance": {
+      "engine_name": "fips-cohort-hybrid",
+      "engine_version": "0.1.0",
+      "engine_source_revision": "workspace-uncommitted",
+      "schema_versions": {
+        "normalized-plan": "experiments.fips.network/normalized-plan/v1alpha1",
+        "run-artifact": "experiments.fips.network/run-artifact/v1alpha1",
+        "scale-report": "v1alpha1"
+      },
+      "seed": 44004,
+      "normalized_plan_sha256": "c85e47383a69868063d81b72ca30a418d2cf7f0196c8e3cfba5a9ff2b8ec04e7",
+      "fips_commit": "80c956a6fdb85dde1450969a21891c1158e43267",
+      "image_digest": null,
+      "hardware_profile": null
+    }
+  },
+  "normalized_plan": {
+    "api_version": "experiments.fips.network/normalized-plan/v1alpha1",
+    "axes": [],
+    "campaign": {
+      "accounting": {
+        "causal_lineage": true,
+        "network_overhead": "configured",
+        "reconcile_serialized_frames": true,
+        "transport_overhead": true
+      },
+      "adversaries": {
+        "actions": [
+          "bounded-root-grinding"
+        ],
+        "budgets": {
+          "identities": 32,
+          "operations": 32
+        },
+        "mode": "authenticated-protocol-valid"
+      },
+      "apiVersion": "experiments.fips.network/v1alpha1",
+      "assertions": [
+        {
+          "always": {
+            "condition": "no_forwarding_loops"
+          }
+        },
+        {
+          "reconcile": {
+            "condition": "measured_bytes_equal_serialized_frames"
+          }
+        }
+      ],
+      "engine": {
+        "deterministic": true,
+        "modes": "cohort-analytical",
+        "variant": "fips-80c956a-baseline"
+      },
+      "events": [
+        {
+          "action": "introduce-lower-root-identities",
+          "id": "descending-root-arrivals"
+        }
+      ],
+      "fidelity": {
+        "approximations": [
+          {
+            "method": "bounded-depth-degree-cohorts/v1",
+            "uncertainty": "per-metric deterministic bounds and cross-fidelity warnings",
+            "validated_range": "2..=1000000 nodes where calibrated; billion-node scale is extrapolated"
+          }
+        ],
+        "billion_node_representation": "cohort-with-sampled-exact-regions",
+        "bloom": "cohort-fpr",
+        "crypto": "operation-count",
+        "protocol": "cohort",
+        "serialization": "modeled"
+      },
+      "identities": {
+        "arrivals": {
+          "address_policy": "strictly-lower-than-current-root",
+          "attachment": "current-root",
+          "attacker_budget": {
+            "identities": 32,
+            "mode": "bounded",
+            "operations": 32
+          },
+          "count": 32,
+          "schedule": {
+            "interval": {
+              "nanoseconds": 500000000
+            },
+            "start": {
+              "nanoseconds": 2000000000
+            }
+          }
+        },
+        "initial": {
+          "distribution": "uniform-128"
+        }
+      },
+      "instrumentation": {
+        "causal_cost_ledger": true,
+        "control_and_useful_bytes": true,
+        "queue_wait": true,
+        "quiescence_markers": [
+          "root",
+          "tree",
+          "bloom",
+          "lookup",
+          "data-plane"
+        ],
+        "root_agreement_by_depth": true,
+        "transition_stages": true
+      },
+      "kind": "Campaign",
+      "links": {
+        "bandwidth_bps": 1000000000,
+        "drop_policy": "tail-drop",
+        "duplication_ppm": 0,
+        "latency": {
+          "nanoseconds": 1000000
+        },
+        "loss_ppm": 0,
+        "mtu_bytes": 1500,
+        "ordering": "stream",
+        "queue_bytes": 1048576
+      },
+      "metadata": {
+        "description": "Honest M4 cohort/hybrid scale and protocol-variant comparison",
+        "name": "billion-root-ratchet"
+      },
+      "objectives": {
+        "maximize": [
+          "control_bytes_per_root_arrival",
+          "data_plane_stall_duration"
+        ]
+      },
+      "protocol": {
+        "parameters": {
+          "bloom_max_fpr_ppm": 200000,
+          "bloom_update_debounce": {
+            "nanoseconds": 500000000
+          },
+          "coord_cache_entries": 1024,
+          "coord_cache_ttl": {
+            "nanoseconds": 5000000000
+          },
+          "lookup_attempts": 3,
+          "lookup_ttl": 64,
+          "tree_announce_debounce": {
+            "nanoseconds": 500000000
+          }
+        },
+        "variant": "fips-80c956a-baseline"
+      },
+      "resources": {
+        "assignment": "heterogeneous",
+        "node_profiles": [
+          {
+            "cpu_units": 1000,
+            "memory_bytes": 1073741824,
+            "name": "baseline",
+            "queue_bytes": 1048576,
+            "table_entries": 1000
+          }
+        ]
+      },
+      "scale": {
+        "nodes": 1000000000
+      },
+      "seed": 44004,
+      "topology": {
+        "average_degree": 4,
+        "connected": true,
+        "generator": "balanced-tree"
+      },
+      "traffic": {
+        "model": "uniform-random",
+        "parameters": {
+          "flow_count": 1000000
+        },
+        "payload_bytes": 512,
+        "rate_bps": 1000000000
+      },
+      "transports": {
+        "assignment": "heterogeneous"
+      }
+    },
+    "campaign_sha256": "6ac72176045435e3f25999af9829671e24a4e3fa098c3396e7df5543bbe7e38d",
+    "seed": 44004
+  },
+  "event_trace": [
+    {
+      "event_id": "cohort-transition-0000",
+      "virtual_time_ns": 0,
+      "ordinal": 0,
+      "kind": "cohort-root-ratchet",
+      "causal_parent": null,
+      "data": {
+        "population": 1000000000,
+        "variant": {
+          "experimental": false,
+          "id": "fips-80c956a-baseline",
+          "parameter_sha256": "af80ee06b3a7e28adabdd9c3eb7c0daf83ddd801f2c8b2c925a223a08a9fbdb5",
+          "version": "80c956a6fdb85dde1450969a21891c1158e43267"
+        }
+      }
+    }
+  ],
+  "metric_series": [
+    {
+      "name": "root.adoptions",
+      "unit": "count",
+      "points": [
+        {
+          "virtual_time_ns": 0,
+          "value": "32"
+        }
+      ]
+    },
+    {
+      "name": "tree.parent-transitions",
+      "unit": "count",
+      "points": [
+        {
+          "virtual_time_ns": 0,
+          "value": "31999999968"
+        }
+      ]
+    },
+    {
+      "name": "tree.maximum-depth",
+      "unit": "edges",
+      "points": [
+        {
+          "virtual_time_ns": 0,
+          "value": "999999999"
+        }
+      ]
+    },
+    {
+      "name": "control.transmitted-bytes",
+      "unit": "bytes",
+      "points": [
+        {
+          "virtual_time_ns": 0,
+          "value": "512000027221333268480"
+        }
+      ]
+    },
+    {
+      "name": "bloom.fpr",
+      "unit": "ppb",
+      "points": [
+        {
+          "virtual_time_ns": 0,
+          "value": "1000000000"
+        }
+      ]
+    },
+    {
+      "name": "queue.peak-bytes",
+      "unit": "bytes",
+      "points": [
+        {
+          "virtual_time_ns": 0,
+          "value": "512000027222"
+        }
+      ]
+    },
+    {
+      "name": "traffic.useful-payload-bytes",
+      "unit": "bytes",
+      "points": [
+        {
+          "virtual_time_ns": 0,
+          "value": "512000000000"
+        }
+      ]
+    },
+    {
+      "name": "quiescence",
+      "unit": "nanoseconds",
+      "points": [
+        {
+          "virtual_time_ns": 0,
+          "value": "1000015999000000"
+        }
+      ]
+    }
+  ],
+  "causal_ledger": [
+    {
+      "causal_id": "cohort-transition-0000",
+      "stage": "population-transition",
+      "count": 1000000000,
+      "evidence": [
+        "cohort-report"
+      ]
+    }
+  ],
+  "assertion_results": [
+    {
+      "id": "population-mass-conserved",
+      "outcome": "pass",
+      "message": "population-mass-conserved: satisfied"
+    },
+    {
+      "id": "cohort-bounds-declared",
+      "outcome": "pass",
+      "message": "cohort-bounds-declared: satisfied"
+    }
+  ],
+  "samples": [
+    {
+      "allocated_cohorts": 30,
+      "assertions": [
+        "population-mass-conserved",
+        "bounds-declared"
+      ],
+      "cohorts": [
+        {
+          "id": "cohort-0000",
+          "key": {
+            "degree": 4,
+            "depth_end": 33333333,
+            "depth_start": 0,
+            "protocol_state": "root-adopted",
+            "region": "region-00",
+            "resource": "configured-distribution",
+            "transport": "configured-mixture"
+          },
+          "population": 33333334
+        },
+        {
+          "id": "cohort-0001",
+          "key": {
+            "degree": 4,
+            "depth_end": 66666667,
+            "depth_start": 33333334,
+            "protocol_state": "root-adopted",
+            "region": "region-01",
+            "resource": "configured-distribution",
+            "transport": "configured-mixture"
+          },
+          "population": 33333334
+        },
+        {
+          "id": "cohort-0002",
+          "key": {
+            "degree": 4,
+            "depth_end": 100000001,
+            "depth_start": 66666668,
+            "protocol_state": "root-adopted",
+            "region": "region-02",
+            "resource": "configured-distribution",
+            "transport": "configured-mixture"
+          },
+          "population": 33333334
+        },
+        {
+          "id": "cohort-0003",
+          "key": {
+            "degree": 4,
+            "depth_end": 133333335,
+            "depth_start": 100000002,
+            "protocol_state": "root-adopted",
+            "region": "region-03",
+            "resource": "configured-distribution",
+            "transport": "configured-mixture"
+          },
+          "population": 33333334
+        },
+        {
+          "id": "cohort-0004",
+          "key": {
+            "degree": 4,
+            "depth_end": 166666669,
+            "depth_start": 133333336,
+            "protocol_state": "root-adopted",
+            "region": "region-04",
+            "resource": "configured-distribution",
+            "transport": "configured-mixture"
+          },
+          "population": 33333334
+        },
+        {
+          "id": "cohort-0005",
+          "key": {
+            "degree": 4,
+            "depth_end": 200000003,
+            "depth_start": 166666670,
+            "protocol_state": "root-adopted",
+            "region": "region-05",
+            "resource": "configured-distribution",
+            "transport": "configured-mixture"
+          },
+          "population": 33333334
+        },
+        {
+          "id": "cohort-0006",
+          "key": {
+            "degree": 4,
+            "depth_end": 233333337,
+            "depth_start": 200000004,
+            "protocol_state": "root-adopted",
+            "region": "region-06",
+            "resource": "configured-distribution",
+            "transport": "configured-mixture"
+          },
+          "population": 33333334
+        },
+        {
+          "id": "cohort-0007",
+          "key": {
+            "degree": 4,
+            "depth_end": 266666671,
+            "depth_start": 233333338,
+            "protocol_state": "root-adopted",
+            "region": "region-07",
+            "resource": "configured-distribution",
+            "transport": "configured-mixture"
+          },
+          "population": 33333334
+        },
+        {
+          "id": "cohort-0008",
+          "key": {
+            "degree": 4,
+            "depth_end": 300000005,
+            "depth_start": 266666672,
+            "protocol_state": "root-adopted",
+            "region": "region-00",
+            "resource": "configured-distribution",
+            "transport": "configured-mixture"
+          },
+          "population": 33333334
+        },
+        {
+          "id": "cohort-0009",
+          "key": {
+            "degree": 4,
+            "depth_end": 333333339,
+            "depth_start": 300000006,
+            "protocol_state": "root-adopted",
+            "region": "region-01",
+            "resource": "configured-distribution",
+            "transport": "configured-mixture"
+          },
+          "population": 33333334
+        },
+        {
+          "id": "cohort-0010",
+          "key": {
+            "degree": 4,
+            "depth_end": 366666673,
+            "depth_start": 333333340,
+            "protocol_state": "root-adopted",
+            "region": "region-02",
+            "resource": "configured-distribution",
+            "transport": "configured-mixture"
+          },
+          "population": 33333333
+        },
+        {
+          "id": "cohort-0011",
+          "key": {
+            "degree": 4,
+            "depth_end": 400000007,
+            "depth_start": 366666674,
+            "protocol_state": "root-adopted",
+            "region": "region-03",
+            "resource": "configured-distribution",
+            "transport": "configured-mixture"
+          },
+          "population": 33333333
+        },
+        {
+          "id": "cohort-0012",
+          "key": {
+            "degree": 4,
+            "depth_end": 433333341,
+            "depth_start": 400000008,
+            "protocol_state": "root-adopted",
+            "region": "region-04",
+            "resource": "configured-distribution",
+            "transport": "configured-mixture"
+          },
+          "population": 33333333
+        },
+        {
+          "id": "cohort-0013",
+          "key": {
+            "degree": 4,
+            "depth_end": 466666675,
+            "depth_start": 433333342,
+            "protocol_state": "root-adopted",
+            "region": "region-05",
+            "resource": "configured-distribution",
+            "transport": "configured-mixture"
+          },
+          "population": 33333333
+        },
+        {
+          "id": "cohort-0014",
+          "key": {
+            "degree": 4,
+            "depth_end": 500000009,
+            "depth_start": 466666676,
+            "protocol_state": "root-adopted",
+            "region": "region-06",
+            "resource": "configured-distribution",
+            "transport": "configured-mixture"
+          },
+          "population": 33333333
+        },
+        {
+          "id": "cohort-0015",
+          "key": {
+            "degree": 4,
+            "depth_end": 533333343,
+            "depth_start": 500000010,
+            "protocol_state": "root-adopted",
+            "region": "region-07",
+            "resource": "configured-distribution",
+            "transport": "configured-mixture"
+          },
+          "population": 33333333
+        },
+        {
+          "id": "cohort-0016",
+          "key": {
+            "degree": 4,
+            "depth_end": 566666677,
+            "depth_start": 533333344,
+            "protocol_state": "root-adopted",
+            "region": "region-00",
+            "resource": "configured-distribution",
+            "transport": "configured-mixture"
+          },
+          "population": 33333333
+        },
+        {
+          "id": "cohort-0017",
+          "key": {
+            "degree": 4,
+            "depth_end": 600000011,
+            "depth_start": 566666678,
+            "protocol_state": "root-adopted",
+            "region": "region-01",
+            "resource": "configured-distribution",
+            "transport": "configured-mixture"
+          },
+          "population": 33333333
+        },
+        {
+          "id": "cohort-0018",
+          "key": {
+            "degree": 4,
+            "depth_end": 633333345,
+            "depth_start": 600000012,
+            "protocol_state": "root-adopted",
+            "region": "region-02",
+            "resource": "configured-distribution",
+            "transport": "configured-mixture"
+          },
+          "population": 33333333
+        },
+        {
+          "id": "cohort-0019",
+          "key": {
+            "degree": 4,
+            "depth_end": 666666679,
+            "depth_start": 633333346,
+            "protocol_state": "root-adopted",
+            "region": "region-03",
+            "resource": "configured-distribution",
+            "transport": "configured-mixture"
+          },
+          "population": 33333333
+        },
+        {
+          "id": "cohort-0020",
+          "key": {
+            "degree": 4,
+            "depth_end": 700000013,
+            "depth_start": 666666680,
+            "protocol_state": "root-adopted",
+            "region": "region-04",
+            "resource": "configured-distribution",
+            "transport": "configured-mixture"
+          },
+          "population": 33333333
+        },
+        {
+          "id": "cohort-0021",
+          "key": {
+            "degree": 4,
+            "depth_end": 733333347,
+            "depth_start": 700000014,
+            "protocol_state": "root-adopted",
+            "region": "region-05",
+            "resource": "configured-distribution",
+            "transport": "configured-mixture"
+          },
+          "population": 33333333
+        },
+        {
+          "id": "cohort-0022",
+          "key": {
+            "degree": 4,
+            "depth_end": 766666681,
+            "depth_start": 733333348,
+            "protocol_state": "root-adopted",
+            "region": "region-06",
+            "resource": "configured-distribution",
+            "transport": "configured-mixture"
+          },
+          "population": 33333333
+        },
+        {
+          "id": "cohort-0023",
+          "key": {
+            "degree": 4,
+            "depth_end": 800000015,
+            "depth_start": 766666682,
+            "protocol_state": "root-adopted",
+            "region": "region-07",
+            "resource": "configured-distribution",
+            "transport": "configured-mixture"
+          },
+          "population": 33333333
+        },
+        {
+          "id": "cohort-0024",
+          "key": {
+            "degree": 4,
+            "depth_end": 833333349,
+            "depth_start": 800000016,
+            "protocol_state": "root-adopted",
+            "region": "region-00",
+            "resource": "configured-distribution",
+            "transport": "configured-mixture"
+          },
+          "population": 33333333
+        },
+        {
+          "id": "cohort-0025",
+          "key": {
+            "degree": 4,
+            "depth_end": 866666683,
+            "depth_start": 833333350,
+            "protocol_state": "root-adopted",
+            "region": "region-01",
+            "resource": "configured-distribution",
+            "transport": "configured-mixture"
+          },
+          "population": 33333333
+        },
+        {
+          "id": "cohort-0026",
+          "key": {
+            "degree": 4,
+            "depth_end": 900000017,
+            "depth_start": 866666684,
+            "protocol_state": "root-adopted",
+            "region": "region-02",
+            "resource": "configured-distribution",
+            "transport": "configured-mixture"
+          },
+          "population": 33333333
+        },
+        {
+          "id": "cohort-0027",
+          "key": {
+            "degree": 4,
+            "depth_end": 933333351,
+            "depth_start": 900000018,
+            "protocol_state": "root-adopted",
+            "region": "region-03",
+            "resource": "configured-distribution",
+            "transport": "configured-mixture"
+          },
+          "population": 33333333
+        },
+        {
+          "id": "cohort-0028",
+          "key": {
+            "degree": 4,
+            "depth_end": 966666685,
+            "depth_start": 933333352,
+            "protocol_state": "root-adopted",
+            "region": "region-04",
+            "resource": "configured-distribution",
+            "transport": "configured-mixture"
+          },
+          "population": 33333333
+        },
+        {
+          "id": "cohort-0029",
+          "key": {
+            "degree": 4,
+            "depth_end": 999999999,
+            "depth_start": 966666686,
+            "protocol_state": "root-adopted",
+            "region": "region-05",
+            "resource": "configured-distribution",
+            "transport": "configured-mixture"
+          },
+          "population": 33333333
+        }
+      ],
+      "fidelity": {
+        "approximations": [
+          {
+            "method": "bounded-depth-degree-cohorts/v1",
+            "parameters": {
+              "maximum-cohorts": "64"
+            },
+            "uncertainty": "per-metric deterministic bounds and calibration warnings",
+            "validated_range": "2..=1000000 matched against individual engine; larger scales unvalidated"
+          }
+        ],
+        "bloom": "cohort-fpr",
+        "compute": "operation-counted",
+        "protocol": "cohort",
+        "represented_nodes": 1000000000,
+        "sampled_regions": [],
+        "scale": "cohort",
+        "wire": "modeled"
+      },
+      "kind": "cohort-root-ratchet-report/v1alpha1",
+      "metrics": {
+        "bloom_fpr_ppb": {
+          "assumptions": [
+            "exchangeable nodes within each cohort"
+          ],
+          "lower": "975000000",
+          "method": "bloom-independent-bit-occupancy/v1",
+          "uncertainty": "deterministic bound +/- 25000 ppm",
+          "unit": "ppb",
+          "upper": "1025000000",
+          "validated_range": "see calibration report",
+          "value": "1000000000"
+        },
+        "control_bytes": {
+          "assumptions": [
+            "exchangeable nodes within each cohort"
+          ],
+          "lower": "496640026404693270426",
+          "method": "cohort-frame-sum/v1",
+          "uncertainty": "deterministic bound +/- 30000 ppm",
+          "unit": "bytes",
+          "upper": "527360028037973266534",
+          "validated_range": "see calibration report",
+          "value": "512000027221333268480"
+        },
+        "maximum_depth": {
+          "assumptions": [
+            "exchangeable nodes within each cohort"
+          ],
+          "lower": "980000000",
+          "method": "cohort-depth-band/v1",
+          "uncertainty": "deterministic bound +/- 20000 ppm",
+          "unit": "edges",
+          "upper": "1019999998",
+          "validated_range": "see calibration report",
+          "value": "999999999"
+        },
+        "parent_transitions": {
+          "assumptions": [
+            "exchangeable nodes within each cohort"
+          ],
+          "lower": "31359999969",
+          "method": "cohort-parent-transition-sum/v1",
+          "uncertainty": "deterministic bound +/- 20000 ppm",
+          "unit": "count",
+          "upper": "32639999967",
+          "validated_range": "see calibration report",
+          "value": "31999999968"
+        },
+        "peak_queue_bytes": {
+          "assumptions": [
+            "exchangeable nodes within each cohort"
+          ],
+          "lower": "486400025861",
+          "method": "fluid-queue-upper-bound/v1",
+          "uncertainty": "deterministic bound +/- 50000 ppm",
+          "unit": "bytes",
+          "upper": "537600028583",
+          "validated_range": "see calibration report",
+          "value": "512000027222"
+        },
+        "quiescence_ns": {
+          "assumptions": [
+            "exchangeable nodes within each cohort"
+          ],
+          "lower": "950015199050000",
+          "method": "depth-cadence-bound/v1",
+          "uncertainty": "deterministic bound +/- 50000 ppm",
+          "unit": "nanoseconds",
+          "upper": "1050016798950000",
+          "validated_range": "see calibration report",
+          "value": "1000015999000000"
+        },
+        "root_adoptions": {
+          "assumptions": [],
+          "lower": "32",
+          "method": "variant-decision-count/v1",
+          "uncertainty": "exact under stated cohort assumptions",
+          "unit": "count",
+          "upper": "32",
+          "validated_range": "closed-form",
+          "value": "32"
+        },
+        "useful_payload_bytes": {
+          "assumptions": [],
+          "lower": "512000000000",
+          "method": "configured-payload/v1",
+          "uncertainty": "exact under stated cohort assumptions",
+          "unit": "bytes",
+          "upper": "512000000000",
+          "validated_range": "closed-form",
+          "value": "512000000000"
+        }
+      },
+      "operation_counts": {
+        "aead": 500000026583333270,
+        "bloom-hash": 96000000000,
+        "bloom-or": 32000000000,
+        "ecdh": 999999999,
+        "population-transition": 32000000000,
+        "schnorr-sign": 32,
+        "schnorr-verify": 32000000000,
+        "sha256": 32000000000
+      },
+      "population_after": 1000000000,
+      "population_before": 1000000000,
+      "represented_nodes": 1000000000,
+      "variant": {
+        "experimental": false,
+        "id": "fips-80c956a-baseline",
+        "parameter_sha256": "af80ee06b3a7e28adabdd9c3eb7c0daf83ddd801f2c8b2c925a223a08a9fbdb5",
+        "version": "80c956a6fdb85dde1450969a21891c1158e43267"
+      }
+    }
+  ],
+  "logs": [
+    {
+      "fidelity": "Wire evidence uses modeled serialization; protocol fidelity is cohort protocol representation; compute fidelity is operation-counted compute; scale uses analytical cohorts across 1000000000 represented nodes; Bloom fidelity uses cohort Bloom false-positive rate. Approximation methods: bounded-depth-degree-cohorts/v1.",
+      "variant": {
+        "experimental": false,
+        "id": "fips-80c956a-baseline",
+        "parameter_sha256": "af80ee06b3a7e28adabdd9c3eb7c0daf83ddd801f2c8b2c925a223a08a9fbdb5",
+        "version": "80c956a6fdb85dde1450969a21891c1158e43267"
+      }
+    }
+  ],
+  "external_blobs": []
+}

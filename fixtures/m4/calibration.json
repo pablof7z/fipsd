@@ -1,0 +1,645 @@
+{
+  "kind": "cross-fidelity-calibration/v1alpha1",
+  "samples": [
+    {
+      "nodes": 8,
+      "topology": "chain",
+      "seed": 44004,
+      "metric": "root-adoptions",
+      "individual": 7,
+      "cohort": 7,
+      "error_ppm": 0
+    },
+    {
+      "nodes": 8,
+      "topology": "chain",
+      "seed": 44004,
+      "metric": "maximum-depth",
+      "individual": 2,
+      "cohort": 7,
+      "error_ppm": 2500000
+    },
+    {
+      "nodes": 8,
+      "topology": "chain",
+      "seed": 44004,
+      "metric": "control-bytes",
+      "individual": 24736,
+      "cohort": 44352,
+      "error_ppm": 793014
+    },
+    {
+      "nodes": 8,
+      "topology": "chain",
+      "seed": 44004,
+      "metric": "bloom-fpr-ppb",
+      "individual": 0,
+      "cohort": 199,
+      "error_ppm": 1000000
+    },
+    {
+      "nodes": 8,
+      "topology": "chain",
+      "seed": 44004,
+      "metric": "peak-queue-bytes",
+      "individual": 15386,
+      "cohort": 5544,
+      "error_ppm": -639672
+    },
+    {
+      "nodes": 8,
+      "topology": "chain",
+      "seed": 44004,
+      "metric": "useful-payload-bytes",
+      "individual": 4096,
+      "cohort": 4096,
+      "error_ppm": 0
+    },
+    {
+      "nodes": 8,
+      "topology": "chain",
+      "seed": 44004,
+      "metric": "quiescence-ns",
+      "individual": 5504007552,
+      "cohort": 3507000000,
+      "error_ppm": -362827
+    },
+    {
+      "nodes": 8,
+      "topology": "balanced-tree",
+      "seed": 44004,
+      "metric": "root-adoptions",
+      "individual": 7,
+      "cohort": 7,
+      "error_ppm": 0
+    },
+    {
+      "nodes": 8,
+      "topology": "balanced-tree",
+      "seed": 44004,
+      "metric": "maximum-depth",
+      "individual": 2,
+      "cohort": 7,
+      "error_ppm": 2500000
+    },
+    {
+      "nodes": 8,
+      "topology": "balanced-tree",
+      "seed": 44004,
+      "metric": "control-bytes",
+      "individual": 18312,
+      "cohort": 43456,
+      "error_ppm": 1373088
+    },
+    {
+      "nodes": 8,
+      "topology": "balanced-tree",
+      "seed": 44004,
+      "metric": "bloom-fpr-ppb",
+      "individual": 0,
+      "cohort": 199,
+      "error_ppm": 1000000
+    },
+    {
+      "nodes": 8,
+      "topology": "balanced-tree",
+      "seed": 44004,
+      "metric": "peak-queue-bytes",
+      "individual": 15386,
+      "cohort": 5432,
+      "error_ppm": -646951
+    },
+    {
+      "nodes": 8,
+      "topology": "balanced-tree",
+      "seed": 44004,
+      "metric": "useful-payload-bytes",
+      "individual": 4096,
+      "cohort": 4096,
+      "error_ppm": 0
+    },
+    {
+      "nodes": 8,
+      "topology": "balanced-tree",
+      "seed": 44004,
+      "metric": "quiescence-ns",
+      "individual": 5502003904,
+      "cohort": 3507000000,
+      "error_ppm": -362595
+    },
+    {
+      "nodes": 12,
+      "topology": "chain",
+      "seed": 44004,
+      "metric": "root-adoptions",
+      "individual": 11,
+      "cohort": 11,
+      "error_ppm": 0
+    },
+    {
+      "nodes": 12,
+      "topology": "chain",
+      "seed": 44004,
+      "metric": "maximum-depth",
+      "individual": 2,
+      "cohort": 11,
+      "error_ppm": 4500000
+    },
+    {
+      "nodes": 12,
+      "topology": "chain",
+      "seed": 44004,
+      "metric": "control-bytes",
+      "individual": 60000,
+      "cohort": 112992,
+      "error_ppm": 883200
+    },
+    {
+      "nodes": 12,
+      "topology": "chain",
+      "seed": 44004,
+      "metric": "bloom-fpr-ppb",
+      "individual": 0,
+      "cohort": 670,
+      "error_ppm": 1000000
+    },
+    {
+      "nodes": 12,
+      "topology": "chain",
+      "seed": 44004,
+      "metric": "peak-queue-bytes",
+      "individual": 24178,
+      "cohort": 9416,
+      "error_ppm": -610555
+    },
+    {
+      "nodes": 12,
+      "topology": "chain",
+      "seed": 44004,
+      "metric": "useful-payload-bytes",
+      "individual": 6144,
+      "cohort": 6144,
+      "error_ppm": 0
+    },
+    {
+      "nodes": 12,
+      "topology": "chain",
+      "seed": 44004,
+      "metric": "quiescence-ns",
+      "individual": 7504007552,
+      "cohort": 5511000000,
+      "error_ppm": -265592
+    },
+    {
+      "nodes": 12,
+      "topology": "balanced-tree",
+      "seed": 44004,
+      "metric": "root-adoptions",
+      "individual": 11,
+      "cohort": 11,
+      "error_ppm": 0
+    },
+    {
+      "nodes": 12,
+      "topology": "balanced-tree",
+      "seed": 44004,
+      "metric": "maximum-depth",
+      "individual": 2,
+      "cohort": 11,
+      "error_ppm": 4500000
+    },
+    {
+      "nodes": 12,
+      "topology": "balanced-tree",
+      "seed": 44004,
+      "metric": "control-bytes",
+      "individual": 47560,
+      "cohort": 112992,
+      "error_ppm": 1375777
+    },
+    {
+      "nodes": 12,
+      "topology": "balanced-tree",
+      "seed": 44004,
+      "metric": "bloom-fpr-ppb",
+      "individual": 0,
+      "cohort": 670,
+      "error_ppm": 1000000
+    },
+    {
+      "nodes": 12,
+      "topology": "balanced-tree",
+      "seed": 44004,
+      "metric": "peak-queue-bytes",
+      "individual": 24178,
+      "cohort": 9416,
+      "error_ppm": -610555
+    },
+    {
+      "nodes": 12,
+      "topology": "balanced-tree",
+      "seed": 44004,
+      "metric": "useful-payload-bytes",
+      "individual": 6144,
+      "cohort": 6144,
+      "error_ppm": 0
+    },
+    {
+      "nodes": 12,
+      "topology": "balanced-tree",
+      "seed": 44004,
+      "metric": "quiescence-ns",
+      "individual": 7502003904,
+      "cohort": 5511000000,
+      "error_ppm": -265396
+    },
+    {
+      "nodes": 32,
+      "topology": "chain",
+      "seed": 44004,
+      "metric": "root-adoptions",
+      "individual": 31,
+      "cohort": 31,
+      "error_ppm": 0
+    },
+    {
+      "nodes": 32,
+      "topology": "chain",
+      "seed": 44004,
+      "metric": "maximum-depth",
+      "individual": 2,
+      "cohort": 31,
+      "error_ppm": 14500000
+    },
+    {
+      "nodes": 32,
+      "topology": "chain",
+      "seed": 44004,
+      "metric": "control-bytes",
+      "individual": 451360,
+      "cohort": 1166592,
+      "error_ppm": 1584615
+    },
+    {
+      "nodes": 32,
+      "topology": "chain",
+      "seed": 44004,
+      "metric": "bloom-fpr-ppb",
+      "individual": 3,
+      "cohort": 12431,
+      "error_ppm": 4142666666
+    },
+    {
+      "nodes": 32,
+      "topology": "chain",
+      "seed": 44004,
+      "metric": "peak-queue-bytes",
+      "individual": 68138,
+      "cohort": 36456,
+      "error_ppm": -464968
+    },
+    {
+      "nodes": 32,
+      "topology": "chain",
+      "seed": 44004,
+      "metric": "useful-payload-bytes",
+      "individual": 16384,
+      "cohort": 16384,
+      "error_ppm": 0
+    },
+    {
+      "nodes": 32,
+      "topology": "chain",
+      "seed": 44004,
+      "metric": "quiescence-ns",
+      "individual": 17504007552,
+      "cohort": 15531000000,
+      "error_ppm": -112717
+    },
+    {
+      "nodes": 32,
+      "topology": "balanced-tree",
+      "seed": 44004,
+      "metric": "root-adoptions",
+      "individual": 31,
+      "cohort": 31,
+      "error_ppm": 0
+    },
+    {
+      "nodes": 32,
+      "topology": "balanced-tree",
+      "seed": 44004,
+      "metric": "maximum-depth",
+      "individual": 2,
+      "cohort": 31,
+      "error_ppm": 14500000
+    },
+    {
+      "nodes": 32,
+      "topology": "balanced-tree",
+      "seed": 44004,
+      "metric": "control-bytes",
+      "individual": 408840,
+      "cohort": 1180480,
+      "error_ppm": 1887388
+    },
+    {
+      "nodes": 32,
+      "topology": "balanced-tree",
+      "seed": 44004,
+      "metric": "bloom-fpr-ppb",
+      "individual": 3,
+      "cohort": 12431,
+      "error_ppm": 4142666666
+    },
+    {
+      "nodes": 32,
+      "topology": "balanced-tree",
+      "seed": 44004,
+      "metric": "peak-queue-bytes",
+      "individual": 68138,
+      "cohort": 36890,
+      "error_ppm": -458598
+    },
+    {
+      "nodes": 32,
+      "topology": "balanced-tree",
+      "seed": 44004,
+      "metric": "useful-payload-bytes",
+      "individual": 16384,
+      "cohort": 16384,
+      "error_ppm": 0
+    },
+    {
+      "nodes": 32,
+      "topology": "balanced-tree",
+      "seed": 44004,
+      "metric": "quiescence-ns",
+      "individual": 17502003904,
+      "cohort": 15531000000,
+      "error_ppm": -112615
+    },
+    {
+      "nodes": 64,
+      "topology": "chain",
+      "seed": 44004,
+      "metric": "root-adoptions",
+      "individual": 32,
+      "cohort": 32,
+      "error_ppm": 0
+    },
+    {
+      "nodes": 64,
+      "topology": "chain",
+      "seed": 44004,
+      "metric": "maximum-depth",
+      "individual": 17,
+      "cohort": 63,
+      "error_ppm": 2705882
+    },
+    {
+      "nodes": 64,
+      "topology": "chain",
+      "seed": 44004,
+      "metric": "control-bytes",
+      "individual": 1694648,
+      "cohort": 3457024,
+      "error_ppm": 1039965
+    },
+    {
+      "nodes": 64,
+      "topology": "chain",
+      "seed": 44004,
+      "metric": "bloom-fpr-ppb",
+      "individual": 83,
+      "cohort": 96030,
+      "error_ppm": 1155987951
+    },
+    {
+      "nodes": 64,
+      "topology": "chain",
+      "seed": 44004,
+      "metric": "peak-queue-bytes",
+      "individual": 138474,
+      "cohort": 54016,
+      "error_ppm": -609919
+    },
+    {
+      "nodes": 64,
+      "topology": "chain",
+      "seed": 44004,
+      "metric": "useful-payload-bytes",
+      "individual": 32768,
+      "cohort": 32768,
+      "error_ppm": 0
+    },
+    {
+      "nodes": 64,
+      "topology": "chain",
+      "seed": 44004,
+      "metric": "quiescence-ns",
+      "individual": 25002011584,
+      "cohort": 16063000000,
+      "error_ppm": -357531
+    },
+    {
+      "nodes": 64,
+      "topology": "balanced-tree",
+      "seed": 44004,
+      "metric": "root-adoptions",
+      "individual": 32,
+      "cohort": 32,
+      "error_ppm": 0
+    },
+    {
+      "nodes": 64,
+      "topology": "balanced-tree",
+      "seed": 44004,
+      "metric": "maximum-depth",
+      "individual": 4,
+      "cohort": 63,
+      "error_ppm": 14750000
+    },
+    {
+      "nodes": 64,
+      "topology": "balanced-tree",
+      "seed": 44004,
+      "metric": "control-bytes",
+      "individual": 1092480,
+      "cohort": 3562496,
+      "error_ppm": 2260925
+    },
+    {
+      "nodes": 64,
+      "topology": "balanced-tree",
+      "seed": 44004,
+      "metric": "bloom-fpr-ppb",
+      "individual": 83,
+      "cohort": 96030,
+      "error_ppm": 1155987951
+    },
+    {
+      "nodes": 64,
+      "topology": "balanced-tree",
+      "seed": 44004,
+      "metric": "peak-queue-bytes",
+      "individual": 138474,
+      "cohort": 55664,
+      "error_ppm": -598018
+    },
+    {
+      "nodes": 64,
+      "topology": "balanced-tree",
+      "seed": 44004,
+      "metric": "useful-payload-bytes",
+      "individual": 32768,
+      "cohort": 32768,
+      "error_ppm": 0
+    },
+    {
+      "nodes": 64,
+      "topology": "balanced-tree",
+      "seed": 44004,
+      "metric": "quiescence-ns",
+      "individual": 18005010400,
+      "cohort": 16063000000,
+      "error_ppm": -107859
+    }
+  ],
+  "distributions": {
+    "bloom-fpr-ppb": {
+      "metric": "bloom-fpr-ppb",
+      "errors_ppm": [
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        4142666666,
+        4142666666,
+        1155987951,
+        1155987951
+      ],
+      "median_absolute_ppm": 1155987951,
+      "p95_absolute_ppm": 4142666666,
+      "maximum_absolute_ppm": 4142666666,
+      "validated_range": "8..=64 nodes; chain and balanced-tree; matched seed",
+      "warning": "outside calibrated 25% envelope"
+    },
+    "control-bytes": {
+      "metric": "control-bytes",
+      "errors_ppm": [
+        793014,
+        1373088,
+        883200,
+        1375777,
+        1584615,
+        1887388,
+        1039965,
+        2260925
+      ],
+      "median_absolute_ppm": 1375777,
+      "p95_absolute_ppm": 2260925,
+      "maximum_absolute_ppm": 2260925,
+      "validated_range": "8..=64 nodes; chain and balanced-tree; matched seed",
+      "warning": "outside calibrated 25% envelope"
+    },
+    "maximum-depth": {
+      "metric": "maximum-depth",
+      "errors_ppm": [
+        2500000,
+        2500000,
+        4500000,
+        4500000,
+        14500000,
+        14500000,
+        2705882,
+        14750000
+      ],
+      "median_absolute_ppm": 4500000,
+      "p95_absolute_ppm": 14750000,
+      "maximum_absolute_ppm": 14750000,
+      "validated_range": "8..=64 nodes; chain and balanced-tree; matched seed",
+      "warning": "outside calibrated 25% envelope"
+    },
+    "peak-queue-bytes": {
+      "metric": "peak-queue-bytes",
+      "errors_ppm": [
+        -639672,
+        -646951,
+        -610555,
+        -610555,
+        -464968,
+        -458598,
+        -609919,
+        -598018
+      ],
+      "median_absolute_ppm": 610555,
+      "p95_absolute_ppm": 646951,
+      "maximum_absolute_ppm": 646951,
+      "validated_range": "8..=64 nodes; chain and balanced-tree; matched seed",
+      "warning": "outside calibrated 25% envelope"
+    },
+    "quiescence-ns": {
+      "metric": "quiescence-ns",
+      "errors_ppm": [
+        -362827,
+        -362595,
+        -265592,
+        -265396,
+        -112717,
+        -112615,
+        -357531,
+        -107859
+      ],
+      "median_absolute_ppm": 265592,
+      "p95_absolute_ppm": 362827,
+      "maximum_absolute_ppm": 362827,
+      "validated_range": "8..=64 nodes; chain and balanced-tree; matched seed",
+      "warning": "outside calibrated 25% envelope"
+    },
+    "root-adoptions": {
+      "metric": "root-adoptions",
+      "errors_ppm": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "median_absolute_ppm": 0,
+      "p95_absolute_ppm": 0,
+      "maximum_absolute_ppm": 0,
+      "validated_range": "8..=64 nodes; chain and balanced-tree; matched seed",
+      "warning": null
+    },
+    "useful-payload-bytes": {
+      "metric": "useful-payload-bytes",
+      "errors_ppm": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "median_absolute_ppm": 0,
+      "p95_absolute_ppm": 0,
+      "maximum_absolute_ppm": 0,
+      "validated_range": "8..=64 nodes; chain and balanced-tree; matched seed",
+      "warning": null
+    }
+  },
+  "hybrid_sample_replayed": true,
+  "automatic_warnings": [
+    "bloom-fpr-ppb: outside calibrated 25% envelope",
+    "control-bytes: outside calibrated 25% envelope",
+    "maximum-depth: outside calibrated 25% envelope",
+    "peak-queue-bytes: outside calibrated 25% envelope",
+    "quiescence-ns: outside calibrated 25% envelope"
+  ]
+}

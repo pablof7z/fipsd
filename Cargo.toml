@@ -7,6 +7,7 @@ members = [
     "crates/fips-engine",
     "crates/fips-engine-api",
     "crates/fips-model",
+    "crates/fips-scale",
 ]
 resolver = "2"
 

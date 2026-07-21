@@ -9,6 +9,8 @@ use std::path::{Path, PathBuf};
 
 mod campaign_commands;
 use campaign_commands::CampaignCommand;
+mod scale_commands;
+use scale_commands::ScaleCommand;
 
 #[derive(Debug, Parser)]
 #[command(name = "fips-wind-tunnel")]
@@ -69,6 +71,11 @@ enum Command {
     Campaign {
         #[command(subcommand)]
         command: CampaignCommand,
+    },
+    /// M4 cohort/hybrid scale, calibration, and protocol-variant workflows.
+    Scale {
+        #[command(subcommand)]
+        command: ScaleCommand,
     },
 }
 
@@ -209,6 +216,7 @@ fn main() -> Result<()> {
             );
         }
         Command::Campaign { command } => campaign_commands::execute(command)?,
+        Command::Scale { command } => scale_commands::execute(command)?,
     }
     Ok(())
 }

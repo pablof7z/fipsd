@@ -121,6 +121,12 @@ Its pairwise plan, full search evidence, minimized replay, symbolic million-node
 input, and corpus result live under `fixtures/m3/`; the
 [M3 verification map](docs/m3-verification.md) maps every child issue to tests.
 
+M4's bounded scale engine and variants are documented in
+[M4 honest cohort/hybrid scale and protocol variants](docs/m4-scale-variants.md).
+The one-billion-node campaign and byte-stable evidence live under `examples/m4/`
+and `fixtures/m4/`; the [M4 verification map](docs/m4-verification.md) records
+the fidelity, calibration, variant, and resource-budget proofs.
+
 ## Architecture direction
 
 The P0 roadmap starts with these explicit defaults:

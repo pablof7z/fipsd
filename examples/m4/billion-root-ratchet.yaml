@@ -1,0 +1,103 @@
+apiVersion: experiments.fips.network/v1alpha1
+kind: Campaign
+metadata:
+  name: billion-root-ratchet
+  description: Honest M4 cohort/hybrid scale and protocol-variant comparison
+seed: 44004
+engine:
+  modes: cohort-analytical
+  deterministic: true
+scale:
+  nodes: 1000000000
+topology:
+  generator: balanced-tree
+  average_degree: 4
+identities:
+  initial:
+    distribution: uniform-128
+  arrivals:
+    count: 32
+    schedule:
+      start: 2s
+      interval: 500ms
+    address_policy: strictly-lower-than-current-root
+    attachment: current-root
+    attacker_budget:
+      mode: bounded
+      operations: 32
+      identities: 32
+transports:
+  assignment: heterogeneous
+links:
+  latency: 1ms
+  bandwidth_bps: 1000000000
+  loss_ppm: 0
+  duplication_ppm: 0
+  ordering: stream
+  mtu_bytes: 1500
+  queue_bytes: 1048576
+  drop_policy: tail-drop
+resources:
+  assignment: heterogeneous
+  node_profiles:
+    - name: baseline
+      cpu_units: 1000
+      memory_bytes: 1073741824
+      queue_bytes: 1048576
+      table_entries: 1000
+events:
+  - id: descending-root-arrivals
+    action: introduce-lower-root-identities
+adversaries:
+  mode: authenticated-protocol-valid
+  actions: [bounded-root-grinding]
+  budgets:
+    operations: 32
+    identities: 32
+protocol:
+  variant: fips-80c956a-baseline
+  parameters:
+    tree_announce_debounce: 500ms
+    bloom_update_debounce: 500ms
+    bloom_max_fpr_ppm: 200000
+    coord_cache_entries: 1024
+    coord_cache_ttl: 5s
+    lookup_ttl: 64
+    lookup_attempts: 3
+traffic:
+  model: uniform-random
+  rate_bps: 1000000000
+  payload_bytes: 512
+  parameters:
+    flow_count: 1000000
+fidelity:
+  protocol: cohort
+  serialization: modeled
+  bloom: cohort-fpr
+  crypto: operation-count
+  billion_node_representation: cohort-with-sampled-exact-regions
+  approximations:
+    - method: bounded-depth-degree-cohorts/v1
+      uncertainty: per-metric deterministic bounds and cross-fidelity warnings
+      validated_range: 2..=1000000 nodes where calibrated; billion-node scale is extrapolated
+accounting:
+  causal_lineage: true
+  transport_overhead: true
+  network_overhead: configured
+  reconcile_serialized_frames: true
+instrumentation:
+  root_agreement_by_depth: true
+  transition_stages: true
+  causal_cost_ledger: true
+  queue_wait: true
+  control_and_useful_bytes: true
+  quiescence_markers: [root, tree, bloom, lookup, data-plane]
+assertions:
+  - always:
+      condition: no_forwarding_loops
+  - reconcile:
+      condition: measured_bytes_equal_serialized_frames
+objectives:
+  maximize:
+    - control_bytes_per_root_arrival
+    - data_plane_stall_duration

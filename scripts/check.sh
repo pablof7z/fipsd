@@ -15,7 +15,8 @@ second="$(mktemp)"
 m1_run="$(mktemp -d)"
 m2_run="$(mktemp -d)"
 m3_run="$(mktemp -d)"
-trap 'rm -f "$first" "$second"; rm -rf "$m1_run" "$m2_run" "$m3_run"' EXIT
+m4_run="$(mktemp -d)"
+trap 'rm -f "$first" "$second"; rm -rf "$m1_run" "$m2_run" "$m3_run" "$m4_run"' EXIT
 cargo run --quiet -p fips-cli --bin fips-wind-tunnel -- normalize examples/root-ratchet.yaml --output "$first"
 cargo run --quiet -p fips-cli --bin fips-wind-tunnel -- normalize examples/root-ratchet.yaml --output "$second"
 cmp "$first" "$second"
@@ -58,3 +59,17 @@ cargo run --quiet -p fips-cli --bin fips-wind-tunnel -- campaign execute \
 cargo run --quiet -p fips-cli --bin fips-wind-tunnel -- campaign replay-corpus \
   fixtures/corpus --output "$m3_run/corpus-report.json"
 cmp "$m3_run/corpus-report.json" fixtures/m3/corpus-report.json
+
+cargo run --quiet -p fips-cli --bin fips-wind-tunnel -- scale run \
+  examples/m4/billion-root-ratchet.yaml --output "$m4_run/cohort"
+cmp "$m4_run/cohort/artifact.json" fixtures/m4/billion-cohort-artifact.json
+cmp "$m4_run/cohort/report.json" fixtures/m4/billion-cohort-report.json
+cargo run --quiet -p fips-cli --bin fips-wind-tunnel -- scale compare \
+  examples/m4/billion-root-ratchet.yaml --output "$m4_run/variants.json"
+cmp "$m4_run/variants.json" fixtures/m4/variant-comparison.json
+cargo run --quiet -p fips-cli --bin fips-wind-tunnel -- scale calibrate \
+  examples/m4/billion-root-ratchet.yaml --output "$m4_run/calibration.json"
+cmp "$m4_run/calibration.json" fixtures/m4/calibration.json
+cargo run --quiet -p fips-cli --bin fips-wind-tunnel -- scale billion-demo \
+  examples/m4/billion-root-ratchet.yaml --output "$m4_run/billion.json"
+cmp "$m4_run/billion.json" fixtures/m4/billion-demo.json
