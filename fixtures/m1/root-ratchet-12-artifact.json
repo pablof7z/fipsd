@@ -15,8 +15,8 @@
     },
     "provenance": {
       "engine_name": "fips-individual-reference",
-      "engine_version": "m1-v1",
-      "engine_source_revision": "4bed20fc5129d6afe417cde41e24971b09e5c330",
+      "engine_version": "m2-v1",
+      "engine_source_revision": "d0466d2951861b24ea2ea7c21da9f78e5f7415c6",
       "schema_versions": {
         "normalized-plan": "experiments.fips.network/normalized-plan/v1alpha1",
         "reproduction-bundle": "experiments.fips.network/reproduction-bundle/v1alpha1",

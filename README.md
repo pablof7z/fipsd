@@ -108,6 +108,12 @@ checked-in 12-node campaign, immutable artifact, reproduction bundle, and
 plain-language report under `fixtures/m1/`. The requirement-by-requirement
 evidence is indexed in the [M1 verification map](docs/m1-verification.md).
 
+M2's coupled protocol/data-plane slice is documented in
+[M2 recovery and causal accounting](docs/m2-recovery-accounting.md). Its small
+active-traffic campaign and byte-stable evidence live under `examples/m2/` and
+`fixtures/m2/`; the [M2 verification map](docs/m2-verification.md) ties every
+child issue to executable evidence.
+
 ## Architecture direction
 
 The P0 roadmap starts with these explicit defaults:

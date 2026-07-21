@@ -1,8 +1,9 @@
 use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
-use fips_artifact::{ReproductionBundle, RunArtifact};
-use fips_engine::{IndividualEngine, RootRatchetReport};
+use fips_artifact::{LedgerEntry, ReproductionBundle, RunArtifact};
+use fips_engine::{IndividualEngine, RecoveryReport, RootRatchetReport};
 use fips_model::NormalizedPlan;
+use std::collections::BTreeSet;
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -101,6 +102,9 @@ fn main() -> Result<()> {
                 &run.reproduction.to_canonical_json()?,
             )?;
             write_json(&output.join("report.json"), &run.report)?;
+            if let Some(recovery) = &run.recovery_report {
+                write_json(&output.join("recovery-report.json"), recovery)?;
+            }
             println!(
                 "run {}: {} nodes, {} arrivals, root {}, quiescent at {} ns",
                 run.report.run_id,
@@ -110,6 +114,15 @@ fn main() -> Result<()> {
                 run.report.quiescence_ns
             );
             println!("evidence: {}", output.display());
+            if let Some(recovery) = &run.recovery_report {
+                println!(
+                    "M2 recovery: {} useful bytes delivered, Bloom/lookup/data quiescence at {}/{}/{} ns",
+                    recovery.traffic.delivered_useful_bytes,
+                    recovery.markers.bloom_ns,
+                    recovery.markers.lookup_ns,
+                    recovery.markers.throughput_ns
+                );
+            }
         }
         Command::Inspect {
             artifact,
@@ -121,24 +134,33 @@ fn main() -> Result<()> {
                 .with_context(|| format!("invalid artifact {}", artifact.display()))?;
             artifact_document.validate()?;
             let report = embedded_report(&artifact_document)?;
-            println!(
-                "{}",
-                String::from_utf8(serde_json::to_vec_pretty(&report)?)?
-            );
-            if let Some(causal_id) = causal_id {
-                let entries = artifact_document
-                    .causal_ledger
-                    .iter()
-                    .filter(|entry| entry.causal_id == causal_id)
-                    .collect::<Vec<_>>();
+            let recovery = embedded_recovery_report(&artifact_document);
+            let inspection = recovery.as_ref().map_or_else(
+                || serde_json::to_value(&report),
+                |recovery| {
+                    serde_json::to_value(serde_json::json!({
+                        "root": report,
+                        "recovery": recovery,
+                    }))
+                },
+            )?;
+            let output = if let Some(causal_id) = causal_id {
+                let entries = causal_subtree(&artifact_document.causal_ledger, &causal_id);
                 if entries.is_empty() {
                     anyhow::bail!("artifact has no causal ledger entries for {causal_id}");
                 }
-                println!(
-                    "{}",
-                    String::from_utf8(serde_json::to_vec_pretty(&entries)?)?
-                );
-            }
+                serde_json::json!({
+                    "report": inspection,
+                    "causal_root": causal_id,
+                    "causal_tree": entries,
+                })
+            } else {
+                inspection
+            };
+            println!(
+                "{}",
+                String::from_utf8(serde_json::to_vec_pretty(&output)?)?
+            );
         }
         Command::Replay { bundle, output } => {
             let bytes =
@@ -188,6 +210,36 @@ fn embedded_report(artifact: &RunArtifact) -> Result<RootRatchetReport> {
         .iter()
         .find_map(|sample| serde_json::from_value::<RootRatchetReport>(sample.clone()).ok())
         .context("artifact does not contain a root-ratchet report")
+}
+
+fn embedded_recovery_report(artifact: &RunArtifact) -> Option<RecoveryReport> {
+    artifact
+        .samples
+        .iter()
+        .find_map(|sample| serde_json::from_value::<RecoveryReport>(sample.clone()).ok())
+}
+
+fn causal_subtree<'a>(ledger: &'a [LedgerEntry], root: &str) -> Vec<&'a LedgerEntry> {
+    let mut ids = BTreeSet::from([root.to_owned()]);
+    loop {
+        let before = ids.len();
+        for entry in ledger {
+            if entry
+                .causal_parent
+                .as_ref()
+                .is_some_and(|parent| ids.contains(parent))
+            {
+                ids.insert(entry.causal_id.clone());
+            }
+        }
+        if ids.len() == before {
+            break;
+        }
+    }
+    ledger
+        .iter()
+        .filter(|entry| ids.contains(&entry.causal_id))
+        .collect()
 }
 
 fn write_json<T: serde::Serialize>(path: &Path, value: &T) -> Result<()> {

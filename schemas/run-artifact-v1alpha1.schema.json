@@ -132,6 +132,7 @@
       "required": ["causal_id", "stage", "count", "evidence"],
       "properties": {
         "causal_id": { "type": "string", "minLength": 1 },
+        "causal_parent": { "type": "string", "minLength": 1 },
         "stage": { "enum": ["requested", "performed", "constructed", "superseded", "coalesced", "cancelled", "signed", "serialized", "queued", "transmitted", "delivered", "rejected", "identity-generation-operations", "state-mutated", "payload", "fsp", "fmp", "transport", "network", "reliability", "useful-payload", "compute", "state", "time", "duplicate", "retransmitted", "lower-bound"] },
         "count": { "type": "integer", "minimum": 0 },
         "evidence": { "type": "array", "items": { "type": "string" }, "uniqueItems": true }

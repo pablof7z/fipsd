@@ -511,75 +511,6 @@ impl GraphStore {
         }
     }
 
-    fn generate_regular(&mut self, degree: u32, seed: u64) -> Result<(), GraphError> {
-        let n = self.node_count() as u32;
-        if degree == 0 || degree >= n || (n * degree) % 2 != 0 {
-            return Err(GraphError::RegularDegree { nodes: n, degree });
-        }
-        let mut labels = (0..n).collect::<Vec<_>>();
-        for index in (1..labels.len()).rev() {
-            let swap = deterministic_u64(seed, index as u64) as usize % (index + 1);
-            labels.swap(index, swap);
-        }
-        let half = degree / 2;
-        for position in 0..n {
-            for offset in 1..=half {
-                let other = (position + offset) % n;
-                if self
-                    .edge_between(labels[position as usize], labels[other as usize])
-                    .is_none()
-                {
-                    self.add_edge(labels[position as usize], labels[other as usize])?;
-                }
-            }
-        }
-        if degree % 2 == 1 {
-            if n % 2 != 0 {
-                return Err(GraphError::RegularDegree { nodes: n, degree });
-            }
-            for position in 0..(n / 2) {
-                self.add_edge(
-                    labels[position as usize],
-                    labels[(position + n / 2) as usize],
-                )?;
-            }
-        }
-        Ok(())
-    }
-
-    fn generate_scale_free(&mut self, links_per_node: u32, seed: u64) -> Result<(), GraphError> {
-        let n = self.node_count() as u32;
-        if n == 1 {
-            return Ok(());
-        }
-        self.add_edge(0, 1)?;
-        for node in 2..n {
-            let target_count = links_per_node.min(node).max(1);
-            let mut chosen = BTreeSet::new();
-            let total_weight = (0..node)
-                .map(|candidate| self.active_degree(candidate) as u64 + 1)
-                .sum::<u64>();
-            let mut draw_ordinal = 0_u64;
-            while chosen.len() < target_count as usize {
-                let mut draw =
-                    deterministic_u64(seed ^ u64::from(node), draw_ordinal) % total_weight;
-                draw_ordinal += 1;
-                for candidate in 0..node {
-                    let weight = self.active_degree(candidate) as u64 + 1;
-                    if draw < weight {
-                        chosen.insert(candidate);
-                        break;
-                    }
-                    draw -= weight;
-                }
-            }
-            for target in chosen {
-                self.add_edge(node, target)?;
-            }
-        }
-        Ok(())
-    }
-
     fn reachable_count_excluding(&self, excluded: Option<NodeId>) -> usize {
         let Some(start) = self
             .node_ids()
@@ -661,83 +592,9 @@ fn deterministic_u64(seed: u64, ordinal: u64) -> u64 {
     output ^ (output >> 31)
 }
 
+#[path = "graph_generators.rs"]
+mod generators;
+
 #[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn generators_are_connected_and_seed_stable() {
-        let cases = [
-            (TopologyKind::Chain, 2),
-            (TopologyKind::BalancedTree, 2),
-            (TopologyKind::RandomRegular, 4),
-            (TopologyKind::ScaleFree, 4),
-        ];
-        for (kind, degree) in cases {
-            let left = GraphStore::generate(kind, 20, degree, 77, &[]).unwrap();
-            let right = GraphStore::generate(kind, 20, degree, 77, &[]).unwrap();
-            assert!(left.is_connected_active());
-            assert_eq!(left.graph_sha256(), right.graph_sha256());
-            assert_eq!(left, right);
-        }
-    }
-
-    #[test]
-    fn random_regular_degree_constraint_is_exact() {
-        let graph = GraphStore::generate(TopologyKind::RandomRegular, 20, 4, 99, &[]).unwrap();
-        assert!(graph.node_ids().all(|id| graph.active_degree(id) == 4));
-        assert_eq!(graph.edge_count(), 40);
-    }
-
-    #[test]
-    fn stable_store_rejects_dangling_duplicate_and_cyclic_state() {
-        let mut graph = GraphStore::with_nodes(3);
-        graph.add_edge(0, 1).unwrap();
-        assert_eq!(graph.add_edge(1, 0), Err(GraphError::DuplicateEdge(0, 1)));
-        assert_eq!(graph.add_edge(0, 3), Err(GraphError::DanglingNode(3)));
-        assert_eq!(
-            graph.set_tree(2, Some(1), vec![2, 1, 2]),
-            Err(GraphError::InvalidAncestry(2))
-        );
-    }
-
-    #[test]
-    fn attachment_selectors_are_deterministic() {
-        let graph = GraphStore::generate(TopologyKind::Chain, 7, 2, 7, &[]).unwrap();
-        assert_eq!(
-            graph
-                .select_attachment(AttachmentSelector::Leaf, 1, 1)
-                .unwrap(),
-            0
-        );
-        assert_eq!(
-            graph
-                .select_attachment(AttachmentSelector::Hub, 1, 1)
-                .unwrap(),
-            1
-        );
-        assert_eq!(
-            graph
-                .select_attachment(AttachmentSelector::Articulation, 1, 1)
-                .unwrap(),
-            1
-        );
-        assert_eq!(
-            graph
-                .select_attachment(AttachmentSelector::Random, 5, 2)
-                .unwrap(),
-            graph
-                .select_attachment(AttachmentSelector::Random, 5, 2)
-                .unwrap()
-        );
-    }
-
-    #[test]
-    fn compact_footprint_is_published_by_formula() {
-        let graph = GraphStore::generate(TopologyKind::Chain, 100, 2, 1, &[]).unwrap();
-        let footprint = graph.memory_footprint();
-        assert!(footprint.fixed_bytes_per_node <= 48);
-        assert_eq!(footprint.fixed_bytes_per_edge, 8);
-        assert!(footprint.allocated_bytes < 16_000);
-    }
-}
+#[path = "graph_tests.rs"]
+mod tests;

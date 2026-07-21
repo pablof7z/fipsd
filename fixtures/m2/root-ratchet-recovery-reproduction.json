@@ -1,6 +1,6 @@
 {
   "api_version": "experiments.fips.network/reproduction-bundle/v1alpha1",
-  "bundle_id": "bundle-b52b4a78dc1ec89fd733e9bbb06396ce",
+  "bundle_id": "bundle-90ff624e536126c7a335ec138874d2a6",
   "normalized_plan": {
     "api_version": "experiments.fips.network/normalized-plan/v1alpha1",
     "axes": [],
@@ -27,8 +27,8 @@
           }
         },
         {
-          "always": {
-            "condition": "per_peer_announcements_obey_debounce"
+          "eventually": {
+            "condition": "data_plane_makes_progress"
           }
         },
         {
@@ -89,39 +89,50 @@
         "queue_wait": true,
         "quiescence_markers": [
           "root",
-          "tree"
+          "tree",
+          "bloom",
+          "lookup",
+          "data-plane"
         ],
         "root_agreement_by_depth": true,
         "transition_stages": true
       },
       "kind": "Campaign",
       "links": {
-        "bandwidth_bps": 100000000,
+        "bandwidth_bps": 10000000,
         "drop_policy": "tail-drop",
         "duplication_ppm": 0,
         "latency": {
           "nanoseconds": 1000000
         },
         "loss_ppm": 0,
-        "mtu_bytes": 9000,
+        "mtu_bytes": 1500,
         "ordering": "stream",
         "queue_bytes": 1048576
       },
       "metadata": {
-        "description": "M1 deterministic descending-root ladder with four arrivals",
-        "name": "root-ratchet-12"
+        "description": "M2 coupled Bloom, cache, lookup, resource, and useful-traffic recovery",
+        "name": "root-ratchet-recovery"
       },
       "objectives": {
         "maximize": [
-          "control_bytes_per_root_arrival"
+          "control_bytes_per_root_arrival",
+          "data_plane_stall_duration",
+          "coordinate_cache_invalidations"
         ]
       },
       "protocol": {
         "parameters": {
-          "parent_hold_down": {
-            "nanoseconds": 0
+          "bloom_max_fpr_ppm": 200000,
+          "bloom_update_debounce": {
+            "nanoseconds": 500000000
           },
-          "parent_hysteresis_ppm": 0,
+          "coord_cache_entries": 8,
+          "coord_cache_ttl": {
+            "nanoseconds": 5000000000
+          },
+          "lookup_attempts": 3,
+          "lookup_ttl": 64,
           "tree_announce_debounce": {
             "nanoseconds": 500000000
           }
@@ -129,14 +140,14 @@
         "variant": "fips-80c956a-baseline"
       },
       "resources": {
-        "assignment": "uniform",
+        "assignment": "heterogeneous",
         "node_profiles": [
           {
             "cpu_units": 1000,
             "memory_bytes": 1073741824,
             "name": "baseline",
             "queue_bytes": 1048576,
-            "table_entries": 100000
+            "table_entries": 1000
           }
         ]
       },
@@ -150,13 +161,18 @@
         "generator": "chain"
       },
       "traffic": {
-        "model": "idle"
+        "model": "uniform-random",
+        "parameters": {
+          "flow_count": 48
+        },
+        "payload_bytes": 512,
+        "rate_bps": 40960
       },
       "transports": {
         "assignment": "all-udp"
       }
     },
-    "campaign_sha256": "7c5f58bd69b3071a64522e81b01d551e8c14dea156eba3d6738011ed30beb74d",
+    "campaign_sha256": "42541b80f010f26a0ee904e212ebbbeeb35bdacbc2a0ce3632461a34c890caed",
     "seed": 424242
   },
   "seed": 424242,
@@ -182,7 +198,7 @@
       "run-artifact": "experiments.fips.network/run-artifact/v1alpha1"
     },
     "seed": 424242,
-    "normalized_plan_sha256": "6f5ba11e22517ce3dc65dff8007ac438afe3f229853b4e10a8172c26496e915c",
+    "normalized_plan_sha256": "c855a48b0380ce1ddff72ded27afc421da8f88f048b9a5eb4bc05952b141a46f",
     "fips_commit": "80c956a6fdb85dde1450969a21891c1158e43267",
     "image_digest": null,
     "hardware_profile": null
@@ -196,7 +212,12 @@
     "control-queues-return-to-baseline",
     "tree-lifecycle-reconciliation",
     "byte-reconciliation",
-    "deterministic-total-order"
+    "deterministic-total-order",
+    "bloom-replacement-reconciliation",
+    "causal-ledger-frame-reconciliation",
+    "cache-invalidation-scope",
+    "continuous-control-eventual-data-progress",
+    "modeled-work-has-resource-receipts"
   ],
   "external_blobs": []
 }

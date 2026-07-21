@@ -47,3 +47,16 @@ and fidelity/provenance metadata in the same change that alters their behavior.
 
 Do not claim scale, speed, compatibility, or real-daemon agreement without a
 reproducible artifact and the environment needed to interpret it.
+
+## Source-file size
+
+- Keep hand-written source files at or below 300 lines when practical. Crossing
+  300 lines is a reviewability warning and should trigger a module-boundary
+  check.
+- 600 lines is a hard limit for any hand-written source file. Split by cohesive
+  responsibility before merging; do not suppress the check or minify code to
+  evade it.
+- Generated fixtures, generated schemas, lockfiles, and generated project files
+  are exempt. Mark any generated source explicitly rather than relying on its
+  directory name.
+- `scripts/check-loc.sh` enforces the hard limit and reports soft-limit files.
