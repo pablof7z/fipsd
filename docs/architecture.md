@@ -3,6 +3,14 @@
 This document records the P0 defaults that make the roadmap implementable. The
 detailed decisions and reversal triggers belong in the M0 ADRs.
 
+The accepted decisions are recorded in:
+
+- [ADR 0001 — pluggable protocol variants](adr/0001-pluggable-protocol-variants.md)
+- [ADR 0002 — independent reference model first](adr/0002-independent-reference-model-first.md)
+- [ADR 0003 — billion-node cohort/hybrid](adr/0003-billion-node-cohort-hybrid.md)
+- [ADR 0004 — authenticated adversaries](adr/0004-authenticated-adversaries.md)
+- [ADR 0005 — CLI and immutable artifacts before UI](adr/0005-cli-and-artifact-first.md)
+
 ## Product boundary
 
 FIPS Wind Tunnel is a protocol simulator, stochastic/adversarial campaign

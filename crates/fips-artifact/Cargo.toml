@@ -1,0 +1,21 @@
+[package]
+name = "fips-artifact"
+description = "Deterministic run and reproduction artifact contracts"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+jsonschema.workspace = true
+tempfile = "3.20"
+
+[lints]
+workspace = true

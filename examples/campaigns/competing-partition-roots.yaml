@@ -1,0 +1,18 @@
+apiVersion: experiments.fips.network/v1alpha1
+kind: Campaign
+metadata: {name: competing-partition-roots}
+seed: 1002
+engine: {modes: compact-discrete-event, deterministic: true, variant: fips-80c956a-baseline}
+scale: {nodes: {values: [20, 1000]}}
+topology: {generator: {values: [clustered, random-regular]}, average_degree: 4}
+identities: {initial: {distribution: partitioned-minima}}
+transports: {assignment: all-udp}
+events:
+  - {id: split, at: 10s, action: partition}
+  - {id: merge, at: 20s, action: merge}
+traffic: {model: cross-min-cut}
+fidelity: {protocol: semantic-exact, serialization: executable-codec, billion_node_representation: not-requested}
+instrumentation: {transition_stages: true, root_agreement_by_depth: true}
+assertions: [{eventually: {condition: one-minimum-root-after-merge, within: 30s}}]
+objectives: {maximize: [conflicting-root-duration, control-bytes]}
+

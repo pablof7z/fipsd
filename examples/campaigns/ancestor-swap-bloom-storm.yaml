@@ -1,0 +1,17 @@
+apiVersion: experiments.fips.network/v1alpha1
+kind: Campaign
+metadata: {name: ancestor-swap-bloom-storm}
+seed: 1004
+engine: {modes: compact-discrete-event, deterministic: true}
+scale: {nodes: {values: [100, 10000]}}
+topology: {generator: balanced-tree, average_degree: 3}
+identities: {initial: {distribution: uniform-128}}
+transports: {assignment: all-udp}
+events: [{action: swap-parent-ancestry, at: {values: [499ms, 500ms, 501ms]}}]
+traffic: {model: zipf}
+protocol: {variant: fips-80c956a-baseline, parameters: {bloom_debounce: 500ms}}
+fidelity: {protocol: semantic-exact, serialization: executable-codec, bloom: exact-bits, billion_node_representation: not-requested}
+instrumentation: {transition_stages: true, causal_cost_ledger: true}
+assertions: [{reconcile: {condition: bloom-announcements-equal-serialized-evidence}}]
+objectives: {maximize: [bloom-recomputations, control-bytes]}
+

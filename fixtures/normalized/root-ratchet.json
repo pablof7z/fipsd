@@ -1,0 +1,521 @@
+{
+  "api_version": "experiments.fips.network/normalized-plan/v1alpha1",
+  "campaign_sha256": "7a17a433a4e6dbd971c25b6ab7a034961ec6735aeefb8a8227efca10a8f61cb7",
+  "campaign": {
+    "accounting": {
+      "causal_lineage": true,
+      "network_overhead": "configured",
+      "reconcile_serialized_frames": true,
+      "transport_overhead": true
+    },
+    "adversaries": {
+      "actions": [
+        "bounded-root-grinding",
+        "strategic-attachment"
+      ],
+      "budgets": {
+        "identities": {
+          "values": [
+            1,
+            10,
+            1000
+          ]
+        },
+        "operations": {
+          "values": [
+            1,
+            1000,
+            1000000
+          ]
+        }
+      },
+      "mode": "authenticated-protocol-valid"
+    },
+    "apiVersion": "experiments.fips.network/v1alpha1",
+    "assertions": [
+      {
+        "eventually": {
+          "after_input_quiescence": {
+            "nanoseconds": 30000000000
+          },
+          "condition": "all_connected_nodes_agree_on_minimum_root"
+        }
+      },
+      {
+        "always": {
+          "condition": "no_forwarding_loops"
+        }
+      },
+      {
+        "always": {
+          "condition": "accepted_ancestry_is_valid"
+        }
+      },
+      {
+        "always": {
+          "condition": "per_peer_announcements_obey_debounce"
+        }
+      },
+      {
+        "eventually": {
+          "condition": "control_queues_return_to_baseline"
+        }
+      },
+      {
+        "eventually": {
+          "condition": "data_plane_makes_progress"
+        }
+      },
+      {
+        "reconcile": {
+          "condition": "measured_bytes_equal_serialized_frames"
+        }
+      },
+      {
+        "deterministic": {
+          "condition": "same_seed_same_event_order_and_result"
+        }
+      }
+    ],
+    "engine": {
+      "deterministic": true,
+      "modes": {
+        "values": [
+          "cohort-hybrid",
+          "compact-discrete-event"
+        ]
+      },
+      "variant": "fips-80c956a-baseline"
+    },
+    "events": [
+      {
+        "action": "introduce-lower-root-identities",
+        "id": "descending-root-arrivals",
+        "parameters": {
+          "source": "identities.arrivals"
+        }
+      }
+    ],
+    "fidelity": {
+      "billion_node_representation": "cohort-with-sampled-exact-regions",
+      "bloom": {
+        "values": [
+          "cohort-fpr",
+          "exact-bits",
+          "occupancy",
+          "sampled-exact"
+        ]
+      },
+      "crypto": {
+        "values": [
+          "adversarial-budget",
+          "calibrated-cost",
+          "operation-count"
+        ]
+      },
+      "protocol": "semantic-exact",
+      "serialization": "executable-codec"
+    },
+    "identities": {
+      "arrivals": {
+        "address_policy": "strictly-lower-than-current-root",
+        "attachment": {
+          "values": [
+            "articulation-point",
+            "current-root",
+            "highest-degree",
+            "random-leaf"
+          ]
+        },
+        "attacker_budget": {
+          "mode": {
+            "values": [
+              "bounded",
+              "calibrated-cost",
+              "free-input",
+              "operation-count"
+            ]
+          }
+        },
+        "count": {
+          "values": [
+            1,
+            10,
+            100,
+            1000
+          ]
+        },
+        "schedule": {
+          "interval": {
+            "values": [
+              {
+                "nanoseconds": 0
+              },
+              {
+                "nanoseconds": 10000000000
+              },
+              {
+                "nanoseconds": 1000000000
+              },
+              {
+                "nanoseconds": 100000000
+              },
+              {
+                "nanoseconds": 10000000
+              },
+              {
+                "nanoseconds": 1000000
+              },
+              {
+                "nanoseconds": 499000000
+              },
+              {
+                "nanoseconds": 500000000
+              },
+              {
+                "nanoseconds": 501000000
+              }
+            ]
+          }
+        }
+      },
+      "initial": {
+        "distribution": "uniform-128"
+      }
+    },
+    "instrumentation": {
+      "causal_cost_ledger": true,
+      "control_and_useful_bytes": true,
+      "queue_wait": true,
+      "quiescence_markers": [
+        "root",
+        "tree",
+        "bloom",
+        "lookup",
+        "data-plane"
+      ],
+      "root_agreement_by_depth": true,
+      "transition_stages": true
+    },
+    "kind": "Campaign",
+    "links": {
+      "bandwidth_bps": {
+        "values": [
+          1000000,
+          1000000000
+        ]
+      },
+      "drop_policy": "tail-drop",
+      "latency": {
+        "values": [
+          {
+            "nanoseconds": 100000000
+          },
+          {
+            "nanoseconds": 10000000
+          },
+          {
+            "nanoseconds": 1000000
+          }
+        ]
+      },
+      "loss_ppm": {
+        "values": [
+          0,
+          1000
+        ]
+      },
+      "mtu_bytes": {
+        "values": [
+          1280,
+          1500,
+          9000
+        ]
+      },
+      "ordering": {
+        "values": [
+          "datagram",
+          "stream"
+        ]
+      },
+      "queue_bytes": {
+        "values": [
+          1048576,
+          65536
+        ]
+      }
+    },
+    "metadata": {
+      "description": "Descending-Minimum Root Cascade across topology and debounce boundaries",
+      "name": "root-ratchet"
+    },
+    "objectives": {
+      "maximize": [
+        "control_bytes_per_root_arrival",
+        "convergence_time",
+        "data_plane_stall_duration",
+        "peak_queue_bytes",
+        "coordinate_cache_invalidations"
+      ]
+    },
+    "protocol": {
+      "parameters": {
+        "tree_announce_debounce": {
+          "nanoseconds": 500000000
+        }
+      },
+      "variant": "fips-80c956a-baseline"
+    },
+    "resources": {
+      "assignment": "uniform",
+      "node_profiles": [
+        {
+          "cpu_units": 1000,
+          "memory_bytes": 1073741824,
+          "name": "baseline",
+          "queue_bytes": 1048576,
+          "table_entries": 100000
+        }
+      ]
+    },
+    "scale": {
+      "nodes": {
+        "values": [
+          10,
+          1000,
+          100000,
+          1000000,
+          1000000000
+        ]
+      }
+    },
+    "seed": 424242,
+    "topology": {
+      "average_degree": 4,
+      "connected": true,
+      "generator": {
+        "values": [
+          "balanced-tree",
+          "chain",
+          "clustered",
+          "random-regular",
+          "scale-free"
+        ]
+      }
+    },
+    "traffic": {
+      "model": {
+        "values": [
+          "cross-min-cut",
+          "idle",
+          "session-churn",
+          "uniform-random",
+          "zipf"
+        ]
+      }
+    },
+    "transports": {
+      "assignment": {
+        "values": [
+          "all-udp",
+          "depth-correlated",
+          "descending-mtu-root-spine",
+          "high-latency-root-spine",
+          "random-mixed"
+        ]
+      }
+    }
+  },
+  "axes": [
+    {
+      "path": "/adversaries/budgets/identities",
+      "values": [
+        1,
+        10,
+        1000
+      ]
+    },
+    {
+      "path": "/adversaries/budgets/operations",
+      "values": [
+        1,
+        1000,
+        1000000
+      ]
+    },
+    {
+      "path": "/engine/modes",
+      "values": [
+        "cohort-hybrid",
+        "compact-discrete-event"
+      ]
+    },
+    {
+      "path": "/fidelity/bloom",
+      "values": [
+        "cohort-fpr",
+        "exact-bits",
+        "occupancy",
+        "sampled-exact"
+      ]
+    },
+    {
+      "path": "/fidelity/crypto",
+      "values": [
+        "adversarial-budget",
+        "calibrated-cost",
+        "operation-count"
+      ]
+    },
+    {
+      "path": "/identities/arrivals/attachment",
+      "values": [
+        "articulation-point",
+        "current-root",
+        "highest-degree",
+        "random-leaf"
+      ]
+    },
+    {
+      "path": "/identities/arrivals/attacker_budget/mode",
+      "values": [
+        "bounded",
+        "calibrated-cost",
+        "free-input",
+        "operation-count"
+      ]
+    },
+    {
+      "path": "/identities/arrivals/count",
+      "values": [
+        1,
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "path": "/identities/arrivals/schedule/interval",
+      "values": [
+        {
+          "nanoseconds": 0
+        },
+        {
+          "nanoseconds": 10000000000
+        },
+        {
+          "nanoseconds": 1000000000
+        },
+        {
+          "nanoseconds": 100000000
+        },
+        {
+          "nanoseconds": 10000000
+        },
+        {
+          "nanoseconds": 1000000
+        },
+        {
+          "nanoseconds": 499000000
+        },
+        {
+          "nanoseconds": 500000000
+        },
+        {
+          "nanoseconds": 501000000
+        }
+      ]
+    },
+    {
+      "path": "/links/bandwidth_bps",
+      "values": [
+        1000000,
+        1000000000
+      ]
+    },
+    {
+      "path": "/links/latency",
+      "values": [
+        {
+          "nanoseconds": 100000000
+        },
+        {
+          "nanoseconds": 10000000
+        },
+        {
+          "nanoseconds": 1000000
+        }
+      ]
+    },
+    {
+      "path": "/links/loss_ppm",
+      "values": [
+        0,
+        1000
+      ]
+    },
+    {
+      "path": "/links/mtu_bytes",
+      "values": [
+        1280,
+        1500,
+        9000
+      ]
+    },
+    {
+      "path": "/links/ordering",
+      "values": [
+        "datagram",
+        "stream"
+      ]
+    },
+    {
+      "path": "/links/queue_bytes",
+      "values": [
+        1048576,
+        65536
+      ]
+    },
+    {
+      "path": "/scale/nodes",
+      "values": [
+        10,
+        1000,
+        100000,
+        1000000,
+        1000000000
+      ]
+    },
+    {
+      "path": "/topology/generator",
+      "values": [
+        "balanced-tree",
+        "chain",
+        "clustered",
+        "random-regular",
+        "scale-free"
+      ]
+    },
+    {
+      "path": "/traffic/model",
+      "values": [
+        "cross-min-cut",
+        "idle",
+        "session-churn",
+        "uniform-random",
+        "zipf"
+      ]
+    },
+    {
+      "path": "/transports/assignment",
+      "values": [
+        "all-udp",
+        "depth-correlated",
+        "descending-mtu-root-spine",
+        "high-latency-root-spine",
+        "random-mixed"
+      ]
+    }
+  ],
+  "seed": 424242
+}

@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://fips.network/schemas/reproduction-bundle-v1alpha1.schema.json",
+  "title": "FIPS Wind Tunnel reproduction bundle v1alpha1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["api_version", "bundle_id", "normalized_plan", "seed", "engine", "variant", "fidelity", "provenance", "expected_assertions", "external_blobs"],
+  "properties": {
+    "api_version": { "const": "experiments.fips.network/reproduction-bundle/v1alpha1" },
+    "bundle_id": { "type": "string", "minLength": 1 },
+    "normalized_plan": { "type": "object" },
+    "seed": { "type": "integer", "minimum": 0 },
+    "engine": { "type": "string", "minLength": 1 },
+    "variant": { "type": "string", "minLength": 1 },
+    "fidelity": { "$ref": "#/$defs/fidelity" },
+    "provenance": { "$ref": "#/$defs/provenance" },
+    "expected_assertions": { "type": "array", "items": { "type": "string" }, "minItems": 1, "uniqueItems": true },
+    "external_blobs": { "type": "array", "items": { "$ref": "#/$defs/blob" } }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "revision": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "fidelity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["wire", "protocol", "compute", "scale", "bloom", "represented_nodes", "approximations", "sampled_regions"],
+      "properties": {
+        "wire": { "enum": ["executable-codec", "captured-wire", "modeled", "none"] },
+        "protocol": { "enum": ["semantic-exact", "operation-counted", "statistical", "cohort"] },
+        "compute": { "enum": ["executed", "operation-counted", "calibrated", "none"] },
+        "scale": { "enum": ["individual", "cohort", "hybrid"] },
+        "bloom": { "enum": ["exact-bits", "sparse-bits", "occupancy", "cohort-fpr", "sampled-exact"] },
+        "represented_nodes": { "type": "integer", "minimum": 1 },
+        "approximations": { "type": "array", "items": { "$ref": "#/$defs/approximation" } },
+        "sampled_regions": { "type": "array", "items": { "$ref": "#/$defs/sampledRegion" } }
+      }
+    },
+    "approximation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "parameters", "validated_range", "uncertainty"],
+      "properties": {
+        "method": { "type": "string", "minLength": 1 },
+        "parameters": { "type": "object", "additionalProperties": { "type": "string" } },
+        "validated_range": { "type": "string", "minLength": 1 },
+        "uncertainty": { "type": "string", "minLength": 1 }
+      }
+    },
+    "sampledRegion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "selection", "node_count"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "selection": { "type": "string", "minLength": 1 },
+        "node_count": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "hardwareProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "calibration_version"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "calibration_version": { "type": "string", "minLength": 1 }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["engine_name", "engine_version", "engine_source_revision", "schema_versions", "seed", "normalized_plan_sha256", "fips_commit", "image_digest", "hardware_profile"],
+      "properties": {
+        "engine_name": { "type": "string", "minLength": 1 },
+        "engine_version": { "type": "string", "minLength": 1 },
+        "engine_source_revision": { "$ref": "#/$defs/revision" },
+        "schema_versions": { "type": "object", "minProperties": 1, "additionalProperties": { "type": "string", "minLength": 1 } },
+        "seed": { "type": "integer", "minimum": 0 },
+        "normalized_plan_sha256": { "$ref": "#/$defs/sha256" },
+        "fips_commit": { "oneOf": [{ "$ref": "#/$defs/revision" }, { "type": "null" }] },
+        "image_digest": { "type": ["string", "null"] },
+        "hardware_profile": { "oneOf": [{ "$ref": "#/$defs/hardwareProfile" }, { "type": "null" }] }
+      }
+    },
+    "blob": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "path", "sha256", "size_bytes", "encoding"],
+      "properties": {
+        "role": { "type": "string", "minLength": 1 },
+        "path": { "type": "string", "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "size_bytes": { "type": "integer", "minimum": 0 },
+        "encoding": { "enum": ["identity", "gzip", "zstd"] }
+      }
+    }
+  }
+}
+

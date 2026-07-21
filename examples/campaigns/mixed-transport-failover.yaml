@@ -1,0 +1,20 @@
+apiVersion: experiments.fips.network/v1alpha1
+kind: Campaign
+metadata: {name: mixed-transport-failover}
+seed: 1008
+engine: {modes: compact-discrete-event, deterministic: true}
+scale: {nodes: {values: [20, 1000]}}
+topology: {generator: clustered, average_degree: 4}
+identities: {initial: {distribution: uniform-128}}
+transports:
+  assignment: random-mixed
+  profiles:
+    - {name: udp-fast, type: udp, mtu_bytes: 1500, latency: 1ms}
+    - {name: tcp-slow, type: tcp, mtu_bytes: 1280, latency: 100ms}
+events: [{action: fail-transport-class, target: udp-fast, at: 10s}]
+traffic: {model: cross-min-cut, rate_bps: 10000000}
+fidelity: {protocol: semantic-exact, serialization: executable-codec, billion_node_representation: not-requested}
+instrumentation: {transition_stages: true, session_metrics: true}
+assertions: [{eventually: {condition: useful-traffic-recovers, within: 60s}}]
+objectives: {maximize: [failover-time, useful-payload-loss]}
+

@@ -1,0 +1,17 @@
+apiVersion: experiments.fips.network/v1alpha1
+kind: Campaign
+metadata: {name: lookup-thundering-herd}
+seed: 1006
+engine: {modes: compact-discrete-event, deterministic: true}
+scale: {nodes: {values: [1000, 100000]}}
+topology: {generator: scale-free, average_degree: 6}
+identities: {initial: {distribution: uniform-128}}
+transports: {assignment: random-mixed}
+resources: {assignment: hub-constrained, node_profiles: [{name: hub, cpu_units: 100, memory_bytes: 268435456, queue_bytes: 65536, table_entries: 1000}]}
+events: [{action: expire-coordinate-cache}, {action: simultaneous-lookups, at: 1ms}]
+traffic: {model: session-churn, rate_bps: 100000000}
+fidelity: {protocol: semantic-exact, serialization: executable-codec, bloom: exact-bits, billion_node_representation: not-requested}
+instrumentation: {transition_stages: true, queue_wait: true, state_tables: true}
+assertions: [{eventually: {condition: lookup-queues-drain, within: 60s}}]
+objectives: {maximize: [lookup-fanout, queue-bytes, retry-count]}
+

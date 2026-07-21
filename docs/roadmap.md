@@ -31,6 +31,11 @@ release.
 Demo: validate Root Ratchet v1alpha1, emit a byte-stable normalized plan, and
 derive exact boundary sizes through a pinned FIPS codec seam.
 
+M0 locks the same named defaults used by the README and architecture: B3
+pluggable protocol variants, incremental A3 independent-reference-model first,
+C3 cohort/hybrid billion-node representation, D2 authenticated protocol-valid
+adversaries, and E1 evolving toward E2 with CLI/immutable artifacts before UI.
+
 - [#2](https://github.com/pablof7z/fipsd/issues/2) — Lock P0 architecture forks and reversal points
 - [#3](https://github.com/pablof7z/fipsd/issues/3) — Inventory FIPS semantic, codec, clock, and telemetry seams
 - [#4](https://github.com/pablof7z/fipsd/issues/4) — Define the fidelity contract and provenance envelope

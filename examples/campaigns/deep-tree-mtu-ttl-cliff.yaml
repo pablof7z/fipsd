@@ -1,0 +1,18 @@
+apiVersion: experiments.fips.network/v1alpha1
+kind: Campaign
+metadata: {name: deep-tree-mtu-ttl-cliff}
+seed: 1005
+engine: {modes: compact-discrete-event, deterministic: true}
+scale: {nodes: {values: [36, 65, 2001, 2044]}}
+topology: {generator: chain}
+identities: {initial: {distribution: descending-path}}
+transports: {assignment: descending-mtu-root-spine}
+links: {mtu_bytes: {values: [1280, 1288, 1500]}, latency: 1ms, bandwidth_bps: 100000000}
+events: [{action: announce-deep-tree}]
+traffic: {model: idle}
+protocol: {variant: fips-80c956a-baseline, parameters: {lookup_ttl: {values: [64, 65, 255]}}}
+fidelity: {protocol: semantic-exact, serialization: executable-codec, billion_node_representation: not-requested}
+instrumentation: {transition_stages: true, control_and_useful_bytes: true}
+assertions: [{always: {condition: oversize-frame-is-explicit}}]
+objectives: {maximize: [first-mtu-failure-depth, ttl-exhaustion]}
+

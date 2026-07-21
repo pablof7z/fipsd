@@ -1,0 +1,20 @@
+[package]
+name = "fips-cli"
+description = "FIPS Wind Tunnel command-line interface"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "fips-wind-tunnel"
+path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+clap.workspace = true
+fips-model = { path = "../fips-model", version = "0.1.0" }
+
+[lints]
+workspace = true

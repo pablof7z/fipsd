@@ -79,6 +79,17 @@ and targeted benchmarks.
 Attach the smallest useful evidence to the pull request: a test, artifact hash,
 report excerpt, minimized reproduction, or benchmark with its environment.
 
+For M0 changes, run the complete local gate:
+
+```bash
+scripts/check.sh
+```
+
+Changes to the FIPS pin, production wire codecs, or codec formulas must also
+run `scripts/check-fips-codecs.sh --check`. Intentional codec updates use
+`--update`, followed by review of the manifest, source hashes, formulas, and
+upstream drift notes in the same change.
+
 ## Security and disclosure
 
 Do not publish private keys, credentials, private topology data, or unredacted

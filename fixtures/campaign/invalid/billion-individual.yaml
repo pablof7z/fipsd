@@ -1,0 +1,15 @@
+apiVersion: experiments.fips.network/v1alpha1
+kind: Campaign
+metadata: {name: invalid-billion}
+seed: 1
+engine: {modes: compact-discrete-event, deterministic: true}
+scale: {nodes: 1000000000}
+topology: {generator: chain}
+identities: {initial: {distribution: uniform-128}}
+transports: {assignment: all-udp}
+traffic: {model: idle}
+fidelity: {protocol: semantic-exact, serialization: executable-codec, billion_node_representation: not-requested}
+instrumentation: {transition_stages: true}
+assertions: []
+objectives: {maximize: [control-bytes]}
+

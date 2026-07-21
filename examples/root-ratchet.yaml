@@ -1,13 +1,15 @@
 # Campaign v1alpha1 design fixture.
 #
-# This file states the target product contract. It is not executable until the
-# M0 schema/validator and M1 engine land.
+# This is the normative Campaign v1alpha1 fixture. M0 validates and normalizes
+# it; execution begins with the M1 engine.
 apiVersion: experiments.fips.network/v1alpha1
 kind: Campaign
 
 metadata:
   name: root-ratchet
   description: Descending-Minimum Root Cascade across topology and debounce boundaries
+
+seed: 424242
 
 engine:
   modes:
@@ -18,7 +20,7 @@ engine:
 
 scale:
   nodes:
-    values: [10, 1_000, 100_000, 1_000_000, 1_000_000_000]
+    values: [10, 1000, 100000, 1000000, 1000000000]
 
 topology:
   generator:
@@ -35,7 +37,7 @@ identities:
     distribution: uniform-128
   arrivals:
     count:
-      values: [1, 10, 100, 1_000]
+      values: [1, 10, 100, 1000]
     schedule:
       interval:
         values: [10s, 1s, 501ms, 500ms, 499ms, 100ms, 10ms, 1ms, 0ms]
@@ -59,6 +61,50 @@ transports:
       - high-latency-root-spine
       - descending-mtu-root-spine
 
+links:
+  latency:
+    values: [1ms, 10ms, 100ms]
+  bandwidth_bps:
+    values: [1000000, 1000000000]
+  loss_ppm:
+    values: [0, 1000]
+  ordering:
+    values: [datagram, stream]
+  mtu_bytes:
+    values: [1280, 1500, 9000]
+  queue_bytes:
+    values: [65536, 1048576]
+  drop_policy: tail-drop
+
+resources:
+  assignment: uniform
+  node_profiles:
+    - name: baseline
+      cpu_units: 1000
+      memory_bytes: 1073741824
+      queue_bytes: 1048576
+      table_entries: 100000
+
+events:
+  - id: descending-root-arrivals
+    action: introduce-lower-root-identities
+    parameters:
+      source: identities.arrivals
+
+adversaries:
+  mode: authenticated-protocol-valid
+  actions: [bounded-root-grinding, strategic-attachment]
+  budgets:
+    operations:
+      values: [1, 1000, 1000000]
+    identities:
+      values: [1, 10, 1000]
+
+protocol:
+  variant: fips-80c956a-baseline
+  parameters:
+    tree_announce_debounce: 500ms
+
 traffic:
   model:
     values:
@@ -69,7 +115,7 @@ traffic:
       - session-churn
 
 fidelity:
-  protocol: semantically-exact
+  protocol: semantic-exact
   serialization: executable-codec
   bloom:
     values: [exact-bits, occupancy, cohort-fpr, sampled-exact]

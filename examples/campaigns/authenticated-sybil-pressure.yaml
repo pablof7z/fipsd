@@ -1,0 +1,20 @@
+apiVersion: experiments.fips.network/v1alpha1
+kind: Campaign
+metadata: {name: authenticated-sybil-pressure}
+seed: 1010
+engine: {modes: compact-discrete-event, deterministic: true}
+scale: {nodes: {values: [1000, 100000]}}
+topology: {generator: scale-free, average_degree: 6}
+identities: {initial: {distribution: uniform-128}}
+transports: {assignment: random-mixed}
+events: [{action: attach-authenticated-sybils}]
+traffic: {model: session-churn}
+adversaries:
+  mode: authenticated-protocol-valid
+  actions: [bounded-root-grinding, selective-visibility, valid-lookup-pressure, withheld-forwarding]
+  budgets: {operations: {values: [1000, 1000000]}, identities: {values: [10, 1000]}, bytes: 1000000000, compute_units: 1000000, wall_time: 60s}
+fidelity: {protocol: semantic-exact, serialization: executable-codec, bloom: {values: [exact-bits, occupancy]}, billion_node_representation: not-requested}
+instrumentation: {transition_stages: true, causal_cost_ledger: true, state_tables: true}
+assertions: [{always: {condition: malformed-wire-input-is-excluded}}]
+objectives: {maximize: [damage-per-attacker-operation, sybil-concentration]}
+

@@ -2,27 +2,30 @@
 
 **Find the protocol cliff before the network does.**
 
-FIPS Wind Tunnel is a planned deterministic, multi-fidelity experimentation
+FIPS Wind Tunnel is a deterministic, multi-fidelity experimentation
 system for generating, simulating, measuring, attacking, comparing, and
 minimizing [FIPS](https://github.com/jmcorgan/fips) network behavior—from a
 handful of real daemons to billion-node analytical cohorts.
 
 > [!IMPORTANT]
-> This repository is at the roadmap and bootstrap stage. It does not yet ship a
-> simulator binary or browser application. The public backlog defines the
-> implementation sequence and the evidence required before scale or fidelity
-> claims are considered real.
+> M0 ships the scientific contracts, Campaign validator/normalizer, artifact
+> schemas, and pinned codec-conformance proof. It does not yet ship a simulation
+> engine or browser application. Those remain gated by later milestones.
 
 The flagship campaign is **Root Ratchet**, formally a Descending-Minimum Root
 Cascade: authenticated identities with successively lower addresses arrive
 above the current root. Each arrival can force a network-wide root transition
 while adding another ancestor to every existing node.
 
-At tree depth `d`, an established FMP-framed TreeAnnounce is `169 + 32d` bytes.
-That makes depth 35 an immediate 1,289-byte framing boundary, before underlying
+At tree depth `d`, an executable-codec established FMP-framed TreeAnnounce is
+`168 + 32d` bytes. That makes depth 35 an immediate 1,288-byte framing boundary, before underlying
 transport overhead. The wind tunnel is being built to find those boundaries,
 explain their causal cost, and reduce large failures into small real-daemon
 reproductions.
+
+The one-byte difference from the pinned FIPS wire-format prose is recorded as
+[upstream documentation drift](docs/fips-seam-inventory.md#recorded-documentation-drift);
+the executable codec is authoritative.
 
 ## What a useful result must explain
 
@@ -67,9 +70,35 @@ author or generate a campaign
   → compare a protocol variant
 ```
 
-The proposed Root Ratchet campaign is checked in at
-[`examples/root-ratchet.yaml`](examples/root-ratchet.yaml). It is a v1alpha1
-design fixture until the M0 schema and validator land.
+The normative Root Ratchet campaign is checked in at
+[`examples/root-ratchet.yaml`](examples/root-ratchet.yaml) and validated by the
+published Campaign v1alpha1 schema.
+
+## M0 quick start
+
+```bash
+cargo run -p fips-cli --bin fips-wind-tunnel -- \
+  validate examples/root-ratchet.yaml
+
+cargo run -p fips-cli --bin fips-wind-tunnel -- \
+  normalize examples/root-ratchet.yaml --output root-ratchet.normalized.json
+```
+
+The same input and seed produce byte-identical normalized output. Run the full
+local gate with `scripts/check.sh`; run the pinned production-codec drift gate
+with `scripts/check-fips-codecs.sh --check`.
+
+M0 contracts and evidence:
+
+- [`schemas/campaign-v1alpha1.schema.json`](schemas/campaign-v1alpha1.schema.json)
+- [`schemas/normalized-plan-v1alpha1.schema.json`](schemas/normalized-plan-v1alpha1.schema.json)
+- [`schemas/run-artifact-v1alpha1.schema.json`](schemas/run-artifact-v1alpha1.schema.json)
+- [`schemas/reproduction-bundle-v1alpha1.schema.json`](schemas/reproduction-bundle-v1alpha1.schema.json)
+- [Fidelity and provenance](docs/fidelity-and-provenance.md)
+- [Campaign semantics, units, defaults, and extensions](docs/campaign-v1alpha1.md)
+- [Artifact format](docs/artifact-format.md)
+- [Pinned FIPS seam inventory](docs/fips-seam-inventory.md)
+- [M0 acceptance and verification map](docs/m0-verification.md)
 
 ## Architecture direction
 

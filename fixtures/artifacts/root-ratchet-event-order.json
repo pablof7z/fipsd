@@ -1,0 +1,12 @@
+[
+  {
+    "event_id": "input-0001",
+    "ordinal": 0,
+    "virtual_time_ns": 0
+  },
+  {
+    "event_id": "input-0002",
+    "ordinal": 0,
+    "virtual_time_ns": 500000000
+  }
+]

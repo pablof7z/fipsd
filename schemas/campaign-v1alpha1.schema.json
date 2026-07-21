@@ -1,0 +1,439 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://fips.network/schemas/campaign-v1alpha1.schema.json",
+  "title": "FIPS Wind Tunnel Campaign v1alpha1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "apiVersion",
+    "kind",
+    "metadata",
+    "seed",
+    "engine",
+    "scale",
+    "topology",
+    "identities",
+    "transports",
+    "traffic",
+    "fidelity",
+    "instrumentation",
+    "assertions",
+    "objectives"
+  ],
+  "properties": {
+    "apiVersion": { "const": "experiments.fips.network/v1alpha1" },
+    "kind": { "const": "Campaign" },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name"],
+      "properties": {
+        "name": { "$ref": "#/$defs/dnsLabel" },
+        "description": { "type": "string", "minLength": 1 },
+        "labels": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        }
+      }
+    },
+    "seed": { "type": "integer", "minimum": 0, "maximum": 18446744073709551615 },
+    "engine": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["modes", "deterministic"],
+      "properties": {
+        "modes": { "$ref": "#/$defs/stringSelector" },
+        "deterministic": { "const": true, "default": true },
+        "variant": { "type": "string", "default": "fips-80c956a-baseline" }
+      }
+    },
+    "scale": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["nodes"],
+      "properties": {
+        "nodes": { "$ref": "#/$defs/uintSelector" },
+        "edges": { "$ref": "#/$defs/uintSelector" },
+        "cases": { "$ref": "#/$defs/uintSelector" }
+      }
+    },
+    "topology": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["generator"],
+      "properties": {
+        "generator": { "$ref": "#/$defs/stringSelector" },
+        "average_degree": { "type": "integer", "minimum": 1 },
+        "connected": { "type": "boolean", "default": true },
+        "parameters": { "$ref": "#/$defs/parameterMap" },
+        "explicit_edges": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "prefixItems": [
+              { "type": "integer", "minimum": 0 },
+              { "type": "integer", "minimum": 0 }
+            ],
+            "items": false,
+            "minItems": 2,
+            "maxItems": 2
+          }
+        }
+      }
+    },
+    "identities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["initial"],
+      "properties": {
+        "initial": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["distribution"],
+          "properties": {
+            "distribution": { "type": "string" },
+            "explicit": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "arrivals": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["count", "schedule", "address_policy", "attachment"],
+          "properties": {
+            "count": { "$ref": "#/$defs/uintSelector" },
+            "schedule": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["interval"],
+              "properties": {
+                "interval": { "$ref": "#/$defs/durationSelector" },
+                "start": { "$ref": "#/$defs/duration" }
+              }
+            },
+            "address_policy": { "type": "string" },
+            "attachment": { "$ref": "#/$defs/stringSelector" },
+            "attacker_budget": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["mode"],
+              "properties": {
+                "mode": { "$ref": "#/$defs/stringSelector" },
+                "operations": { "$ref": "#/$defs/uintSelector" },
+                "identities": { "$ref": "#/$defs/uintSelector" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "transports": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["assignment"],
+      "properties": {
+        "assignment": { "$ref": "#/$defs/stringSelector" },
+        "profiles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "type", "mtu_bytes"],
+            "properties": {
+              "name": { "$ref": "#/$defs/dnsLabel" },
+              "type": { "enum": ["udp", "tcp", "ethernet", "ble", "tor", "nym", "loopback"] },
+              "mtu_bytes": { "type": "integer", "minimum": 68, "maximum": 65535 },
+              "latency": { "$ref": "#/$defs/duration" }
+            }
+          }
+        }
+      }
+    },
+    "links": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "latency": { "$ref": "#/$defs/durationSelector" },
+        "bandwidth_bps": { "$ref": "#/$defs/uintSelector" },
+        "loss_ppm": { "$ref": "#/$defs/ppmSelector" },
+        "duplication_ppm": { "$ref": "#/$defs/ppmSelector" },
+        "ordering": { "$ref": "#/$defs/stringSelector" },
+        "mtu_bytes": { "$ref": "#/$defs/uintSelector" },
+        "queue_bytes": { "$ref": "#/$defs/uintSelector" },
+        "drop_policy": { "$ref": "#/$defs/stringSelector" }
+      }
+    },
+    "resources": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "assignment": { "$ref": "#/$defs/stringSelector" },
+        "node_profiles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name"],
+            "properties": {
+              "name": { "$ref": "#/$defs/dnsLabel" },
+              "cpu_units": { "type": "integer", "minimum": 1 },
+              "memory_bytes": { "type": "integer", "minimum": 1 },
+              "queue_bytes": { "type": "integer", "minimum": 0 },
+              "table_entries": { "type": "integer", "minimum": 0 }
+            }
+          }
+        }
+      }
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["action"],
+        "properties": {
+          "id": { "$ref": "#/$defs/dnsLabel" },
+          "at": { "$ref": "#/$defs/durationSelector" },
+          "action": { "type": "string", "minLength": 1 },
+          "target": { "$ref": "#/$defs/configValue" },
+          "parameters": { "$ref": "#/$defs/parameterMap" }
+        }
+      }
+    },
+    "traffic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["model"],
+      "properties": {
+        "model": { "$ref": "#/$defs/stringSelector" },
+        "rate_bps": { "$ref": "#/$defs/uintSelector" },
+        "payload_bytes": { "$ref": "#/$defs/uintSelector" },
+        "parameters": { "$ref": "#/$defs/parameterMap" }
+      }
+    },
+    "adversaries": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mode": { "enum": ["none", "authenticated-protocol-valid"] },
+        "actions": { "type": "array", "items": { "type": "string" } },
+        "budgets": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "operations": { "$ref": "#/$defs/uintSelector" },
+            "identities": { "$ref": "#/$defs/uintSelector" },
+            "bytes": { "$ref": "#/$defs/uintSelector" },
+            "compute_units": { "$ref": "#/$defs/uintSelector" },
+            "wall_time": { "$ref": "#/$defs/durationSelector" }
+          }
+        }
+      }
+    },
+    "protocol": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "variant": { "type": "string" },
+        "parameters": { "$ref": "#/$defs/parameterMap" }
+      }
+    },
+    "fidelity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["protocol", "serialization", "billion_node_representation"],
+      "properties": {
+        "protocol": { "enum": ["semantic-exact", "operation-counted", "statistical", "cohort"] },
+        "serialization": { "enum": ["executable-codec", "captured-wire", "modeled", "none"] },
+        "bloom": { "$ref": "#/$defs/stringSelector" },
+        "crypto": { "$ref": "#/$defs/stringSelector" },
+        "billion_node_representation": {
+          "enum": ["cohort-with-sampled-exact-regions", "not-requested"]
+        },
+        "approximations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["method", "uncertainty"],
+            "properties": {
+              "method": { "type": "string" },
+              "uncertainty": { "type": "string" },
+              "validated_range": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "accounting": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "causal_lineage": { "type": "boolean" },
+        "transport_overhead": { "type": "boolean" },
+        "network_overhead": { "enum": ["configured", "excluded"] },
+        "reconcile_serialized_frames": { "type": "boolean" }
+      }
+    },
+    "assertions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "minProperties": 1,
+        "maxProperties": 1,
+        "propertyNames": { "enum": ["always", "eventually", "reconcile", "deterministic"] },
+        "additionalProperties": { "$ref": "#/$defs/assertionBody" }
+      }
+    },
+    "objectives": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "maximize": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+        "minimize": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+        "constraints": { "type": "array", "items": { "type": "string" }, "uniqueItems": true }
+      },
+      "anyOf": [
+        { "required": ["maximize"] },
+        { "required": ["minimize"] },
+        { "required": ["constraints"] }
+      ]
+    },
+    "instrumentation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "root_agreement_by_depth": { "type": "boolean" },
+        "transition_stages": { "type": "boolean" },
+        "causal_cost_ledger": { "type": "boolean" },
+        "queue_wait": { "type": "boolean" },
+        "control_and_useful_bytes": { "type": "boolean" },
+        "state_tables": { "type": "boolean" },
+        "session_metrics": { "type": "boolean" },
+        "quiescence_markers": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        }
+      }
+    },
+    "scenarios": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "overrides"],
+        "properties": {
+          "name": { "$ref": "#/$defs/dnsLabel" },
+          "overrides": { "$ref": "#/$defs/parameterMap" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "dnsLabel": {
+      "type": "string",
+      "pattern": "^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$"
+    },
+    "duration": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)(ns|us|ms|s|m|h)$"
+    },
+    "stringSelector": {
+      "oneOf": [
+        { "type": "string", "minLength": 1 },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["values"],
+          "properties": {
+            "values": {
+              "type": "array",
+              "items": { "type": "string", "minLength": 1 },
+              "minItems": 1,
+              "uniqueItems": true
+            }
+          }
+        }
+      ]
+    },
+    "uintSelector": {
+      "oneOf": [
+        { "type": "integer", "minimum": 0 },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["values"],
+          "properties": {
+            "values": {
+              "type": "array",
+              "items": { "type": "integer", "minimum": 0 },
+              "minItems": 1,
+              "uniqueItems": true
+            }
+          }
+        }
+      ]
+    },
+    "ppmSelector": {
+      "oneOf": [
+        { "type": "integer", "minimum": 0, "maximum": 1000000 },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["values"],
+          "properties": {
+            "values": {
+              "type": "array",
+              "items": { "type": "integer", "minimum": 0, "maximum": 1000000 },
+              "minItems": 1,
+              "uniqueItems": true
+            }
+          }
+        }
+      ]
+    },
+    "durationSelector": {
+      "oneOf": [
+        { "$ref": "#/$defs/duration" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["values"],
+          "properties": {
+            "values": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/duration" },
+              "minItems": 1,
+              "uniqueItems": true
+            }
+          }
+        }
+      ]
+    },
+    "configValue": {
+      "anyOf": [
+        { "type": ["string", "integer", "boolean"] },
+        { "type": "array", "items": { "type": ["string", "integer", "boolean"] } },
+        { "$ref": "#/$defs/stringSelector" },
+        { "$ref": "#/$defs/uintSelector" },
+        { "$ref": "#/$defs/durationSelector" }
+      ]
+    },
+    "parameterMap": {
+      "type": "object",
+      "propertyNames": { "pattern": "^[a-z][a-z0-9_.-]*$" },
+      "additionalProperties": { "$ref": "#/$defs/configValue" }
+    },
+    "assertionBody": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["condition"],
+      "properties": {
+        "condition": { "type": "string", "minLength": 1 },
+        "after_input_quiescence": { "$ref": "#/$defs/duration" },
+        "within": { "$ref": "#/$defs/duration" },
+        "tolerance": { "type": "string" }
+      }
+    }
+  }
+}

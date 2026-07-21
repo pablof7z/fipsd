@@ -1,0 +1,17 @@
+.DS_Store
+.env
+.env.*
+target/
+dist/
+runs/
+sim-results/
+*.profraw
+
+# Editor and Apple developer-local state
+.idea/
+.vscode/
+*.swp
+xcuserdata/
+DerivedData/
+.swiftpm/
+.claude/worktrees/m6-topology-viz/

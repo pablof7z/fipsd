@@ -1,0 +1,18 @@
+apiVersion: experiments.fips.network/v1alpha1
+kind: Campaign
+metadata: {name: synchronized-rekey-avalanche}
+seed: 1009
+engine: {modes: compact-discrete-event, deterministic: true}
+scale: {nodes: {values: [1000, 100000]}}
+topology: {generator: random-regular, average_degree: 4}
+identities: {initial: {distribution: uniform-128}}
+transports: {assignment: random-mixed}
+resources: {assignment: uniform, node_profiles: [{name: constrained, cpu_units: 100, memory_bytes: 268435456, queue_bytes: 65536, table_entries: 10000}]}
+events: [{action: synchronized-session-rekey, at: 10s}, {action: topology-change, at: 10s}]
+traffic: {model: session-churn, rate_bps: 100000000}
+protocol: {variant: fips-80c956a-baseline, parameters: {crypto_mode: {values: [operation-count, calibrated-cost]}}}
+fidelity: {protocol: operation-counted, serialization: executable-codec, crypto: {values: [operation-count, calibrated-cost]}, billion_node_representation: not-requested}
+instrumentation: {transition_stages: true, session_metrics: true, queue_wait: true}
+assertions: [{reconcile: {condition: rekey-causal-trees-remain-distinct}}]
+objectives: {maximize: [rekey-setup-latency, session-table-pressure]}
+

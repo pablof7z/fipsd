@@ -1,0 +1,164 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://fips.network/schemas/run-artifact-v1alpha1.schema.json",
+  "title": "FIPS Wind Tunnel run artifact v1alpha1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["manifest", "normalized_plan", "event_trace", "metric_series", "causal_ledger", "assertion_results", "samples", "logs", "external_blobs"],
+  "properties": {
+    "manifest": { "$ref": "#/$defs/manifest" },
+    "normalized_plan": { "type": "object" },
+    "event_trace": { "type": "array", "items": { "$ref": "#/$defs/event" } },
+    "metric_series": { "type": "array", "items": { "$ref": "#/$defs/metricSeries" } },
+    "causal_ledger": { "type": "array", "items": { "$ref": "#/$defs/ledger" } },
+    "assertion_results": { "type": "array", "items": { "$ref": "#/$defs/assertion" } },
+    "samples": { "type": "array" },
+    "logs": { "type": "array" },
+    "external_blobs": { "type": "array", "items": { "$ref": "#/$defs/blob" } }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "revision": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "fidelity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["wire", "protocol", "compute", "scale", "bloom", "represented_nodes", "approximations", "sampled_regions"],
+      "properties": {
+        "wire": { "enum": ["executable-codec", "captured-wire", "modeled", "none"] },
+        "protocol": { "enum": ["semantic-exact", "operation-counted", "statistical", "cohort"] },
+        "compute": { "enum": ["executed", "operation-counted", "calibrated", "none"] },
+        "scale": { "enum": ["individual", "cohort", "hybrid"] },
+        "bloom": { "enum": ["exact-bits", "sparse-bits", "occupancy", "cohort-fpr", "sampled-exact"] },
+        "represented_nodes": { "type": "integer", "minimum": 1 },
+        "approximations": { "type": "array", "items": { "$ref": "#/$defs/approximation" } },
+        "sampled_regions": { "type": "array", "items": { "$ref": "#/$defs/sampledRegion" } }
+      }
+    },
+    "approximation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "parameters", "validated_range", "uncertainty"],
+      "properties": {
+        "method": { "type": "string", "minLength": 1 },
+        "parameters": { "type": "object", "additionalProperties": { "type": "string" } },
+        "validated_range": { "type": "string", "minLength": 1 },
+        "uncertainty": { "type": "string", "minLength": 1 }
+      }
+    },
+    "sampledRegion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "selection", "node_count"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "selection": { "type": "string", "minLength": 1 },
+        "node_count": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "hardwareProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "calibration_version"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "calibration_version": { "type": "string", "minLength": 1 }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["engine_name", "engine_version", "engine_source_revision", "schema_versions", "seed", "normalized_plan_sha256", "fips_commit", "image_digest", "hardware_profile"],
+      "properties": {
+        "engine_name": { "type": "string", "minLength": 1 },
+        "engine_version": { "type": "string", "minLength": 1 },
+        "engine_source_revision": { "$ref": "#/$defs/revision" },
+        "schema_versions": { "type": "object", "minProperties": 1, "additionalProperties": { "type": "string", "minLength": 1 } },
+        "seed": { "type": "integer", "minimum": 0 },
+        "normalized_plan_sha256": { "$ref": "#/$defs/sha256" },
+        "fips_commit": { "oneOf": [{ "$ref": "#/$defs/revision" }, { "type": "null" }] },
+        "image_digest": { "type": ["string", "null"] },
+        "hardware_profile": { "oneOf": [{ "$ref": "#/$defs/hardwareProfile" }, { "type": "null" }] }
+      }
+    },
+    "manifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["api_version", "artifact_id", "run_id", "fidelity", "provenance"],
+      "properties": {
+        "api_version": { "const": "experiments.fips.network/run-artifact/v1alpha1" },
+        "artifact_id": { "type": "string", "minLength": 1 },
+        "run_id": { "type": "string", "minLength": 1 },
+        "fidelity": { "$ref": "#/$defs/fidelity" },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      }
+    },
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["event_id", "virtual_time_ns", "ordinal", "kind", "causal_parent", "data"],
+      "properties": {
+        "event_id": { "type": "string", "minLength": 1 },
+        "virtual_time_ns": { "type": "integer", "minimum": 0 },
+        "ordinal": { "type": "integer", "minimum": 0 },
+        "kind": { "type": "string", "minLength": 1 },
+        "causal_parent": { "type": ["string", "null"] },
+        "data": {}
+      }
+    },
+    "metricSeries": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "unit", "points"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "unit": { "type": "string", "minLength": 1 },
+        "points": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["virtual_time_ns", "value"],
+            "properties": {
+              "virtual_time_ns": { "type": "integer", "minimum": 0 },
+              "value": { "type": "string", "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$" }
+            }
+          }
+        }
+      }
+    },
+    "ledger": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["causal_id", "stage", "count", "evidence"],
+      "properties": {
+        "causal_id": { "type": "string", "minLength": 1 },
+        "stage": { "enum": ["requested", "performed", "constructed", "superseded", "coalesced", "signed", "serialized", "queued", "transmitted", "delivered"] },
+        "count": { "type": "integer", "minimum": 0 },
+        "evidence": { "type": "array", "items": { "type": "string" }, "uniqueItems": true }
+      }
+    },
+    "assertion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "outcome", "message"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "outcome": { "enum": ["pass", "fail", "unknown"] },
+        "message": { "type": "string" }
+      }
+    },
+    "blob": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "path", "sha256", "size_bytes", "encoding"],
+      "properties": {
+        "role": { "type": "string", "minLength": 1 },
+        "path": { "type": "string", "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "size_bytes": { "type": "integer", "minimum": 0 },
+        "encoding": { "enum": ["identity", "gzip", "zstd"] }
+      }
+    }
+  }
+}
+

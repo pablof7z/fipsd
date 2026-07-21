@@ -1,0 +1,59 @@
+{
+  "aead_tag_bytes": 16,
+  "encoded_sizes": {
+    "filter_announce_fmp_frame": 1071,
+    "filter_announce_message": 1035,
+    "fmp_established_zero_message_bytes": 36,
+    "fsp_session_ack_depth_0_msg2_57": 100,
+    "fsp_session_setup_depth_0_msg1_33": 76,
+    "lookup_request_depth_0": 62,
+    "lookup_response_depth_0": 109,
+    "routing_coords_required": 38,
+    "routing_mtu_exceeded": 40
+  },
+  "fips_commit": "80c956a6fdb85dde1450969a21891c1158e43267",
+  "fmp_established_header_bytes": 16,
+  "fmp_timestamp_bytes": 4,
+  "maximum_safe_tree_depth": 2043,
+  "source_sha256": {
+    "src/noise/mod.rs": "948ec943d8ae8e6f0451398eb414862eea788a13d0ad356aa6eb9cd7dc3e07b1",
+    "src/proto/bloom/wire.rs": "218aca3d2d145de686ff02170f77ac9b07c775e793fd8df6a615745c18f34ad9",
+    "src/proto/fmp/wire.rs": "ca4404d5406ad861aa9f858cbf06d746457ef782e250c387e2c56c9e7b31814c",
+    "src/proto/fsp/wire.rs": "d6ef5df2f5f808b5068d7ac992634d68cce0ade7e06adf5b3e451a8295b66f09",
+    "src/proto/lookup/wire.rs": "c5a27d97784a4eeacbf6856a9351b2cbd260f398646633136b95b811fcd77693",
+    "src/proto/routing/wire.rs": "83c83bf5f20b2dbd3bd01bc12302913da9e17d9ce60756d2a8935952f1df43dc",
+    "src/proto/stp/wire.rs": "6aae58be0297e63a9ce1d3f62a75aed90a60ee35280455123158057175b04ccc"
+  },
+  "tree_announce": [
+    {
+      "depth": 0,
+      "framed_bytes": 168,
+      "message_bytes": 132
+    },
+    {
+      "depth": 35,
+      "framed_bytes": 1288,
+      "message_bytes": 1252
+    },
+    {
+      "depth": 64,
+      "framed_bytes": 2216,
+      "message_bytes": 2180
+    },
+    {
+      "depth": 65,
+      "framed_bytes": 2248,
+      "message_bytes": 2212
+    },
+    {
+      "depth": 2000,
+      "framed_bytes": 64168,
+      "message_bytes": 64132
+    },
+    {
+      "depth": 2043,
+      "framed_bytes": 65544,
+      "message_bytes": 65508
+    }
+  ]
+}

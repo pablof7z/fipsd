@@ -1,0 +1,30 @@
+{
+  "api_version": "experiments.fips.network/run-artifact/v1alpha1",
+  "artifact_id": "root-ratchet-m0-fixture",
+  "run_id": "root-ratchet-seed-424242",
+  "fidelity": {
+    "wire": "executable-codec",
+    "protocol": "semantic-exact",
+    "compute": "operation-counted",
+    "scale": "individual",
+    "bloom": "exact-bits",
+    "represented_nodes": 10,
+    "approximations": [],
+    "sampled_regions": []
+  },
+  "provenance": {
+    "engine_name": "m0-fixture",
+    "engine_version": "0.1.0",
+    "engine_source_revision": "1111111111111111111111111111111111111111",
+    "schema_versions": {
+      "campaign": "experiments.fips.network/v1alpha1",
+      "normalized-plan": "experiments.fips.network/normalized-plan/v1alpha1",
+      "run-artifact": "experiments.fips.network/run-artifact/v1alpha1"
+    },
+    "seed": 424242,
+    "normalized_plan_sha256": "1e62d51d5ca2cb3e43b765aaacad96271d489960cdbc7f070ceaabcef1a6b39c",
+    "fips_commit": "80c956a6fdb85dde1450969a21891c1158e43267",
+    "image_digest": null,
+    "hardware_profile": null
+  }
+}
