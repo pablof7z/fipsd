@@ -118,6 +118,8 @@ button.ghost:hover { color: var(--ink); border-color: var(--accent); background:
   padding: 6px 11px; border-radius: 8px; backdrop-filter: blur(14px);
 }
 
+.minimap { right: 16px; bottom: 16px; width: 200px; height: 130px; cursor: pointer; }
+
 .inspector { right: 16px; top: 16px; padding: 14px 16px; min-width: 210px; }
 .insp-kind { margin-bottom: 10px; }
 .pill.exact { background: rgba(56,189,248,0.18); color: var(--accent); }

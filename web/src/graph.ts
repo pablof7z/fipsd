@@ -35,10 +35,23 @@ interface VNode extends SimulationNodeDatum {
   kind: "exact" | "cohort";
   degree: number;
   population: number;
+  /** Level-independent key for layout continuity across LOD switches. */
+  posKey: string;
+  /** Frame this node first appeared (for fade-in); -Infinity if carried over. */
+  appearFrame: number;
   // exact:
   adopts?: { t: number; root: string }[];
   // cohort:
   series?: { t: number; dominantRoot: string | null; adoptedFraction: number }[];
+}
+
+/** A fading remnant of a node that vanished on the last LOD change. */
+interface Ghost {
+  x: number;
+  y: number;
+  r: number;
+  color: string;
+  bornFrame: number;
 }
 
 interface VLink {
@@ -70,6 +83,9 @@ export class TopologyView {
   private posMemo = new Map<string, { x: number; y: number }>();
   private sim: Simulation<VNode, undefined>;
   private regime: "exact" | "aggregate" = "exact";
+  private frameNo = 0;
+  private ghosts: Ghost[] = [];
+  private static readonly FADE = 26; // frames for LOD fade in/out
 
   private t = 0;
   private playing = false;
@@ -106,14 +122,40 @@ export class TopologyView {
     for (const r of roots) this.palette.hueFor(r);
   }
 
-  /** Load a new resolution projection. Preserves positions by id. */
+  /** Level-independent layout key: strips the level from cohort ids
+   * (`c<level>:<raw>` → `c:<raw>`) so a subtree region keeps its position as the
+   * resolution changes; exact ids are already stable. */
+  private static posKeyOf(id: string): string {
+    return id.startsWith("c") && id.includes(":") ? "c:" + id.slice(id.indexOf(":") + 1) : id;
+  }
+
+  /** Load a new resolution projection, animating the transition:
+   * carried-over regions keep their position, vanished ones fade out as ghosts,
+   * and newly-split ones fade in seeded from their neighbours. */
   setData(result: TopologyResult) {
-    this.regime = result.regime;
-    // Snapshot current positions for continuity across level switches.
-    for (const n of this.nodes) if (n.x != null && n.y != null) this.posMemo.set(n.id, { x: n.x, y: n.y });
+    const prevByPosKey = new Map<string, VNode>();
+    for (const n of this.nodes) {
+      if (n.x != null && n.y != null) this.posMemo.set(n.posKey, { x: n.x, y: n.y });
+      prevByPosKey.set(n.posKey, n);
+    }
 
     this.nodes = result.nodes.map((r) => this.toVNode(r));
     this.byId = new Map(this.nodes.map((n) => [n.id, n]));
+    const newKeys = new Set(this.nodes.map((n) => n.posKey));
+
+    // Ghost the nodes that disappeared this switch (fade-out).
+    for (const [key, prev] of prevByPosKey) {
+      if (!newKeys.has(key) && prev.x != null && prev.y != null) {
+        const st = this.stateOf(prev);
+        this.ghosts.push({
+          x: prev.x,
+          y: prev.y,
+          r: this.radius(prev),
+          color: rgbStr(st.root ? this.palette.rootColor(st.root) : { r: 90, g: 100, b: 116 }),
+          bornFrame: this.frameNo,
+        });
+      }
+    }
 
     this.links = [];
     for (const e of result.edges) {
@@ -122,6 +164,30 @@ export class TopologyView {
       if (s && t) this.links.push({ source: s, target: t, kind: e.kind, weight: e.weight ?? 1 });
     }
 
+    // Seed genuinely-new nodes from the centroid of their memo'd neighbours so
+    // they emerge from where their region already is, not from random space.
+    const neighborSum = new Map<string, { x: number; y: number; n: number }>();
+    for (const l of this.links) {
+      for (const [a, b] of [[l.source, l.target], [l.target, l.source]] as const) {
+        if (this.posMemo.has(a.posKey) && !this.posMemo.has(b.posKey)) {
+          const acc = neighborSum.get(b.id) ?? { x: 0, y: 0, n: 0 };
+          acc.x += a.x!;
+          acc.y += a.y!;
+          acc.n++;
+          neighborSum.set(b.id, acc);
+        }
+      }
+    }
+    for (const n of this.nodes) {
+      if (this.posMemo.has(n.posKey)) continue;
+      const acc = neighborSum.get(n.id);
+      if (acc && acc.n > 0) {
+        n.x = acc.x / acc.n + (Math.random() - 0.5) * 12;
+        n.y = acc.y / acc.n + (Math.random() - 0.5) * 12;
+      }
+    }
+
+    this.regime = result.regime;
     const linkForce = forceLink<VNode, VLink>(this.links.filter((l) => l.kind !== "link" || this.showLinks))
       .id((d) => d.id)
       .distance((l) => (l.kind === "flow" ? 40 : 18))
@@ -133,7 +199,6 @@ export class TopologyView {
     this.sim.alpha(0.9).restart();
     if (!this.playing) this.sim.alphaTarget(0);
 
-    // clear selection if the node vanished
     if (this.selected && !this.byId.has(this.selected.id)) {
       this.selected = null;
       this.onSelect?.(null);
@@ -141,10 +206,13 @@ export class TopologyView {
   }
 
   private toVNode(r: TopoNode): VNode {
-    const memo = this.posMemo.get(r.id);
+    const posKey = TopologyView.posKeyOf(r.id);
+    const memo = this.posMemo.get(posKey);
     const base: VNode = {
       id: r.id,
       kind: r.kind,
+      posKey,
+      appearFrame: memo ? -Infinity : this.frameNo,
       degree: r.kind === "exact" ? r.degree : 0,
       population: r.kind === "cohort" ? r.population : 1,
       x: memo?.x ?? (Math.random() - 0.5) * 200,
@@ -212,8 +280,73 @@ export class TopologyView {
   }
 
   frame() {
+    this.frameNo++;
     if (this.playing || this.sim.alpha() > this.sim.alphaMin()) this.sim.tick();
     this.render();
+    if (this.minCtx) this.renderMinimap();
+  }
+
+  // --- Minimap ----------------------------------------------------------------
+
+  private minCtx: CanvasRenderingContext2D | null = null;
+  private minW = 0;
+  private minH = 0;
+  /** Cached world→minimap mapping from the last minimap render, for hit-testing. */
+  private minMap: { s: number; ox: number; oy: number } | null = null;
+
+  attachMinimap(canvas: HTMLCanvasElement) {
+    this.minCtx = canvas.getContext("2d")!;
+    const rect = canvas.getBoundingClientRect();
+    this.minW = rect.width;
+    this.minH = rect.height;
+    canvas.width = Math.floor(rect.width * this.dpr);
+    canvas.height = Math.floor(rect.height * this.dpr);
+
+    const recenter = (e: MouseEvent) => {
+      if (!this.minMap) return;
+      const r = canvas.getBoundingClientRect();
+      const wx = (e.clientX - r.left - this.minMap.ox) / this.minMap.s;
+      const wy = (e.clientY - r.top - this.minMap.oy) / this.minMap.s;
+      this.transform.x = this.width / 2 - wx * this.transform.k;
+      this.transform.y = this.height / 2 - wy * this.transform.k;
+    };
+    let down = false;
+    canvas.addEventListener("mousedown", (e) => { down = true; recenter(e); });
+    canvas.addEventListener("mousemove", (e) => { if (down) recenter(e); });
+    window.addEventListener("mouseup", () => { down = false; });
+  }
+
+  private renderMinimap() {
+    const ctx = this.minCtx!;
+    ctx.save();
+    ctx.scale(this.dpr, this.dpr);
+    ctx.clearRect(0, 0, this.minW, this.minH);
+    if (this.nodes.length) {
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+      for (const n of this.nodes) {
+        minX = Math.min(minX, n.x!); minY = Math.min(minY, n.y!);
+        maxX = Math.max(maxX, n.x!); maxY = Math.max(maxY, n.y!);
+      }
+      const pad = 8;
+      const s = Math.min((this.minW - pad * 2) / (maxX - minX || 1), (this.minH - pad * 2) / (maxY - minY || 1));
+      const ox = pad - minX * s + (this.minW - pad * 2 - (maxX - minX) * s) / 2;
+      const oy = pad - minY * s + (this.minH - pad * 2 - (maxY - minY) * s) / 2;
+      this.minMap = { s, ox, oy };
+
+      for (const n of this.nodes) {
+        const st = this.stateOf(n);
+        ctx.fillStyle = rgbStr(st.root ? this.palette.rootColor(st.root) : { r: 90, g: 100, b: 116 }, 0.8);
+        ctx.fillRect(n.x! * s + ox - 0.7, n.y! * s + oy - 0.7, 1.4, 1.4);
+      }
+
+      // Current viewport rectangle.
+      const [wx0, wy0] = this.toWorld(0, 0);
+      const [wx1, wy1] = this.toWorld(this.width, this.height);
+      ctx.strokeStyle = "rgba(255,255,255,0.65)";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(wx0 * s + ox, wy0 * s + oy, (wx1 - wx0) * s, (wy1 - wy0) * s);
+    }
+    ctx.restore();
   }
 
   // --- State resolution -------------------------------------------------------
@@ -301,10 +434,21 @@ export class TopologyView {
       ctx.stroke();
     }
 
+    // Fading ghosts of nodes that vanished on the last LOD change.
+    this.ghosts = this.ghosts.filter((g) => this.frameNo - g.bornFrame < TopologyView.FADE);
+    for (const g of this.ghosts) {
+      const a = 1 - (this.frameNo - g.bornFrame) / TopologyView.FADE;
+      ctx.beginPath();
+      ctx.arc(g.x, g.y, g.r * (0.6 + 0.4 * a), 0, Math.PI * 2);
+      ctx.fillStyle = g.color.replace("rgb(", "rgba(").replace(")", `,${(a * 0.5).toFixed(3)})`);
+      ctx.fill();
+    }
+
     for (const n of this.nodes) {
       const st = this.stateOf(n);
       const r = this.radius(n);
-      const dim = this.focusRoot && st.root !== this.focusRoot ? 0.1 : 1;
+      const appear = Math.min(1, (this.frameNo - n.appearFrame) / TopologyView.FADE);
+      const dim = (this.focusRoot && st.root !== this.focusRoot ? 0.1 : 1) * appear;
 
       // Wavefront pulse on fresh adopt / dominant flip.
       if (st.root && st.settle < 1) {

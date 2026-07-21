@@ -16,6 +16,7 @@ const manifest = provider.manifest();
 const canvas = document.getElementById("graph") as HTMLCanvasElement;
 const view = new TopologyView(canvas);
 view.registerRoots(provider.roots());
+view.attachMinimap(document.getElementById("minimap") as HTMLCanvasElement);
 
 // --- Run meta strip -----------------------------------------------------------
 const meta = document.getElementById("run-meta")!;
