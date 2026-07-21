@@ -1,0 +1,57 @@
+name: Campaign proposal
+description: Propose a reproducible protocol campaign or boundary search.
+title: "Campaign: "
+labels:
+  - area:campaigns
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Describe the protocol question and the evidence the campaign should produce. Avoid starting from a UI or Docker mechanism.
+  - type: textarea
+    id: question
+    attributes:
+      label: Protocol question
+      description: What decision or failure boundary should this campaign answer?
+    validations:
+      required: true
+  - type: textarea
+    id: initiating_event
+    attributes:
+      label: Initiating event and causal hypothesis
+      description: Name the input event and the expected causal path or amplification mechanism.
+    validations:
+      required: true
+  - type: textarea
+    id: dimensions
+    attributes:
+      label: Dimensions and boundaries
+      description: List topology, identity, timing, traffic, transport, resource, protocol, adversary, and scale values that matter.
+    validations:
+      required: true
+  - type: textarea
+    id: fidelity
+    attributes:
+      label: Required fidelity
+      description: What must be wire-exact, semantically exact, operation-counted, calibrated, statistical, cohort-level, or sampled-exact?
+    validations:
+      required: true
+  - type: textarea
+    id: assertions
+    attributes:
+      label: Invariants and measurements
+      description: State pass/fail properties and the causal metrics needed to explain the result.
+    validations:
+      required: true
+  - type: textarea
+    id: oracle
+    attributes:
+      label: Real-daemon path
+      description: What minimized subset should be representable in the FIPS chaos harness, if any?
+  - type: textarea
+    id: shrink
+    attributes:
+      label: Shrink target
+      description: What should be removed first, and what failure predicate must remain?
+    validations:
+      required: true

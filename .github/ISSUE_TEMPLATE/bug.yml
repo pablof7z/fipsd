@@ -1,0 +1,40 @@
+name: Bug report
+description: Report an engine, schema, accounting, artifact, oracle, or UI defect.
+title: "Bug: "
+labels:
+  - bug
+body:
+  - type: textarea
+    id: observed
+    attributes:
+      label: Observed behavior
+      description: Include the exact error, failed invariant, or misleading result.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Minimal reproduction
+      description: Provide campaign/reproduction bundle, command, seed, engine, fidelity, and protocol variant.
+    validations:
+      required: true
+  - type: textarea
+    id: provenance
+    attributes:
+      label: Provenance
+      description: Include wind-tunnel revision, schema/artifact version, FIPS commit/image digest when relevant, and host profile for calibrated results.
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Public-report safety
+      options:
+        - label: This report contains no private keys, credentials, private topology data, or unredacted sensitive host paths.
+          required: true

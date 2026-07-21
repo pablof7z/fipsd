@@ -1,0 +1,119 @@
+# Campaign v1alpha1 design fixture.
+#
+# This file states the target product contract. It is not executable until the
+# M0 schema/validator and M1 engine land.
+apiVersion: experiments.fips.network/v1alpha1
+kind: Campaign
+
+metadata:
+  name: root-ratchet
+  description: Descending-Minimum Root Cascade across topology and debounce boundaries
+
+engine:
+  modes:
+    values:
+      - compact-discrete-event
+      - cohort-hybrid
+  deterministic: true
+
+scale:
+  nodes:
+    values: [10, 1_000, 100_000, 1_000_000, 1_000_000_000]
+
+topology:
+  generator:
+    values:
+      - chain
+      - balanced-tree
+      - random-regular
+      - scale-free
+      - clustered
+  average_degree: 4
+
+identities:
+  initial:
+    distribution: uniform-128
+  arrivals:
+    count:
+      values: [1, 10, 100, 1_000]
+    schedule:
+      interval:
+        values: [10s, 1s, 501ms, 500ms, 499ms, 100ms, 10ms, 1ms, 0ms]
+    address_policy: strictly-lower-than-current-root
+    attachment:
+      values:
+        - current-root
+        - random-leaf
+        - highest-degree
+        - articulation-point
+    attacker_budget:
+      mode:
+        values: [free-input, operation-count, calibrated-cost, bounded]
+
+transports:
+  assignment:
+    values:
+      - all-udp
+      - random-mixed
+      - depth-correlated
+      - high-latency-root-spine
+      - descending-mtu-root-spine
+
+traffic:
+  model:
+    values:
+      - idle
+      - uniform-random
+      - zipf
+      - cross-min-cut
+      - session-churn
+
+fidelity:
+  protocol: semantically-exact
+  serialization: executable-codec
+  bloom:
+    values: [exact-bits, occupancy, cohort-fpr, sampled-exact]
+  crypto:
+    values: [operation-count, calibrated-cost, adversarial-budget]
+  billion_node_representation: cohort-with-sampled-exact-regions
+
+accounting:
+  causal_lineage: true
+  transport_overhead: true
+  network_overhead: configured
+  reconcile_serialized_frames: true
+
+assertions:
+  - eventually:
+      condition: all_connected_nodes_agree_on_minimum_root
+      after_input_quiescence: 30s
+  - always:
+      condition: no_forwarding_loops
+  - always:
+      condition: accepted_ancestry_is_valid
+  - always:
+      condition: per_peer_announcements_obey_debounce
+  - eventually:
+      condition: control_queues_return_to_baseline
+  - eventually:
+      condition: data_plane_makes_progress
+  - reconcile:
+      condition: measured_bytes_equal_serialized_frames
+  - deterministic:
+      condition: same_seed_same_event_order_and_result
+
+objectives:
+  maximize:
+    - control_bytes_per_root_arrival
+    - convergence_time
+    - data_plane_stall_duration
+    - peak_queue_bytes
+    - coordinate_cache_invalidations
+
+instrumentation:
+  root_agreement_by_depth: true
+  transition_stages: true
+  causal_cost_ledger: true
+  queue_wait: true
+  control_and_useful_bytes: true
+  quiescence_markers: [root, tree, bloom, lookup, data-plane]
