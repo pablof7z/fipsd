@@ -1,0 +1,34 @@
+{
+  "corpus_version": "1",
+  "semantic_version_range": ">=0.1.0,<0.2.0",
+  "first_seen": "M3 root-ratchet campaign search",
+  "minimized_from": "bundle-31c4515d471b029e80c6c1c0d06d0f44",
+  "daemon_confirmation": "model-only",
+  "expected_assertions": [
+    "root-agreement",
+    "loop-freedom",
+    "no-obsolete-root-retention",
+    "per-peer-debounce",
+    "coordinate-consistency",
+    "control-queues-return-to-baseline",
+    "tree-lifecycle-reconciliation",
+    "byte-reconciliation",
+    "deterministic-total-order",
+    "bloom-replacement-reconciliation",
+    "causal-ledger-frame-reconciliation",
+    "cache-invalidation-scope",
+    "continuous-control-eventual-data-progress",
+    "modeled-work-has-resource-receipts"
+  ],
+  "fidelity": {
+    "wire": "executable-codec",
+    "protocol": "semantic-exact",
+    "compute": "operation-counted",
+    "scale": "individual",
+    "bloom": "exact-bits",
+    "represented_nodes": 6,
+    "approximations": [],
+    "sampled_regions": []
+  },
+  "retirement": null
+}

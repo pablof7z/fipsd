@@ -9,9 +9,10 @@ handful of real daemons to billion-node analytical cohorts.
 
 > [!IMPORTANT]
 > M0 ships the scientific contracts, Campaign validator/normalizer, artifact
-> schemas, and pinned codec-conformance proof. M1 adds the headless deterministic
-> individual-node engine and replayable CLI. The browser application remains a
-> later, separately gated milestone.
+> schemas, and pinned codec-conformance proof. M1-M3 add the headless
+> deterministic engine, coupled recovery accounting, replayable campaign
+> search, and shrinking. The browser application remains a later, separately
+> gated milestone.
 
 The flagship campaign is **Root Ratchet**, formally a Descending-Minimum Root
 Cascade: authenticated identities with successively lower addresses arrive
@@ -58,8 +59,8 @@ No view may present an approximate result as an exact replay.
 
 ## Target experiment loop
 
-M1 ships the run, inspect, and replay part of this loop; later milestones add
-search, shrinking, daemon comparison, and variant/cohort execution:
+M3 ships the loop through deterministic search, shrinking, and model-regression
+replay; later milestones add daemon comparison and variant/cohort execution:
 
 ```text
 author or generate a campaign
@@ -113,6 +114,12 @@ M2's coupled protocol/data-plane slice is documented in
 active-traffic campaign and byte-stable evidence live under `examples/m2/` and
 `fixtures/m2/`; the [M2 verification map](docs/m2-verification.md) ties every
 child issue to executable evidence.
+
+M3's bounded experiment loop is documented in
+[M3 deterministic campaign search and shrinking](docs/m3-campaign-search.md).
+Its pairwise plan, full search evidence, minimized replay, symbolic million-node
+input, and corpus result live under `fixtures/m3/`; the
+[M3 verification map](docs/m3-verification.md) maps every child issue to tests.
 
 ## Architecture direction
 

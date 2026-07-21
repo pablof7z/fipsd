@@ -14,7 +14,8 @@ first="$(mktemp)"
 second="$(mktemp)"
 m1_run="$(mktemp -d)"
 m2_run="$(mktemp -d)"
-trap 'rm -f "$first" "$second"; rm -rf "$m1_run" "$m2_run"' EXIT
+m3_run="$(mktemp -d)"
+trap 'rm -f "$first" "$second"; rm -rf "$m1_run" "$m2_run" "$m3_run"' EXIT
 cargo run --quiet -p fips-cli --bin fips-wind-tunnel -- normalize examples/root-ratchet.yaml --output "$first"
 cargo run --quiet -p fips-cli --bin fips-wind-tunnel -- normalize examples/root-ratchet.yaml --output "$second"
 cmp "$first" "$second"
@@ -40,3 +41,20 @@ cargo run --quiet -p fips-cli --bin fips-wind-tunnel -- \
 cargo run --quiet -p fips-cli --bin fips-wind-tunnel -- \
   replay "$m2_run/reproduction.json" --output "$m2_run/replay.json"
 cmp "$m2_run/artifact.json" "$m2_run/replay.json"
+
+cargo run --quiet -p fips-cli --bin fips-wind-tunnel -- campaign plan \
+  examples/m3/root-ratchet-search.yaml --mode covering --strength 2 \
+  --output "$m3_run/plan.json"
+cmp "$m3_run/plan.json" fixtures/m3/covering-plan.json
+cargo run --quiet -p fips-cli --bin fips-wind-tunnel -- campaign search \
+  "$m3_run/plan.json" --maximum-evaluations 6 --output "$m3_run/search.json"
+cmp "$m3_run/search.json" fixtures/m3/search-result.json
+cargo run --quiet -p fips-cli --bin fips-wind-tunnel -- campaign execute \
+  "$m3_run/plan.json" --workers 2 --maximum-cases 3 \
+  --checkpoint "$m3_run/checkpoint.json" --output "$m3_run/partial.json"
+cargo run --quiet -p fips-cli --bin fips-wind-tunnel -- campaign execute \
+  "$m3_run/plan.json" --workers 3 --maximum-cases 6 \
+  --checkpoint "$m3_run/checkpoint.json" --output "$m3_run/resumed.json"
+cargo run --quiet -p fips-cli --bin fips-wind-tunnel -- campaign replay-corpus \
+  fixtures/corpus --output "$m3_run/corpus-report.json"
+cmp "$m3_run/corpus-report.json" fixtures/m3/corpus-report.json

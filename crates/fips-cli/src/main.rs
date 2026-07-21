@@ -7,6 +7,9 @@ use std::collections::BTreeSet;
 use std::fs;
 use std::path::{Path, PathBuf};
 
+mod campaign_commands;
+use campaign_commands::CampaignCommand;
+
 #[derive(Debug, Parser)]
 #[command(name = "fips-wind-tunnel")]
 #[command(about = "Deterministic FIPS protocol experimentation")]
@@ -61,6 +64,11 @@ enum Command {
         /// Output path for the validated unchanged M1 bundle.
         #[arg(short, long)]
         output: PathBuf,
+    },
+    /// M3 campaign algebra, generation, search, shrinking, and corpus workflows.
+    Campaign {
+        #[command(subcommand)]
+        command: CampaignCommand,
     },
 }
 
@@ -200,6 +208,7 @@ fn main() -> Result<()> {
                 reproduction.bundle_id
             );
         }
+        Command::Campaign { command } => campaign_commands::execute(command)?,
     }
     Ok(())
 }

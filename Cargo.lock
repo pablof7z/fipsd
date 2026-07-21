@@ -297,12 +297,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "fips-campaign"
+version = "0.1.0"
+dependencies = [
+ "fips-artifact",
+ "fips-engine",
+ "fips-model",
+ "hex",
+ "serde",
+ "serde_json",
+ "serde_yaml_ng",
+ "sha2",
+ "tempfile",
+ "thiserror",
+]
+
+[[package]]
 name = "fips-cli"
 version = "0.1.0"
 dependencies = [
  "anyhow",
  "clap",
  "fips-artifact",
+ "fips-campaign",
  "fips-engine",
  "fips-model",
  "serde",

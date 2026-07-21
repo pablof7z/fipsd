@@ -1,0 +1,108 @@
+apiVersion: experiments.fips.network/v1alpha1
+kind: Campaign
+metadata:
+  name: root-ratchet-search
+  description: M3 authenticated Root Ratchet search and shrink matrix
+seed: 7331
+engine:
+  modes: compact-discrete-event
+  deterministic: true
+scale:
+  nodes:
+    values: [8, 12]
+topology:
+  generator:
+    values: [chain, balanced-tree]
+  average_degree: 2
+identities:
+  initial:
+    distribution: uniform-128
+  arrivals:
+    count: 4
+    schedule:
+      start: 2s
+      interval:
+        values: [499ms, 501ms]
+    address_policy: strictly-lower-than-current-root
+    attachment:
+      values: [current-root, hub]
+    attacker_budget:
+      mode: bounded
+      operations: 4
+      identities: 4
+transports:
+  assignment: all-udp
+links:
+  latency: 1ms
+  bandwidth_bps: 10000000
+  loss_ppm: 0
+  duplication_ppm: 0
+  ordering: stream
+  mtu_bytes: 1500
+  queue_bytes: 1048576
+  drop_policy: tail-drop
+resources:
+  assignment: heterogeneous
+  node_profiles:
+    - name: baseline
+      cpu_units: 1000
+      memory_bytes: 1073741824
+      queue_bytes: 1048576
+      table_entries: 1000
+events:
+  - id: descending-root-arrivals
+    action: introduce-lower-root-identities
+adversaries:
+  mode: authenticated-protocol-valid
+  actions: [bounded-root-grinding, strategic-attachment]
+  budgets:
+    operations: 4
+    identities: 4
+protocol:
+  variant: fips-80c956a-baseline
+  parameters:
+    tree_announce_debounce: 500ms
+    bloom_update_debounce: 500ms
+    bloom_max_fpr_ppm: 200000
+    coord_cache_entries: 8
+    coord_cache_ttl: 5s
+    lookup_ttl: 64
+    lookup_attempts: 3
+traffic:
+  model:
+    values: [uniform-random, session-churn]
+  rate_bps: 40960
+  payload_bytes: 512
+  parameters:
+    flow_count: 24
+fidelity:
+  protocol: semantic-exact
+  serialization: executable-codec
+  bloom: exact-bits
+  crypto: operation-count
+  billion_node_representation: not-requested
+accounting:
+  causal_lineage: true
+  transport_overhead: true
+  network_overhead: configured
+  reconcile_serialized_frames: true
+instrumentation:
+  root_agreement_by_depth: true
+  transition_stages: true
+  causal_cost_ledger: true
+  queue_wait: true
+  control_and_useful_bytes: true
+  quiescence_markers: [root, tree, bloom, lookup, data-plane]
+assertions:
+  - always:
+      condition: no_forwarding_loops
+  - eventually:
+      condition: data_plane_makes_progress
+  - reconcile:
+      condition: measured_bytes_equal_serialized_frames
+objectives:
+  maximize:
+    - control_bytes_per_root_arrival
+    - data_plane_stall_duration
+  constraints:
+    - /scale/nodes <= 12

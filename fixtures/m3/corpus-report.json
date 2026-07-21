@@ -1,0 +1,14 @@
+{
+  "kind": "regression-corpus-report/v1alpha1",
+  "outcomes": [
+    {
+      "id": "m3-root-ratchet",
+      "outcome": "pass",
+      "daemon_confirmation": "model-only",
+      "first_seen": "M3 root-ratchet campaign search",
+      "minimized_from": "bundle-31c4515d471b029e80c6c1c0d06d0f44"
+    }
+  ],
+  "passed": 1,
+  "failed": 0
+}
