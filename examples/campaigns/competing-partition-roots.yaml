@@ -15,4 +15,3 @@ fidelity: {protocol: semantic-exact, serialization: executable-codec, billion_no
 instrumentation: {transition_stages: true, root_agreement_by_depth: true}
 assertions: [{eventually: {condition: one-minimum-root-after-merge, within: 30s}}]
 objectives: {maximize: [conflicting-root-duration, control-bytes]}
-

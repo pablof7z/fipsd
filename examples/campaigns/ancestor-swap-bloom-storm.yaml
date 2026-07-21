@@ -14,4 +14,3 @@ fidelity: {protocol: semantic-exact, serialization: executable-codec, bloom: exa
 instrumentation: {transition_stages: true, causal_cost_ledger: true}
 assertions: [{reconcile: {condition: bloom-announcements-equal-serialized-evidence}}]
 objectives: {maximize: [bloom-recomputations, control-bytes]}
-

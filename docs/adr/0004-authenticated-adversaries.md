@@ -33,4 +33,3 @@ versus malformed distinction without ambiguity.
 
 The proposal must show a minimized case, its trust boundary, and how the new
 model keeps attacker cost and malformed-input provenance distinct.
-

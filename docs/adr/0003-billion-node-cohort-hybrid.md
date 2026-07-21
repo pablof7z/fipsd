@@ -33,4 +33,3 @@ state becomes practical and materially more accurate at the target scale.
 
 A reversal requires matched seeds across individual, cohort, and hybrid
 engines, published error distributions, and reproducible resource measurements.
-

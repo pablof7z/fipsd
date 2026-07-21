@@ -15,4 +15,3 @@ fidelity: {protocol: semantic-exact, serialization: executable-codec, billion_no
 instrumentation: {transition_stages: true, control_and_useful_bytes: true}
 assertions: [{always: {condition: oversize-frame-is-explicit}}]
 objectives: {maximize: [first-mtu-failure-depth, ttl-exhaustion]}
-

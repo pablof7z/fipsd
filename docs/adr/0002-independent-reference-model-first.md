@@ -36,4 +36,3 @@ evidence shows the independent model cannot stay aligned at reasonable cost.
 
 The evidence must include the first divergent normalized transition, the
 shared-bug risk introduced, and a no-shared-core fallback assessment.
-

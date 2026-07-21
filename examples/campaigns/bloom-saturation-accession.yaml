@@ -14,4 +14,3 @@ fidelity: {protocol: semantic-exact, serialization: executable-codec, bloom: {va
 instrumentation: {transition_stages: true, state_tables: true}
 assertions: [{always: {condition: bloom-false-positive-rate-is-labeled}}]
 objectives: {maximize: [false-positive-rate, lookup-amplification]}
-

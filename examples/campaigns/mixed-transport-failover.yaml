@@ -17,4 +17,3 @@ fidelity: {protocol: semantic-exact, serialization: executable-codec, billion_no
 instrumentation: {transition_stages: true, session_metrics: true}
 assertions: [{eventually: {condition: useful-traffic-recovers, within: 60s}}]
 objectives: {maximize: [failover-time, useful-payload-loss]}
-

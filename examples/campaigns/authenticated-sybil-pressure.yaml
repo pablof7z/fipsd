@@ -17,4 +17,3 @@ fidelity: {protocol: semantic-exact, serialization: executable-codec, bloom: {va
 instrumentation: {transition_stages: true, causal_cost_ledger: true, state_tables: true}
 assertions: [{always: {condition: malformed-wire-input-is-excluded}}]
 objectives: {maximize: [damage-per-attacker-operation, sybil-concentration]}
-

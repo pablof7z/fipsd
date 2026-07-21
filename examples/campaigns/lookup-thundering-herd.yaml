@@ -14,4 +14,3 @@ fidelity: {protocol: semantic-exact, serialization: executable-codec, bloom: exa
 instrumentation: {transition_stages: true, queue_wait: true, state_tables: true}
 assertions: [{eventually: {condition: lookup-queues-drain, within: 60s}}]
 objectives: {maximize: [lookup-fanout, queue-bytes, retry-count]}
-

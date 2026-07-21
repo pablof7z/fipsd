@@ -12,4 +12,3 @@ fidelity: {protocol: semantic-exact, serialization: executable-codec, billion_no
 instrumentation: {transition_stages: true}
 assertions: []
 objectives: {maximize: [control-bytes]}
-

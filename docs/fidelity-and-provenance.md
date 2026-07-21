@@ -49,4 +49,3 @@ No color, tooltip, or UI-only state may be the sole fidelity disclosure.
 
 The Rust `FidelityContract::plain_language_statement` implementation is the
 canonical baseline renderer and is covered by tests.
-

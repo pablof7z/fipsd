@@ -33,4 +33,3 @@ The engine and canonical artifact remain independent in any replacement.
 
 A reversal requires a reproducible artifact, the failed query or latency
 contract, and a proposed derived representation with deterministic provenance.
-

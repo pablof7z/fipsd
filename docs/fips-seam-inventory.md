@@ -90,4 +90,3 @@ the message-type byte again. Consequently executable sizes are
 `168 + 32 * depth` for TreeAnnounce and 1,071 bytes for FilterAnnounce, while
 that document lists `169 + 32 * depth` and 1,072. The M0 codec manifest and
 tests use executable results and preserve the mismatch as upstream drift.
-

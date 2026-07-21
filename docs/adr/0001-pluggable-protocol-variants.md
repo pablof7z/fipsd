@@ -34,4 +34,3 @@ changes the supported scale envelope.
 
 A reversal requires matched campaign artifacts showing the incompatible state
 or ordering contract, plus a measured comparison of the proposed replacement.
-

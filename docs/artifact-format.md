@@ -52,4 +52,3 @@ views, or host-local paths.
 
 The JSON Schemas under `schemas/` and golden fixtures under `fixtures/artifacts/`
 are executable parts of this specification.
-

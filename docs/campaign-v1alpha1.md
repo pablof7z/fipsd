@@ -53,4 +53,3 @@ The normative Root Ratchet document plus the nine files under
 `examples/campaigns/` cover the ten flagship families. They prove schema
 representability only; M1–M7 own engine behavior, search, shrinking, daemon
 reproduction, and campaign qualification.
-

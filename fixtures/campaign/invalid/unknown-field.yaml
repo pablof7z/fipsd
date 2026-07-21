@@ -13,4 +13,3 @@ instrumentation: {transition_stages: true}
 assertions: []
 objectives: {maximize: [control-bytes]}
 unknown_contract: true
-

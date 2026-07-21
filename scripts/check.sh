@@ -16,4 +16,3 @@ cargo run --quiet -p fips-cli --bin fips-wind-tunnel -- normalize examples/root-
 cargo run --quiet -p fips-cli --bin fips-wind-tunnel -- normalize examples/root-ratchet.yaml --output "$second"
 cmp "$first" "$second"
 cmp "$first" fixtures/normalized/root-ratchet.json
-

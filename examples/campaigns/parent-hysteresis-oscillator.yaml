@@ -15,4 +15,3 @@ fidelity: {protocol: semantic-exact, serialization: executable-codec, billion_no
 instrumentation: {transition_stages: true, causal_cost_ledger: true}
 assertions: [{always: {condition: mandatory-better-root-switch-is-not-suppressed}}]
 objectives: {maximize: [parent-switches, dampened-duration]}
-
