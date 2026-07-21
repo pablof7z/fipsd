@@ -3,6 +3,7 @@ members = [
     "crates/fips-adapter",
     "crates/fips-artifact",
     "crates/fips-cli",
+    "crates/fips-engine",
     "crates/fips-engine-api",
     "crates/fips-model",
 ]

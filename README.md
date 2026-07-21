@@ -9,8 +9,9 @@ handful of real daemons to billion-node analytical cohorts.
 
 > [!IMPORTANT]
 > M0 ships the scientific contracts, Campaign validator/normalizer, artifact
-> schemas, and pinned codec-conformance proof. It does not yet ship a simulation
-> engine or browser application. Those remain gated by later milestones.
+> schemas, and pinned codec-conformance proof. M1 adds the headless deterministic
+> individual-node engine and replayable CLI. The browser application remains a
+> later, separately gated milestone.
 
 The flagship campaign is **Root Ratchet**, formally a Descending-Minimum Root
 Cascade: authenticated identities with successively lower addresses arrive
@@ -57,7 +58,8 @@ No view may present an approximate result as an exact replay.
 
 ## Target experiment loop
 
-This is the design contract, not a shipped CLI yet:
+M1 ships the run, inspect, and replay part of this loop; later milestones add
+search, shrinking, daemon comparison, and variant/cohort execution:
 
 ```text
 author or generate a campaign
@@ -99,6 +101,12 @@ M0 contracts and evidence:
 - [Artifact format](docs/artifact-format.md)
 - [Pinned FIPS seam inventory](docs/fips-seam-inventory.md)
 - [M0 acceptance and verification map](docs/m0-verification.md)
+
+M1's runnable individual-node loop is documented in
+[M1 deterministic individual engine](docs/m1-individual-engine.md), with a
+checked-in 12-node campaign, immutable artifact, reproduction bundle, and
+plain-language report under `fixtures/m1/`. The requirement-by-requirement
+evidence is indexed in the [M1 verification map](docs/m1-verification.md).
 
 ## Architecture direction
 

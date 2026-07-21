@@ -1,0 +1,48 @@
+apiVersion: experiments.fips.network/v1alpha1
+kind: Campaign
+metadata:
+  name: root-ratchet-12-broken
+  description: Deliberate M1 loop-freedom failure fixture
+seed: 424242
+engine:
+  modes: compact-discrete-event
+  deterministic: true
+scale:
+  nodes: 12
+topology:
+  generator: chain
+identities:
+  initial:
+    distribution: uniform-128
+transports:
+  assignment: all-udp
+links:
+  latency: 1ms
+  bandwidth_bps: 100000000
+  loss_ppm: 0
+  ordering: stream
+  mtu_bytes: 9000
+  queue_bytes: 1048576
+events:
+  - id: inject-loop
+    at: 1s
+    action: inject-parent-loop
+protocol:
+  variant: fips-80c956a-baseline
+  parameters:
+    tree_announce_debounce: 500ms
+traffic:
+  model: idle
+fidelity:
+  protocol: semantic-exact
+  serialization: executable-codec
+  bloom: exact-bits
+  crypto: operation-count
+  billion_node_representation: not-requested
+instrumentation:
+  transition_stages: true
+assertions:
+  - always:
+      condition: no_forwarding_loops
+objectives:
+  maximize: [control-bytes]
