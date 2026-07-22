@@ -1,0 +1,3070 @@
+{
+  "api_version": "experiments.fips.network/qualification-atlas/v1alpha1",
+  "atlas_id": "9b8ab65ea994b4d52feda1b67161a64694d1504ac3edbe3d6ed96a8492882121",
+  "fips_commit": "80c956a6fdb85dde1450969a21891c1158e43267",
+  "generated_by": "fips-atlas/0.1.0 deterministic qualification models",
+  "families": [
+    {
+      "contract": {
+        "id": "root-ratchet",
+        "title": "Descending-Minimum Root Ratchet",
+        "campaign_source": "examples/root-ratchet.yaml",
+        "normative_schema": "experiments.fips.network/v1alpha1",
+        "dimensions": [
+          "scale",
+          "depth",
+          "arrival cadence",
+          "attachment",
+          "transport",
+          "resource profile"
+        ],
+        "boundary_matrix": [
+          {
+            "name": "debounce cadence",
+            "values": [
+              "499ms",
+              "500ms",
+              "501ms"
+            ],
+            "reason": "coalescing changes at the 500 ms inclusive edge"
+          },
+          {
+            "name": "scale representation",
+            "values": [
+              "1000",
+              "1000000",
+              "1000000000"
+            ],
+            "reason": "individual, aggregate, and cohort boundaries"
+          }
+        ],
+        "assertions": [
+          "minimum-root agreement",
+          "no forwarding loops",
+          "tree lifecycle reconciliation",
+          "data-plane progress"
+        ],
+        "report_recipe": [
+          "root wave by depth",
+          "causal TreeAnnounce funnel",
+          "control bytes per arrival",
+          "baseline versus root dampening"
+        ],
+        "resource_budget": {
+          "maximum_individual_nodes": 1000000,
+          "maximum_events": 1000000,
+          "maximum_memory_bytes": 4294967296,
+          "maximum_wall_time_seconds": 600,
+          "larger_scale_mode": "cohort or hybrid with explicit uncertainty"
+        },
+        "fidelity": {
+          "supported": [
+            "semantic-exact individual",
+            "cohort",
+            "hybrid sampled-exact",
+            "executable-codec wire"
+          ],
+          "unsupported": [
+            "individual representation at one billion nodes"
+          ],
+          "calibration": "fixtures/m4/calibration.json; family boundary evidence is deterministic"
+        }
+      },
+      "baseline": [
+        {
+          "name": "control-amplification",
+          "value": "1000000",
+          "unit": "ppm",
+          "fidelity": "deterministic-model",
+          "evidence": "qualification/baseline"
+        }
+      ],
+      "discovered_boundary": {
+        "id": "debounce-500ms",
+        "below": {
+          "name": "constructed-announcements",
+          "value": "2",
+          "unit": "frames per peer",
+          "fidelity": "deterministic-model",
+          "evidence": "boundary-matrix/below"
+        },
+        "at": {
+          "name": "constructed-announcements",
+          "value": "1",
+          "unit": "frames per peer",
+          "fidelity": "deterministic-model",
+          "evidence": "boundary-matrix/at"
+        },
+        "above": {
+          "name": "constructed-announcements",
+          "value": "2",
+          "unit": "frames per peer",
+          "fidelity": "deterministic-model",
+          "evidence": "boundary-matrix/above"
+        },
+        "conclusion": "500 ms coalesces the pending request; 501 ms begins a second construction window"
+      },
+      "variant_comparison": {
+        "baseline": {
+          "name": "control-amplification",
+          "value": "1000000",
+          "unit": "ppm",
+          "fidelity": "deterministic-model",
+          "evidence": "qualification/baseline"
+        },
+        "variant_id": "root-dampening-v1",
+        "variant": {
+          "name": "control-amplification",
+          "value": "620000",
+          "unit": "ppm",
+          "fidelity": "deterministic-model",
+          "evidence": "qualification/variant"
+        },
+        "relative_change_ppm": -380000,
+        "causal_explanation": "dampening suppresses discretionary intermediate-root announcements while preserving final adoption"
+      },
+      "assertions": [
+        {
+          "id": "minimum-root-agreement",
+          "outcome": "pass",
+          "evidence": "qualification/root-ratchet/minimum-root-agreement"
+        },
+        {
+          "id": "no-forwarding-loops",
+          "outcome": "pass",
+          "evidence": "qualification/root-ratchet/no-forwarding-loops"
+        },
+        {
+          "id": "tree-lifecycle-reconciliation",
+          "outcome": "pass",
+          "evidence": "qualification/root-ratchet/tree-lifecycle-reconciliation"
+        },
+        {
+          "id": "data-plane-progress",
+          "outcome": "pass",
+          "evidence": "qualification/root-ratchet/data-plane-progress"
+        }
+      ],
+      "minimized_reproduction": {
+        "id": "root-ratchet-boundary-min",
+        "normalized_plan": {
+          "api_version": "experiments.fips.network/normalized-plan/v1alpha1",
+          "campaign_sha256": "7a17a433a4e6dbd971c25b6ab7a034961ec6735aeefb8a8227efca10a8f61cb7",
+          "campaign": {
+            "accounting": {
+              "causal_lineage": true,
+              "network_overhead": "configured",
+              "reconcile_serialized_frames": true,
+              "transport_overhead": true
+            },
+            "adversaries": {
+              "actions": [
+                "bounded-root-grinding",
+                "strategic-attachment"
+              ],
+              "budgets": {
+                "identities": {
+                  "values": [
+                    1,
+                    10,
+                    1000
+                  ]
+                },
+                "operations": {
+                  "values": [
+                    1,
+                    1000,
+                    1000000
+                  ]
+                }
+              },
+              "mode": "authenticated-protocol-valid"
+            },
+            "apiVersion": "experiments.fips.network/v1alpha1",
+            "assertions": [
+              {
+                "eventually": {
+                  "after_input_quiescence": {
+                    "nanoseconds": 30000000000
+                  },
+                  "condition": "all_connected_nodes_agree_on_minimum_root"
+                }
+              },
+              {
+                "always": {
+                  "condition": "no_forwarding_loops"
+                }
+              },
+              {
+                "always": {
+                  "condition": "accepted_ancestry_is_valid"
+                }
+              },
+              {
+                "always": {
+                  "condition": "per_peer_announcements_obey_debounce"
+                }
+              },
+              {
+                "eventually": {
+                  "condition": "control_queues_return_to_baseline"
+                }
+              },
+              {
+                "eventually": {
+                  "condition": "data_plane_makes_progress"
+                }
+              },
+              {
+                "reconcile": {
+                  "condition": "measured_bytes_equal_serialized_frames"
+                }
+              },
+              {
+                "deterministic": {
+                  "condition": "same_seed_same_event_order_and_result"
+                }
+              }
+            ],
+            "engine": {
+              "deterministic": true,
+              "modes": {
+                "values": [
+                  "cohort-hybrid",
+                  "compact-discrete-event"
+                ]
+              },
+              "variant": "fips-80c956a-baseline"
+            },
+            "events": [
+              {
+                "action": "introduce-lower-root-identities",
+                "id": "descending-root-arrivals",
+                "parameters": {
+                  "source": "identities.arrivals"
+                }
+              }
+            ],
+            "fidelity": {
+              "billion_node_representation": "cohort-with-sampled-exact-regions",
+              "bloom": {
+                "values": [
+                  "cohort-fpr",
+                  "exact-bits",
+                  "occupancy",
+                  "sampled-exact"
+                ]
+              },
+              "crypto": {
+                "values": [
+                  "adversarial-budget",
+                  "calibrated-cost",
+                  "operation-count"
+                ]
+              },
+              "protocol": "semantic-exact",
+              "serialization": "executable-codec"
+            },
+            "identities": {
+              "arrivals": {
+                "address_policy": "strictly-lower-than-current-root",
+                "attachment": {
+                  "values": [
+                    "articulation-point",
+                    "current-root",
+                    "highest-degree",
+                    "random-leaf"
+                  ]
+                },
+                "attacker_budget": {
+                  "mode": {
+                    "values": [
+                      "bounded",
+                      "calibrated-cost",
+                      "free-input",
+                      "operation-count"
+                    ]
+                  }
+                },
+                "count": {
+                  "values": [
+                    1,
+                    10,
+                    100,
+                    1000
+                  ]
+                },
+                "schedule": {
+                  "interval": {
+                    "values": [
+                      {
+                        "nanoseconds": 0
+                      },
+                      {
+                        "nanoseconds": 10000000000
+                      },
+                      {
+                        "nanoseconds": 1000000000
+                      },
+                      {
+                        "nanoseconds": 100000000
+                      },
+                      {
+                        "nanoseconds": 10000000
+                      },
+                      {
+                        "nanoseconds": 1000000
+                      },
+                      {
+                        "nanoseconds": 499000000
+                      },
+                      {
+                        "nanoseconds": 500000000
+                      },
+                      {
+                        "nanoseconds": 501000000
+                      }
+                    ]
+                  }
+                }
+              },
+              "initial": {
+                "distribution": "uniform-128"
+              }
+            },
+            "instrumentation": {
+              "causal_cost_ledger": true,
+              "control_and_useful_bytes": true,
+              "queue_wait": true,
+              "quiescence_markers": [
+                "root",
+                "tree",
+                "bloom",
+                "lookup",
+                "data-plane"
+              ],
+              "root_agreement_by_depth": true,
+              "transition_stages": true
+            },
+            "kind": "Campaign",
+            "links": {
+              "bandwidth_bps": {
+                "values": [
+                  1000000,
+                  1000000000
+                ]
+              },
+              "drop_policy": "tail-drop",
+              "latency": {
+                "values": [
+                  {
+                    "nanoseconds": 100000000
+                  },
+                  {
+                    "nanoseconds": 10000000
+                  },
+                  {
+                    "nanoseconds": 1000000
+                  }
+                ]
+              },
+              "loss_ppm": {
+                "values": [
+                  0,
+                  1000
+                ]
+              },
+              "mtu_bytes": {
+                "values": [
+                  1280,
+                  1500,
+                  9000
+                ]
+              },
+              "ordering": {
+                "values": [
+                  "datagram",
+                  "stream"
+                ]
+              },
+              "queue_bytes": {
+                "values": [
+                  1048576,
+                  65536
+                ]
+              }
+            },
+            "metadata": {
+              "description": "Descending-Minimum Root Cascade across topology and debounce boundaries",
+              "name": "root-ratchet"
+            },
+            "objectives": {
+              "maximize": [
+                "control_bytes_per_root_arrival",
+                "convergence_time",
+                "data_plane_stall_duration",
+                "peak_queue_bytes",
+                "coordinate_cache_invalidations"
+              ]
+            },
+            "protocol": {
+              "parameters": {
+                "tree_announce_debounce": {
+                  "nanoseconds": 500000000
+                }
+              },
+              "variant": "fips-80c956a-baseline"
+            },
+            "resources": {
+              "assignment": "uniform",
+              "node_profiles": [
+                {
+                  "cpu_units": 1000,
+                  "memory_bytes": 1073741824,
+                  "name": "baseline",
+                  "queue_bytes": 1048576,
+                  "table_entries": 100000
+                }
+              ]
+            },
+            "scale": {
+              "nodes": {
+                "values": [
+                  10,
+                  1000,
+                  100000,
+                  1000000,
+                  1000000000
+                ]
+              }
+            },
+            "seed": 424242,
+            "topology": {
+              "average_degree": 4,
+              "connected": true,
+              "generator": {
+                "values": [
+                  "balanced-tree",
+                  "chain",
+                  "clustered",
+                  "random-regular",
+                  "scale-free"
+                ]
+              }
+            },
+            "traffic": {
+              "model": {
+                "values": [
+                  "cross-min-cut",
+                  "idle",
+                  "session-churn",
+                  "uniform-random",
+                  "zipf"
+                ]
+              }
+            },
+            "transports": {
+              "assignment": {
+                "values": [
+                  "all-udp",
+                  "depth-correlated",
+                  "descending-mtu-root-spine",
+                  "high-latency-root-spine",
+                  "random-mixed"
+                ]
+              }
+            }
+          },
+          "axes": [
+            {
+              "path": "/adversaries/budgets/identities",
+              "values": [
+                1,
+                10,
+                1000
+              ]
+            },
+            {
+              "path": "/adversaries/budgets/operations",
+              "values": [
+                1,
+                1000,
+                1000000
+              ]
+            },
+            {
+              "path": "/engine/modes",
+              "values": [
+                "cohort-hybrid",
+                "compact-discrete-event"
+              ]
+            },
+            {
+              "path": "/fidelity/bloom",
+              "values": [
+                "cohort-fpr",
+                "exact-bits",
+                "occupancy",
+                "sampled-exact"
+              ]
+            },
+            {
+              "path": "/fidelity/crypto",
+              "values": [
+                "adversarial-budget",
+                "calibrated-cost",
+                "operation-count"
+              ]
+            },
+            {
+              "path": "/identities/arrivals/attachment",
+              "values": [
+                "articulation-point",
+                "current-root",
+                "highest-degree",
+                "random-leaf"
+              ]
+            },
+            {
+              "path": "/identities/arrivals/attacker_budget/mode",
+              "values": [
+                "bounded",
+                "calibrated-cost",
+                "free-input",
+                "operation-count"
+              ]
+            },
+            {
+              "path": "/identities/arrivals/count",
+              "values": [
+                1,
+                10,
+                100,
+                1000
+              ]
+            },
+            {
+              "path": "/identities/arrivals/schedule/interval",
+              "values": [
+                {
+                  "nanoseconds": 0
+                },
+                {
+                  "nanoseconds": 10000000000
+                },
+                {
+                  "nanoseconds": 1000000000
+                },
+                {
+                  "nanoseconds": 100000000
+                },
+                {
+                  "nanoseconds": 10000000
+                },
+                {
+                  "nanoseconds": 1000000
+                },
+                {
+                  "nanoseconds": 499000000
+                },
+                {
+                  "nanoseconds": 500000000
+                },
+                {
+                  "nanoseconds": 501000000
+                }
+              ]
+            },
+            {
+              "path": "/links/bandwidth_bps",
+              "values": [
+                1000000,
+                1000000000
+              ]
+            },
+            {
+              "path": "/links/latency",
+              "values": [
+                {
+                  "nanoseconds": 100000000
+                },
+                {
+                  "nanoseconds": 10000000
+                },
+                {
+                  "nanoseconds": 1000000
+                }
+              ]
+            },
+            {
+              "path": "/links/loss_ppm",
+              "values": [
+                0,
+                1000
+              ]
+            },
+            {
+              "path": "/links/mtu_bytes",
+              "values": [
+                1280,
+                1500,
+                9000
+              ]
+            },
+            {
+              "path": "/links/ordering",
+              "values": [
+                "datagram",
+                "stream"
+              ]
+            },
+            {
+              "path": "/links/queue_bytes",
+              "values": [
+                1048576,
+                65536
+              ]
+            },
+            {
+              "path": "/scale/nodes",
+              "values": [
+                10,
+                1000,
+                100000,
+                1000000,
+                1000000000
+              ]
+            },
+            {
+              "path": "/topology/generator",
+              "values": [
+                "balanced-tree",
+                "chain",
+                "clustered",
+                "random-regular",
+                "scale-free"
+              ]
+            },
+            {
+              "path": "/traffic/model",
+              "values": [
+                "cross-min-cut",
+                "idle",
+                "session-churn",
+                "uniform-random",
+                "zipf"
+              ]
+            },
+            {
+              "path": "/transports/assignment",
+              "values": [
+                "all-udp",
+                "depth-correlated",
+                "descending-mtu-root-spine",
+                "high-latency-root-spine",
+                "random-mixed"
+              ]
+            }
+          ],
+          "seed": 424242
+        },
+        "selector_overrides": {
+          "/identities/arrivals/schedule/interval": "boundary-at"
+        },
+        "expected_assertion": "minimum-root-agreement",
+        "oracle": {
+          "status": "eligible",
+          "reason": "small representable boundary uses supported daemon chaos controls"
+        }
+      }
+    },
+    {
+      "contract": {
+        "id": "competing-partition-roots",
+        "title": "Competing Partition Roots",
+        "campaign_source": "examples/campaigns/competing-partition-roots.yaml",
+        "normative_schema": "experiments.fips.network/v1alpha1",
+        "dimensions": [
+          "partition count",
+          "visibility",
+          "merge order",
+          "cut capacity",
+          "root disappearance"
+        ],
+        "boundary_matrix": [
+          {
+            "name": "merge order",
+            "values": [
+              "left-first",
+              "balanced",
+              "right-first"
+            ],
+            "reason": "order controls obsolete-root exposure"
+          },
+          {
+            "name": "partition count",
+            "values": [
+              "2",
+              "4",
+              "8"
+            ],
+            "reason": "k-way convergence"
+          }
+        ],
+        "assertions": [
+          "one global minimum after merge",
+          "no forwarding loops",
+          "local minima remain scoped while partitioned"
+        ],
+        "report_recipe": [
+          "root lineage by partition",
+          "cross-cut control load",
+          "worst merge order",
+          "coordinate invalidations"
+        ],
+        "resource_budget": {
+          "maximum_individual_nodes": 1000000,
+          "maximum_events": 1000000,
+          "maximum_memory_bytes": 4294967296,
+          "maximum_wall_time_seconds": 600,
+          "larger_scale_mode": "cohort or hybrid with explicit uncertainty"
+        },
+        "fidelity": {
+          "supported": [
+            "semantic-exact individual",
+            "operation-counted aggregate"
+          ],
+          "unsupported": [
+            "real Tor or Nym partition timing"
+          ],
+          "calibration": "fixtures/m4/calibration.json; family boundary evidence is deterministic"
+        }
+      },
+      "baseline": [
+        {
+          "name": "cross-cut-control-bytes",
+          "value": "92000",
+          "unit": "ppm",
+          "fidelity": "deterministic-model",
+          "evidence": "qualification/baseline"
+        }
+      ],
+      "discovered_boundary": {
+        "id": "asymmetric-merge",
+        "below": {
+          "name": "obsolete-root-adoptions",
+          "value": "1",
+          "unit": "adoptions",
+          "fidelity": "deterministic-model",
+          "evidence": "boundary-matrix/below"
+        },
+        "at": {
+          "name": "obsolete-root-adoptions",
+          "value": "2",
+          "unit": "adoptions",
+          "fidelity": "deterministic-model",
+          "evidence": "boundary-matrix/at"
+        },
+        "above": {
+          "name": "obsolete-root-adoptions",
+          "value": "4",
+          "unit": "adoptions",
+          "fidelity": "deterministic-model",
+          "evidence": "boundary-matrix/above"
+        },
+        "conclusion": "right-first asymmetric visibility exposes two additional obsolete roots"
+      },
+      "variant_comparison": {
+        "baseline": {
+          "name": "cross-cut-control-bytes",
+          "value": "92000",
+          "unit": "ppm",
+          "fidelity": "deterministic-model",
+          "evidence": "qualification/baseline"
+        },
+        "variant_id": "merge-hold-down-v1",
+        "variant": {
+          "name": "cross-cut-control-bytes",
+          "value": "61000",
+          "unit": "ppm",
+          "fidelity": "deterministic-model",
+          "evidence": "qualification/variant"
+        },
+        "relative_change_ppm": -336956,
+        "causal_explanation": "merge hold-down batches transient partition minima before cross-cut transmission"
+      },
+      "assertions": [
+        {
+          "id": "one-global-minimum-after-merge",
+          "outcome": "pass",
+          "evidence": "qualification/competing-partition-roots/one-global-minimum-after-merge"
+        },
+        {
+          "id": "no-forwarding-loops",
+          "outcome": "pass",
+          "evidence": "qualification/competing-partition-roots/no-forwarding-loops"
+        },
+        {
+          "id": "local-minima-remain-scoped-while-partitioned",
+          "outcome": "pass",
+          "evidence": "qualification/competing-partition-roots/local-minima-remain-scoped-while-partitioned"
+        }
+      ],
+      "minimized_reproduction": {
+        "id": "competing-partition-roots-boundary-min",
+        "normalized_plan": {
+          "api_version": "experiments.fips.network/normalized-plan/v1alpha1",
+          "campaign_sha256": "a80a2307fab641903b5f998493e5df1e5c755f55d444048203a8e0d1878344eb",
+          "campaign": {
+            "apiVersion": "experiments.fips.network/v1alpha1",
+            "assertions": [
+              {
+                "eventually": {
+                  "condition": "one-minimum-root-after-merge",
+                  "within": {
+                    "nanoseconds": 30000000000
+                  }
+                }
+              }
+            ],
+            "engine": {
+              "deterministic": true,
+              "modes": "compact-discrete-event",
+              "variant": "fips-80c956a-baseline"
+            },
+            "events": [
+              {
+                "action": "partition",
+                "at": {
+                  "nanoseconds": 10000000000
+                },
+                "id": "split"
+              },
+              {
+                "action": "merge",
+                "at": {
+                  "nanoseconds": 20000000000
+                },
+                "id": "merge"
+              }
+            ],
+            "fidelity": {
+              "billion_node_representation": "not-requested",
+              "protocol": "semantic-exact",
+              "serialization": "executable-codec"
+            },
+            "identities": {
+              "initial": {
+                "distribution": "partitioned-minima"
+              }
+            },
+            "instrumentation": {
+              "root_agreement_by_depth": true,
+              "transition_stages": true
+            },
+            "kind": "Campaign",
+            "metadata": {
+              "name": "competing-partition-roots"
+            },
+            "objectives": {
+              "maximize": [
+                "conflicting-root-duration",
+                "control-bytes"
+              ]
+            },
+            "scale": {
+              "nodes": {
+                "values": [
+                  1000,
+                  20
+                ]
+              }
+            },
+            "seed": 1002,
+            "topology": {
+              "average_degree": 4,
+              "connected": true,
+              "generator": {
+                "values": [
+                  "clustered",
+                  "random-regular"
+                ]
+              }
+            },
+            "traffic": {
+              "model": "cross-min-cut"
+            },
+            "transports": {
+              "assignment": "all-udp"
+            }
+          },
+          "axes": [
+            {
+              "path": "/scale/nodes",
+              "values": [
+                1000,
+                20
+              ]
+            },
+            {
+              "path": "/topology/generator",
+              "values": [
+                "clustered",
+                "random-regular"
+              ]
+            }
+          ],
+          "seed": 1002
+        },
+        "selector_overrides": {
+          "/events/1/action": "boundary-at"
+        },
+        "expected_assertion": "one-global-minimum-after-merge",
+        "oracle": {
+          "status": "eligible",
+          "reason": "small representable boundary uses supported daemon chaos controls"
+        }
+      }
+    },
+    {
+      "contract": {
+        "id": "bloom-saturation-accession",
+        "title": "Bloom Saturation under Accession",
+        "campaign_source": "examples/campaigns/bloom-saturation-accession.yaml",
+        "normative_schema": "experiments.fips.network/v1alpha1",
+        "dimensions": [
+          "entry count",
+          "tree depth",
+          "Bloom representation",
+          "replacement policy",
+          "anti-poison variant"
+        ],
+        "boundary_matrix": [
+          {
+            "name": "entries",
+            "values": [
+              "200",
+              "800",
+              "1200",
+              "1600",
+              "2000",
+              "2400",
+              "5000"
+            ],
+            "reason": "covers the FPR knee"
+          },
+          {
+            "name": "scale",
+            "values": [
+              "1000",
+              "1000000",
+              "1000000000"
+            ],
+            "reason": "exact to cohort FPR"
+          }
+        ],
+        "assertions": [
+          "false-positive rate is labeled",
+          "occupancy bounds contain sampled exact result",
+          "replacement accounting reconciles"
+        ],
+        "report_recipe": [
+          "FPR by depth",
+          "lookup amplification",
+          "replacement bytes",
+          "sampled-exact calibration"
+        ],
+        "resource_budget": {
+          "maximum_individual_nodes": 1000000,
+          "maximum_events": 1000000,
+          "maximum_memory_bytes": 4294967296,
+          "maximum_wall_time_seconds": 600,
+          "larger_scale_mode": "cohort or hybrid with explicit uncertainty"
+        },
+        "fidelity": {
+          "supported": [
+            "exact bits",
+            "occupancy",
+            "cohort FPR",
+            "sampled exact"
+          ],
+          "unsupported": [
+            "exact bits for every node at one billion scale"
+          ],
+          "calibration": "fixtures/m4/calibration.json; family boundary evidence is deterministic"
+        }
+      },
+      "baseline": [
+        {
+          "name": "extra-lookups",
+          "value": "214000",
+          "unit": "ppm",
+          "fidelity": "deterministic-model",
+          "evidence": "qualification/baseline"
+        }
+      ],
+      "discovered_boundary": {
+        "id": "fpr-knee-1600",
+        "below": {
+          "name": "false-positive-rate",
+          "value": "18000",
+          "unit": "ppb",
+          "fidelity": "deterministic-model",
+          "evidence": "boundary-matrix/below"
+        },
+        "at": {
+          "name": "false-positive-rate",
+          "value": "71000",
+          "unit": "ppb",
+          "fidelity": "deterministic-model",
+          "evidence": "boundary-matrix/at"
+        },
+        "above": {
+          "name": "false-positive-rate",
+          "value": "214000",
+          "unit": "ppb",
+          "fidelity": "deterministic-model",
+          "evidence": "boundary-matrix/above"
+        },
+        "conclusion": "the modeled filter crosses the campaign warning threshold above 1600 entries"
+      },
+      "variant_comparison": {
+        "baseline": {
+          "name": "extra-lookups",
+          "value": "214000",
+          "unit": "ppm",
+          "fidelity": "deterministic-model",
+          "evidence": "qualification/baseline"
+        },
+        "variant_id": "incremental-bloom-v1",
+        "variant": {
+          "name": "extra-lookups",
+          "value": "142000",
+          "unit": "ppm",
+          "fidelity": "deterministic-model",
+          "evidence": "qualification/variant"
+        },
+        "relative_change_ppm": -336448,
+        "causal_explanation": "incremental replacement avoids full-filter fanout outside changed subtrees"
+      },
+      "assertions": [
+        {
+          "id": "false-positive-rate-is-labeled",
+          "outcome": "pass",
+          "evidence": "qualification/bloom-saturation-accession/false-positive-rate-is-labeled"
+        },
+        {
+          "id": "occupancy-bounds-contain-sampled-exact-result",
+          "outcome": "pass",
+          "evidence": "qualification/bloom-saturation-accession/occupancy-bounds-contain-sampled-exact-result"
+        },
+        {
+          "id": "replacement-accounting-reconciles",
+          "outcome": "pass",
+          "evidence": "qualification/bloom-saturation-accession/replacement-accounting-reconciles"
+        }
+      ],
+      "minimized_reproduction": {
+        "id": "bloom-saturation-accession-boundary-min",
+        "normalized_plan": {
+          "api_version": "experiments.fips.network/normalized-plan/v1alpha1",
+          "campaign_sha256": "37cbbba06306450ae853ffb6075a04196cc044a529f85316f0ac070a501b329a",
+          "campaign": {
+            "apiVersion": "experiments.fips.network/v1alpha1",
+            "assertions": [
+              {
+                "always": {
+                  "condition": "bloom-false-positive-rate-is-labeled"
+                }
+              }
+            ],
+            "engine": {
+              "deterministic": true,
+              "modes": "compact-discrete-event",
+              "variant": "fips-80c956a-baseline"
+            },
+            "events": [
+              {
+                "action": "attach-destination-population",
+                "parameters": {
+                  "count": {
+                    "values": [
+                      1200,
+                      1600,
+                      800
+                    ]
+                  }
+                }
+              }
+            ],
+            "fidelity": {
+              "billion_node_representation": "not-requested",
+              "bloom": {
+                "values": [
+                  "exact-bits",
+                  "occupancy"
+                ]
+              },
+              "protocol": "semantic-exact",
+              "serialization": "executable-codec"
+            },
+            "identities": {
+              "initial": {
+                "distribution": "uniform-128"
+              }
+            },
+            "instrumentation": {
+              "state_tables": true,
+              "transition_stages": true
+            },
+            "kind": "Campaign",
+            "metadata": {
+              "name": "bloom-saturation-accession"
+            },
+            "objectives": {
+              "maximize": [
+                "false-positive-rate",
+                "lookup-amplification"
+              ]
+            },
+            "protocol": {
+              "parameters": {
+                "bloom_entries": {
+                  "values": [
+                    1200,
+                    1600,
+                    800
+                  ]
+                }
+              },
+              "variant": "fips-80c956a-baseline"
+            },
+            "scale": {
+              "nodes": {
+                "values": [
+                  1000,
+                  100000
+                ]
+              }
+            },
+            "seed": 1003,
+            "topology": {
+              "average_degree": 6,
+              "connected": true,
+              "generator": {
+                "values": [
+                  "clustered",
+                  "scale-free"
+                ]
+              }
+            },
+            "traffic": {
+              "model": "uniform-random",
+              "rate_bps": 10000000
+            },
+            "transports": {
+              "assignment": "all-udp"
+            }
+          },
+          "axes": [
+            {
+              "path": "/events/0/parameters/count",
+              "values": [
+                1200,
+                1600,
+                800
+              ]
+            },
+            {
+              "path": "/fidelity/bloom",
+              "values": [
+                "exact-bits",
+                "occupancy"
+              ]
+            },
+            {
+              "path": "/protocol/parameters/bloom_entries",
+              "values": [
+                1200,
+                1600,
+                800
+              ]
+            },
+            {
+              "path": "/scale/nodes",
+              "values": [
+                1000,
+                100000
+              ]
+            },
+            {
+              "path": "/topology/generator",
+              "values": [
+                "clustered",
+                "scale-free"
+              ]
+            }
+          ],
+          "seed": 1003
+        },
+        "selector_overrides": {
+          "/protocol/parameters/bloom_entries": "boundary-at"
+        },
+        "expected_assertion": "false-positive-rate-is-labeled",
+        "oracle": {
+          "status": "unsupported",
+          "reason": "pinned daemon harness lacks the required typed injection or observation"
+        }
+      }
+    },
+    {
+      "contract": {
+        "id": "ancestor-swap-bloom-storm",
+        "title": "Ancestor-Swap Bloom Storm",
+        "campaign_source": "examples/campaigns/ancestor-swap-bloom-storm.yaml",
+        "normative_schema": "experiments.fips.network/v1alpha1",
+        "dimensions": [
+          "subtree size",
+          "flap cadence",
+          "peer role",
+          "debounce",
+          "replacement cost"
+        ],
+        "boundary_matrix": [
+          {
+            "name": "flap cadence",
+            "values": [
+              "499ms",
+              "500ms",
+              "501ms"
+            ],
+            "reason": "covers Bloom debounce boundary"
+          }
+        ],
+        "assertions": [
+          "accepted ancestry remains valid",
+          "parent-switch guard fires",
+          "Bloom serialized evidence reconciles"
+        ],
+        "report_recipe": [
+          "six-node regression",
+          "depth-band amplification",
+          "historical versus fixed",
+          "minimized swap sequence"
+        ],
+        "resource_budget": {
+          "maximum_individual_nodes": 1000000,
+          "maximum_events": 1000000,
+          "maximum_memory_bytes": 4294967296,
+          "maximum_wall_time_seconds": 600,
+          "larger_scale_mode": "cohort or hybrid with explicit uncertainty"
+        },
+        "fidelity": {
+          "supported": [
+            "semantic-exact individual",
+            "exact Bloom",
+            "operation-counted large simulation"
+          ],
+          "unsupported": [
+            "cohort parent identities without sampled exact region"
+          ],
+          "calibration": "fixtures/m4/calibration.json; family boundary evidence is deterministic"
+        }
+      },
+      "baseline": [
+        {
+          "name": "bloom-control-bytes",
+          "value": "2142000",
+          "unit": "ppm",
+          "fidelity": "deterministic-model",
+          "evidence": "qualification/baseline"
+        }
+      ],
+      "discovered_boundary": {
+        "id": "bloom-debounce-500ms",
+        "below": {
+          "name": "filter-announcements",
+          "value": "1",
+          "unit": "frames per peer",
+          "fidelity": "deterministic-model",
+          "evidence": "boundary-matrix/below"
+        },
+        "at": {
+          "name": "filter-announcements",
+          "value": "1",
+          "unit": "frames per peer",
+          "fidelity": "deterministic-model",
+          "evidence": "boundary-matrix/at"
+        },
+        "above": {
+          "name": "filter-announcements",
+          "value": "2",
+          "unit": "frames per peer",
+          "fidelity": "deterministic-model",
+          "evidence": "boundary-matrix/above"
+        },
+        "conclusion": "a 501 ms swap escapes the pending Bloom replacement window"
+      },
+      "variant_comparison": {
+        "baseline": {
+          "name": "bloom-control-bytes",
+          "value": "2142000",
+          "unit": "ppm",
+          "fidelity": "deterministic-model",
+          "evidence": "qualification/baseline"
+        },
+        "variant_id": "ancestor-dedup-v1",
+        "variant": {
+          "name": "bloom-control-bytes",
+          "value": "1071000",
+          "unit": "ppm",
+          "fidelity": "deterministic-model",
+          "evidence": "qualification/variant"
+        },
+        "relative_change_ppm": -500000,
+        "causal_explanation": "ancestor-set deduplication removes the redundant full replacement"
+      },
+      "assertions": [
+        {
+          "id": "accepted-ancestry-remains-valid",
+          "outcome": "pass",
+          "evidence": "qualification/ancestor-swap-bloom-storm/accepted-ancestry-remains-valid"
+        },
+        {
+          "id": "parent-switch-guard-fires",
+          "outcome": "pass",
+          "evidence": "qualification/ancestor-swap-bloom-storm/parent-switch-guard-fires"
+        },
+        {
+          "id": "Bloom-serialized-evidence-reconciles",
+          "outcome": "pass",
+          "evidence": "qualification/ancestor-swap-bloom-storm/Bloom-serialized-evidence-reconciles"
+        }
+      ],
+      "minimized_reproduction": {
+        "id": "ancestor-swap-bloom-storm-boundary-min",
+        "normalized_plan": {
+          "api_version": "experiments.fips.network/normalized-plan/v1alpha1",
+          "campaign_sha256": "b038f672b4ada862450d6ad8d9b4ae67d32a57b4c4623a70e5b445f6dbcfec67",
+          "campaign": {
+            "apiVersion": "experiments.fips.network/v1alpha1",
+            "assertions": [
+              {
+                "reconcile": {
+                  "condition": "bloom-announcements-equal-serialized-evidence"
+                }
+              }
+            ],
+            "engine": {
+              "deterministic": true,
+              "modes": "compact-discrete-event",
+              "variant": "fips-80c956a-baseline"
+            },
+            "events": [
+              {
+                "action": "swap-parent-ancestry",
+                "at": {
+                  "nanoseconds": 501000000
+                },
+                "id": "ancestor-swap"
+              }
+            ],
+            "fidelity": {
+              "billion_node_representation": "not-requested",
+              "bloom": "exact-bits",
+              "protocol": "semantic-exact",
+              "serialization": "executable-codec"
+            },
+            "identities": {
+              "initial": {
+                "distribution": "uniform-128"
+              }
+            },
+            "instrumentation": {
+              "causal_cost_ledger": true,
+              "transition_stages": true
+            },
+            "kind": "Campaign",
+            "metadata": {
+              "description": "Minimized ancestor-swap Bloom replacement boundary",
+              "name": "ancestor-swap-six-node-regression"
+            },
+            "objectives": {
+              "maximize": [
+                "bloom-recomputations",
+                "control-bytes"
+              ]
+            },
+            "protocol": {
+              "parameters": {
+                "bloom_debounce": {
+                  "nanoseconds": 500000000
+                }
+              },
+              "variant": "fips-80c956a-baseline"
+            },
+            "scale": {
+              "nodes": 6
+            },
+            "seed": 70069,
+            "topology": {
+              "connected": true,
+              "explicit_edges": [
+                [
+                  0,
+                  1
+                ],
+                [
+                  0,
+                  2
+                ],
+                [
+                  1,
+                  3
+                ],
+                [
+                  1,
+                  4
+                ],
+                [
+                  2,
+                  5
+                ],
+                [
+                  2,
+                  3
+                ]
+              ],
+              "generator": "explicit"
+            },
+            "traffic": {
+              "model": "idle"
+            },
+            "transports": {
+              "assignment": "all-udp"
+            }
+          },
+          "axes": [],
+          "seed": 70069
+        },
+        "selector_overrides": {
+          "/events/0/at": "boundary-at"
+        },
+        "expected_assertion": "accepted-ancestry-remains-valid",
+        "oracle": {
+          "status": "eligible",
+          "reason": "small representable boundary uses supported daemon chaos controls"
+        }
+      }
+    },
+    {
+      "contract": {
+        "id": "deep-tree-mtu-ttl-cliff",
+        "title": "Deep-Tree MTU and TTL Cliff",
+        "campaign_source": "examples/campaigns/deep-tree-mtu-ttl-cliff.yaml",
+        "normative_schema": "experiments.fips.network/v1alpha1",
+        "dimensions": [
+          "depth",
+          "effective MTU",
+          "TTL",
+          "transport migration",
+          "fragmentation policy"
+        ],
+        "boundary_matrix": [
+          {
+            "name": "TTL",
+            "values": [
+              "63",
+              "64",
+              "65"
+            ],
+            "reason": "covers the u8 forwarding edge"
+          },
+          {
+            "name": "depth",
+            "values": [
+              "34",
+              "35",
+              "36",
+              "2000"
+            ],
+            "reason": "covers 1280-byte framing and long ancestry"
+          }
+        ],
+        "assertions": [
+          "oversize frames are explicit",
+          "TTL exhaustion is typed",
+          "codec maximum depth is enforced"
+        ],
+        "report_recipe": [
+          "serialized size by depth",
+          "first MTU failure",
+          "TTL 63/64/65",
+          "transport fallback"
+        ],
+        "resource_budget": {
+          "maximum_individual_nodes": 1000000,
+          "maximum_events": 1000000,
+          "maximum_memory_bytes": 4294967296,
+          "maximum_wall_time_seconds": 600,
+          "larger_scale_mode": "cohort or hybrid with explicit uncertainty"
+        },
+        "fidelity": {
+          "supported": [
+            "executable-codec wire",
+            "modeled transport overhead"
+          ],
+          "unsupported": [
+            "implicit IP fragmentation",
+            "unmeasured BLE fragmentation"
+          ],
+          "calibration": "fixtures/m4/calibration.json; family boundary evidence is deterministic"
+        }
+      },
+      "baseline": [
+        {
+          "name": "rejected-frames",
+          "value": "1000000",
+          "unit": "ppm",
+          "fidelity": "deterministic-model",
+          "evidence": "qualification/baseline"
+        }
+      ],
+      "discovered_boundary": {
+        "id": "tree-announce-1280-mtu",
+        "below": {
+          "name": "FMP-frame-size",
+          "value": "1256",
+          "unit": "bytes",
+          "fidelity": "executable-codec",
+          "evidence": "boundary-matrix/below"
+        },
+        "at": {
+          "name": "FMP-frame-size",
+          "value": "1288",
+          "unit": "bytes",
+          "fidelity": "executable-codec",
+          "evidence": "boundary-matrix/at"
+        },
+        "above": {
+          "name": "FMP-frame-size",
+          "value": "1320",
+          "unit": "bytes",
+          "fidelity": "executable-codec",
+          "evidence": "boundary-matrix/above"
+        },
+        "conclusion": "depth 35 is the first TreeAnnounce that exceeds a 1280-byte effective MTU"
+      },
+      "variant_comparison": {
+        "baseline": {
+          "name": "rejected-frames",
+          "value": "1000000",
+          "unit": "ppm",
+          "fidelity": "deterministic-model",
+          "evidence": "qualification/baseline"
+        },
+        "variant_id": "mtu-aware-fallback-v1",
+        "variant": {
+          "name": "rejected-frames",
+          "value": "250000",
+          "unit": "ppm",
+          "fidelity": "deterministic-model",
+          "evidence": "qualification/variant"
+        },
+        "relative_change_ppm": -750000,
+        "causal_explanation": "preflight size checks select a larger-MTU path before serialization"
+      },
+      "assertions": [
+        {
+          "id": "oversize-frames-are-explicit",
+          "outcome": "pass",
+          "evidence": "qualification/deep-tree-mtu-ttl-cliff/oversize-frames-are-explicit"
+        },
+        {
+          "id": "TTL-exhaustion-is-typed",
+          "outcome": "pass",
+          "evidence": "qualification/deep-tree-mtu-ttl-cliff/TTL-exhaustion-is-typed"
+        },
+        {
+          "id": "codec-maximum-depth-is-enforced",
+          "outcome": "pass",
+          "evidence": "qualification/deep-tree-mtu-ttl-cliff/codec-maximum-depth-is-enforced"
+        }
+      ],
+      "minimized_reproduction": {
+        "id": "deep-tree-mtu-ttl-cliff-boundary-min",
+        "normalized_plan": {
+          "api_version": "experiments.fips.network/normalized-plan/v1alpha1",
+          "campaign_sha256": "52e9b74caebdfc6f96a4fa42f7f64bbe1f33b194d18109613441bfa853b4927c",
+          "campaign": {
+            "apiVersion": "experiments.fips.network/v1alpha1",
+            "assertions": [
+              {
+                "always": {
+                  "condition": "oversize-frame-is-explicit"
+                }
+              }
+            ],
+            "engine": {
+              "deterministic": true,
+              "modes": "compact-discrete-event",
+              "variant": "fips-80c956a-baseline"
+            },
+            "events": [
+              {
+                "action": "announce-deep-tree"
+              }
+            ],
+            "fidelity": {
+              "billion_node_representation": "not-requested",
+              "protocol": "semantic-exact",
+              "serialization": "executable-codec"
+            },
+            "identities": {
+              "initial": {
+                "distribution": "descending-path"
+              }
+            },
+            "instrumentation": {
+              "control_and_useful_bytes": true,
+              "transition_stages": true
+            },
+            "kind": "Campaign",
+            "links": {
+              "bandwidth_bps": 100000000,
+              "latency": {
+                "nanoseconds": 1000000
+              },
+              "mtu_bytes": {
+                "values": [
+                  1280,
+                  1288,
+                  1500
+                ]
+              }
+            },
+            "metadata": {
+              "name": "deep-tree-mtu-ttl-cliff"
+            },
+            "objectives": {
+              "maximize": [
+                "first-mtu-failure-depth",
+                "ttl-exhaustion"
+              ]
+            },
+            "protocol": {
+              "parameters": {
+                "lookup_ttl": {
+                  "values": [
+                    255,
+                    64,
+                    65
+                  ]
+                }
+              },
+              "variant": "fips-80c956a-baseline"
+            },
+            "scale": {
+              "nodes": {
+                "values": [
+                  2001,
+                  2044,
+                  36,
+                  65
+                ]
+              }
+            },
+            "seed": 1005,
+            "topology": {
+              "connected": true,
+              "generator": "chain"
+            },
+            "traffic": {
+              "model": "idle"
+            },
+            "transports": {
+              "assignment": "descending-mtu-root-spine"
+            }
+          },
+          "axes": [
+            {
+              "path": "/links/mtu_bytes",
+              "values": [
+                1280,
+                1288,
+                1500
+              ]
+            },
+            {
+              "path": "/protocol/parameters/lookup_ttl",
+              "values": [
+                255,
+                64,
+                65
+              ]
+            },
+            {
+              "path": "/scale/nodes",
+              "values": [
+                2001,
+                2044,
+                36,
+                65
+              ]
+            }
+          ],
+          "seed": 1005
+        },
+        "selector_overrides": {
+          "/scale/nodes": "boundary-at"
+        },
+        "expected_assertion": "oversize-frames-are-explicit",
+        "oracle": {
+          "status": "eligible",
+          "reason": "small representable boundary uses supported daemon chaos controls"
+        }
+      }
+    },
+    {
+      "contract": {
+        "id": "lookup-thundering-herd",
+        "title": "Lookup Thundering Herd",
+        "campaign_source": "examples/campaigns/lookup-thundering-herd.yaml",
+        "normative_schema": "experiments.fips.network/v1alpha1",
+        "dimensions": [
+          "target state",
+          "retry cadence",
+          "jitter",
+          "negative cache",
+          "queue budget"
+        ],
+        "boundary_matrix": [
+          {
+            "name": "retry wave",
+            "values": [
+              "no-jitter",
+              "at-jitter",
+              "decorrelated"
+            ],
+            "reason": "detects retry resonance"
+          }
+        ],
+        "assertions": [
+          "lookup queues drain",
+          "dedup counts reconcile",
+          "useful traffic is not starved silently"
+        ],
+        "report_recipe": [
+          "retry causal tree",
+          "fanout distribution",
+          "queue saturation",
+          "negative-cache comparison"
+        ],
+        "resource_budget": {
+          "maximum_individual_nodes": 1000000,
+          "maximum_events": 1000000,
+          "maximum_memory_bytes": 4294967296,
+          "maximum_wall_time_seconds": 600,
+          "larger_scale_mode": "cohort or hybrid with explicit uncertainty"
+        },
+        "fidelity": {
+          "supported": [
+            "semantic-exact individual",
+            "operation-counted aggregate"
+          ],
+          "unsupported": [
+            "host DNS cache behavior"
+          ],
+          "calibration": "fixtures/m4/calibration.json; family boundary evidence is deterministic"
+        }
+      },
+      "baseline": [
+        {
+          "name": "lookup-attempts",
+          "value": "18000",
+          "unit": "ppm",
+          "fidelity": "deterministic-model",
+          "evidence": "qualification/baseline"
+        }
+      ],
+      "discovered_boundary": {
+        "id": "retry-resonance",
+        "below": {
+          "name": "peak-queued-lookups",
+          "value": "400",
+          "unit": "requests",
+          "fidelity": "deterministic-model",
+          "evidence": "boundary-matrix/below"
+        },
+        "at": {
+          "name": "peak-queued-lookups",
+          "value": "1000",
+          "unit": "requests",
+          "fidelity": "deterministic-model",
+          "evidence": "boundary-matrix/at"
+        },
+        "above": {
+          "name": "peak-queued-lookups",
+          "value": "240",
+          "unit": "requests",
+          "fidelity": "deterministic-model",
+          "evidence": "boundary-matrix/above"
+        },
+        "conclusion": "synchronized retries saturate the 1000-entry hub table; deterministic jitter breaks resonance"
+      },
+      "variant_comparison": {
+        "baseline": {
+          "name": "lookup-attempts",
+          "value": "18000",
+          "unit": "ppm",
+          "fidelity": "deterministic-model",
+          "evidence": "qualification/baseline"
+        },
+        "variant_id": "negative-cache-v1",
+        "variant": {
+          "name": "lookup-attempts",
+          "value": "6000",
+          "unit": "ppm",
+          "fidelity": "deterministic-model",
+          "evidence": "qualification/variant"
+        },
+        "relative_change_ppm": -666666,
+        "causal_explanation": "negative cache entries terminate repeated absent-target fanout"
+      },
+      "assertions": [
+        {
+          "id": "lookup-queues-drain",
+          "outcome": "pass",
+          "evidence": "qualification/lookup-thundering-herd/lookup-queues-drain"
+        },
+        {
+          "id": "dedup-counts-reconcile",
+          "outcome": "pass",
+          "evidence": "qualification/lookup-thundering-herd/dedup-counts-reconcile"
+        },
+        {
+          "id": "useful-traffic-is-not-starved-silently",
+          "outcome": "pass",
+          "evidence": "qualification/lookup-thundering-herd/useful-traffic-is-not-starved-silently"
+        }
+      ],
+      "minimized_reproduction": {
+        "id": "lookup-thundering-herd-boundary-min",
+        "normalized_plan": {
+          "api_version": "experiments.fips.network/normalized-plan/v1alpha1",
+          "campaign_sha256": "1874f8367531c59921434b5215d95607814467be709d6d573e7d5197dc40aa5c",
+          "campaign": {
+            "apiVersion": "experiments.fips.network/v1alpha1",
+            "assertions": [
+              {
+                "eventually": {
+                  "condition": "lookup-queues-drain",
+                  "within": {
+                    "nanoseconds": 60000000000
+                  }
+                }
+              }
+            ],
+            "engine": {
+              "deterministic": true,
+              "modes": "compact-discrete-event",
+              "variant": "fips-80c956a-baseline"
+            },
+            "events": [
+              {
+                "action": "expire-coordinate-cache"
+              },
+              {
+                "action": "simultaneous-lookups",
+                "at": {
+                  "nanoseconds": 1000000
+                }
+              }
+            ],
+            "fidelity": {
+              "billion_node_representation": "not-requested",
+              "bloom": "exact-bits",
+              "protocol": "semantic-exact",
+              "serialization": "executable-codec"
+            },
+            "identities": {
+              "initial": {
+                "distribution": "uniform-128"
+              }
+            },
+            "instrumentation": {
+              "queue_wait": true,
+              "state_tables": true,
+              "transition_stages": true
+            },
+            "kind": "Campaign",
+            "metadata": {
+              "name": "lookup-thundering-herd"
+            },
+            "objectives": {
+              "maximize": [
+                "lookup-fanout",
+                "queue-bytes",
+                "retry-count"
+              ]
+            },
+            "resources": {
+              "assignment": "hub-constrained",
+              "node_profiles": [
+                {
+                  "cpu_units": 100,
+                  "memory_bytes": 268435456,
+                  "name": "hub",
+                  "queue_bytes": 65536,
+                  "table_entries": 1000
+                }
+              ]
+            },
+            "scale": {
+              "nodes": {
+                "values": [
+                  1000,
+                  100000
+                ]
+              }
+            },
+            "seed": 1006,
+            "topology": {
+              "average_degree": 6,
+              "connected": true,
+              "generator": "scale-free"
+            },
+            "traffic": {
+              "model": "session-churn",
+              "rate_bps": 100000000
+            },
+            "transports": {
+              "assignment": "random-mixed"
+            }
+          },
+          "axes": [
+            {
+              "path": "/scale/nodes",
+              "values": [
+                1000,
+                100000
+              ]
+            }
+          ],
+          "seed": 1006
+        },
+        "selector_overrides": {
+          "/events/1/at": "boundary-at"
+        },
+        "expected_assertion": "lookup-queues-drain",
+        "oracle": {
+          "status": "unsupported",
+          "reason": "pinned daemon harness lacks the required typed injection or observation"
+        }
+      }
+    },
+    {
+      "contract": {
+        "id": "parent-hysteresis-oscillator",
+        "title": "Parent Hysteresis Oscillator",
+        "campaign_source": "examples/campaigns/parent-hysteresis-oscillator.yaml",
+        "normative_schema": "experiments.fips.network/v1alpha1",
+        "dimensions": [
+          "cost delta",
+          "hysteresis",
+          "hold-down",
+          "root arrival",
+          "link asymmetry"
+        ],
+        "boundary_matrix": [
+          {
+            "name": "reevaluation cadence",
+            "values": [
+              "499ms",
+              "500ms",
+              "501ms"
+            ],
+            "reason": "covers hold-down edge"
+          }
+        ],
+        "assertions": [
+          "mandatory better-root switch is never suppressed",
+          "discretionary switch obeys hold-down",
+          "event order is deterministic"
+        ],
+        "report_recipe": [
+          "parent changes over time",
+          "mandatory versus discretionary",
+          "evaluation CPU",
+          "downstream amplification"
+        ],
+        "resource_budget": {
+          "maximum_individual_nodes": 1000000,
+          "maximum_events": 1000000,
+          "maximum_memory_bytes": 4294967296,
+          "maximum_wall_time_seconds": 600,
+          "larger_scale_mode": "cohort or hybrid with explicit uncertainty"
+        },
+        "fidelity": {
+          "supported": [
+            "semantic-exact individual"
+          ],
+          "unsupported": [
+            "cohort identity-level parent selection"
+          ],
+          "calibration": "fixtures/m4/calibration.json; family boundary evidence is deterministic"
+        }
+      },
+      "baseline": [
+        {
+          "name": "parent-evaluations",
+          "value": "9000",
+          "unit": "ppm",
+          "fidelity": "deterministic-model",
+          "evidence": "qualification/baseline"
+        }
+      ],
+      "discovered_boundary": {
+        "id": "hold-down-edge",
+        "below": {
+          "name": "parent-switches",
+          "value": "1",
+          "unit": "switches",
+          "fidelity": "deterministic-model",
+          "evidence": "boundary-matrix/below"
+        },
+        "at": {
+          "name": "parent-switches",
+          "value": "1",
+          "unit": "switches",
+          "fidelity": "deterministic-model",
+          "evidence": "boundary-matrix/at"
+        },
+        "above": {
+          "name": "parent-switches",
+          "value": "3",
+          "unit": "switches",
+          "fidelity": "deterministic-model",
+          "evidence": "boundary-matrix/above"
+        },
+        "conclusion": "the first post-hold-down reevaluation admits two discretionary switches"
+      },
+      "variant_comparison": {
+        "baseline": {
+          "name": "parent-evaluations",
+          "value": "9000",
+          "unit": "ppm",
+          "fidelity": "deterministic-model",
+          "evidence": "qualification/baseline"
+        },
+        "variant_id": "adaptive-hysteresis-v1",
+        "variant": {
+          "name": "parent-evaluations",
+          "value": "5000",
+          "unit": "ppm",
+          "fidelity": "deterministic-model",
+          "evidence": "qualification/variant"
+        },
+        "relative_change_ppm": -444444,
+        "causal_explanation": "adaptive hysteresis skips cost-only reevaluations while root-mandatory changes bypass it"
+      },
+      "assertions": [
+        {
+          "id": "mandatory-better-root-switch-is-never-suppressed",
+          "outcome": "pass",
+          "evidence": "qualification/parent-hysteresis-oscillator/mandatory-better-root-switch-is-never-suppressed"
+        },
+        {
+          "id": "discretionary-switch-obeys-hold-down",
+          "outcome": "pass",
+          "evidence": "qualification/parent-hysteresis-oscillator/discretionary-switch-obeys-hold-down"
+        },
+        {
+          "id": "event-order-is-deterministic",
+          "outcome": "pass",
+          "evidence": "qualification/parent-hysteresis-oscillator/event-order-is-deterministic"
+        }
+      ],
+      "minimized_reproduction": {
+        "id": "parent-hysteresis-oscillator-boundary-min",
+        "normalized_plan": {
+          "api_version": "experiments.fips.network/normalized-plan/v1alpha1",
+          "campaign_sha256": "357c3afa53be4cc5c096ce0221f23bbe69efd025915985a7be6ca3125741fa3f",
+          "campaign": {
+            "apiVersion": "experiments.fips.network/v1alpha1",
+            "assertions": [
+              {
+                "always": {
+                  "condition": "mandatory-better-root-switch-is-not-suppressed"
+                }
+              }
+            ],
+            "engine": {
+              "deterministic": true,
+              "modes": "compact-discrete-event",
+              "variant": "fips-80c956a-baseline"
+            },
+            "events": [
+              {
+                "action": "alternate-parent-quality",
+                "at": {
+                  "values": [
+                    {
+                      "nanoseconds": 499000000
+                    },
+                    {
+                      "nanoseconds": 500000000
+                    },
+                    {
+                      "nanoseconds": 501000000
+                    }
+                  ]
+                }
+              }
+            ],
+            "fidelity": {
+              "billion_node_representation": "not-requested",
+              "protocol": "semantic-exact",
+              "serialization": "executable-codec"
+            },
+            "identities": {
+              "initial": {
+                "distribution": "uniform-128"
+              }
+            },
+            "instrumentation": {
+              "causal_cost_ledger": true,
+              "transition_stages": true
+            },
+            "kind": "Campaign",
+            "links": {
+              "latency": {
+                "values": [
+                  {
+                    "nanoseconds": 10000000
+                  },
+                  {
+                    "nanoseconds": 1000000
+                  }
+                ]
+              },
+              "loss_ppm": {
+                "values": [
+                  0,
+                  1000
+                ]
+              },
+              "ordering": "datagram"
+            },
+            "metadata": {
+              "name": "parent-hysteresis-oscillator"
+            },
+            "objectives": {
+              "maximize": [
+                "parent-switches",
+                "dampened-duration"
+              ]
+            },
+            "protocol": {
+              "parameters": {
+                "flap_threshold": {
+                  "values": [
+                    2,
+                    4
+                  ]
+                },
+                "hold_down": {
+                  "values": [
+                    {
+                      "nanoseconds": 0
+                    },
+                    {
+                      "nanoseconds": 1000000000
+                    }
+                  ]
+                }
+              },
+              "variant": "fips-80c956a-baseline"
+            },
+            "scale": {
+              "nodes": 20
+            },
+            "seed": 1007,
+            "topology": {
+              "connected": true,
+              "explicit_edges": [
+                [
+                  0,
+                  1
+                ],
+                [
+                  0,
+                  2
+                ],
+                [
+                  1,
+                  3
+                ],
+                [
+                  2,
+                  3
+                ]
+              ],
+              "generator": "explicit"
+            },
+            "traffic": {
+              "model": "idle"
+            },
+            "transports": {
+              "assignment": "all-udp"
+            }
+          },
+          "axes": [
+            {
+              "path": "/events/0/at",
+              "values": [
+                {
+                  "nanoseconds": 499000000
+                },
+                {
+                  "nanoseconds": 500000000
+                },
+                {
+                  "nanoseconds": 501000000
+                }
+              ]
+            },
+            {
+              "path": "/links/latency",
+              "values": [
+                {
+                  "nanoseconds": 10000000
+                },
+                {
+                  "nanoseconds": 1000000
+                }
+              ]
+            },
+            {
+              "path": "/links/loss_ppm",
+              "values": [
+                0,
+                1000
+              ]
+            },
+            {
+              "path": "/protocol/parameters/flap_threshold",
+              "values": [
+                2,
+                4
+              ]
+            },
+            {
+              "path": "/protocol/parameters/hold_down",
+              "values": [
+                {
+                  "nanoseconds": 0
+                },
+                {
+                  "nanoseconds": 1000000000
+                }
+              ]
+            }
+          ],
+          "seed": 1007
+        },
+        "selector_overrides": {
+          "/events/0/at": "boundary-at"
+        },
+        "expected_assertion": "mandatory-better-root-switch-is-never-suppressed",
+        "oracle": {
+          "status": "eligible",
+          "reason": "small representable boundary uses supported daemon chaos controls"
+        }
+      }
+    },
+    {
+      "contract": {
+        "id": "mixed-transport-failover",
+        "title": "Mixed-Transport Failover",
+        "campaign_source": "examples/campaigns/mixed-transport-failover.yaml",
+        "normative_schema": "experiments.fips.network/v1alpha1",
+        "dimensions": [
+          "transport class",
+          "failover",
+          "parallel path",
+          "effective MTU",
+          "head-of-line blocking"
+        ],
+        "boundary_matrix": [
+          {
+            "name": "transport",
+            "values": [
+              "UDP",
+              "TCP",
+              "Ethernet",
+              "BLE",
+              "Tor",
+              "Nym"
+            ],
+            "reason": "all declared transport classes"
+          }
+        ],
+        "assertions": [
+          "session outcomes are typed",
+          "effective MTU includes overhead",
+          "control and data recovery stay separate"
+        ],
+        "report_recipe": [
+          "transport allocation",
+          "failover timeline",
+          "head-of-line delay",
+          "useful payload recovery"
+        ],
+        "resource_budget": {
+          "maximum_individual_nodes": 1000000,
+          "maximum_events": 1000000,
+          "maximum_memory_bytes": 4294967296,
+          "maximum_wall_time_seconds": 600,
+          "larger_scale_mode": "cohort or hybrid with explicit uncertainty"
+        },
+        "fidelity": {
+          "supported": [
+            "abstract transport",
+            "calibrated UDP and TCP"
+          ],
+          "unsupported": [
+            "uncalibrated Tor/Nym latency",
+            "real BLE radio contention"
+          ],
+          "calibration": "fixtures/m4/calibration.json; family boundary evidence is deterministic"
+        }
+      },
+      "baseline": [
+        {
+          "name": "lost-useful-bytes",
+          "value": "880000",
+          "unit": "ppm",
+          "fidelity": "deterministic-model",
+          "evidence": "qualification/baseline"
+        }
+      ],
+      "discovered_boundary": {
+        "id": "udp-failure",
+        "below": {
+          "name": "failover-latency",
+          "value": "1",
+          "unit": "milliseconds",
+          "fidelity": "deterministic-model",
+          "evidence": "boundary-matrix/below"
+        },
+        "at": {
+          "name": "failover-latency",
+          "value": "100",
+          "unit": "milliseconds",
+          "fidelity": "deterministic-model",
+          "evidence": "boundary-matrix/at"
+        },
+        "above": {
+          "name": "failover-latency",
+          "value": "410",
+          "unit": "milliseconds",
+          "fidelity": "deterministic-model",
+          "evidence": "boundary-matrix/above"
+        },
+        "conclusion": "loss of the low-latency UDP path moves sessions onto the stream head-of-line queue"
+      },
+      "variant_comparison": {
+        "baseline": {
+          "name": "lost-useful-bytes",
+          "value": "880000",
+          "unit": "ppm",
+          "fidelity": "deterministic-model",
+          "evidence": "qualification/baseline"
+        },
+        "variant_id": "parallel-session-v1",
+        "variant": {
+          "name": "lost-useful-bytes",
+          "value": "210000",
+          "unit": "ppm",
+          "fidelity": "deterministic-model",
+          "evidence": "qualification/variant"
+        },
+        "relative_change_ppm": -761363,
+        "causal_explanation": "parallel session establishment keeps a warm independent transport path"
+      },
+      "assertions": [
+        {
+          "id": "session-outcomes-are-typed",
+          "outcome": "pass",
+          "evidence": "qualification/mixed-transport-failover/session-outcomes-are-typed"
+        },
+        {
+          "id": "effective-MTU-includes-overhead",
+          "outcome": "pass",
+          "evidence": "qualification/mixed-transport-failover/effective-MTU-includes-overhead"
+        },
+        {
+          "id": "control-and-data-recovery-stay-separate",
+          "outcome": "pass",
+          "evidence": "qualification/mixed-transport-failover/control-and-data-recovery-stay-separate"
+        }
+      ],
+      "minimized_reproduction": {
+        "id": "mixed-transport-failover-boundary-min",
+        "normalized_plan": {
+          "api_version": "experiments.fips.network/normalized-plan/v1alpha1",
+          "campaign_sha256": "76b9b58d6d080492ebf8ab0468b45a8732142694ecad1ad00a68ac3382f45b0e",
+          "campaign": {
+            "apiVersion": "experiments.fips.network/v1alpha1",
+            "assertions": [
+              {
+                "eventually": {
+                  "condition": "useful-traffic-recovers",
+                  "within": {
+                    "nanoseconds": 60000000000
+                  }
+                }
+              }
+            ],
+            "engine": {
+              "deterministic": true,
+              "modes": "compact-discrete-event",
+              "variant": "fips-80c956a-baseline"
+            },
+            "events": [
+              {
+                "action": "fail-transport-class",
+                "at": {
+                  "nanoseconds": 10000000000
+                },
+                "target": "udp-fast"
+              }
+            ],
+            "fidelity": {
+              "billion_node_representation": "not-requested",
+              "protocol": "semantic-exact",
+              "serialization": "executable-codec"
+            },
+            "identities": {
+              "initial": {
+                "distribution": "uniform-128"
+              }
+            },
+            "instrumentation": {
+              "session_metrics": true,
+              "transition_stages": true
+            },
+            "kind": "Campaign",
+            "metadata": {
+              "name": "mixed-transport-failover"
+            },
+            "objectives": {
+              "maximize": [
+                "failover-time",
+                "useful-payload-loss"
+              ]
+            },
+            "scale": {
+              "nodes": {
+                "values": [
+                  1000,
+                  20
+                ]
+              }
+            },
+            "seed": 1008,
+            "topology": {
+              "average_degree": 4,
+              "connected": true,
+              "generator": "clustered"
+            },
+            "traffic": {
+              "model": "cross-min-cut",
+              "rate_bps": 10000000
+            },
+            "transports": {
+              "assignment": "random-mixed",
+              "profiles": [
+                {
+                  "latency": {
+                    "nanoseconds": 1000000
+                  },
+                  "mtu_bytes": 1500,
+                  "name": "udp-fast",
+                  "type": "udp"
+                },
+                {
+                  "latency": {
+                    "nanoseconds": 100000000
+                  },
+                  "mtu_bytes": 1280,
+                  "name": "tcp-slow",
+                  "type": "tcp"
+                }
+              ]
+            }
+          },
+          "axes": [
+            {
+              "path": "/scale/nodes",
+              "values": [
+                1000,
+                20
+              ]
+            }
+          ],
+          "seed": 1008
+        },
+        "selector_overrides": {
+          "/events/0/target": "boundary-at"
+        },
+        "expected_assertion": "session-outcomes-are-typed",
+        "oracle": {
+          "status": "unsupported",
+          "reason": "pinned daemon harness lacks the required typed injection or observation"
+        }
+      }
+    },
+    {
+      "contract": {
+        "id": "synchronized-rekey-avalanche",
+        "title": "Synchronized Rekey Avalanche",
+        "campaign_source": "examples/campaigns/synchronized-rekey-avalanche.yaml",
+        "normative_schema": "experiments.fips.network/v1alpha1",
+        "dimensions": [
+          "expiry trigger",
+          "key window",
+          "reorder",
+          "partition",
+          "crypto cost"
+        ],
+        "boundary_matrix": [
+          {
+            "name": "key window",
+            "values": [
+              "single",
+              "dual",
+              "drain"
+            ],
+            "reason": "covers replay and reorder semantics"
+          }
+        ],
+        "assertions": [
+          "topology and rekey causal trees remain distinct",
+          "session counters reconcile",
+          "replay rejection is typed"
+        ],
+        "report_recipe": [
+          "setup pressure",
+          "crypto operations",
+          "loss and goodput",
+          "dual-key comparison"
+        ],
+        "resource_budget": {
+          "maximum_individual_nodes": 1000000,
+          "maximum_events": 1000000,
+          "maximum_memory_bytes": 4294967296,
+          "maximum_wall_time_seconds": 600,
+          "larger_scale_mode": "cohort or hybrid with explicit uncertainty"
+        },
+        "fidelity": {
+          "supported": [
+            "operation-counted crypto",
+            "hardware-calibrated crypto"
+          ],
+          "unsupported": [
+            "wall-clock crypto claims without a hardware profile"
+          ],
+          "calibration": "fixtures/m4/calibration.json; family boundary evidence is deterministic"
+        }
+      },
+      "baseline": [
+        {
+          "name": "crypto-operations",
+          "value": "24000",
+          "unit": "ppm",
+          "fidelity": "deterministic-model",
+          "evidence": "qualification/baseline"
+        }
+      ],
+      "discovered_boundary": {
+        "id": "simultaneous-expiry",
+        "below": {
+          "name": "peak-session-setups",
+          "value": "400",
+          "unit": "setups",
+          "fidelity": "deterministic-model",
+          "evidence": "boundary-matrix/below"
+        },
+        "at": {
+          "name": "peak-session-setups",
+          "value": "1000",
+          "unit": "setups",
+          "fidelity": "deterministic-model",
+          "evidence": "boundary-matrix/at"
+        },
+        "above": {
+          "name": "peak-session-setups",
+          "value": "600",
+          "unit": "setups",
+          "fidelity": "deterministic-model",
+          "evidence": "boundary-matrix/above"
+        },
+        "conclusion": "time and frame expiry coincide at the campaign boundary and exhaust the constrained setup pool"
+      },
+      "variant_comparison": {
+        "baseline": {
+          "name": "crypto-operations",
+          "value": "24000",
+          "unit": "ppm",
+          "fidelity": "deterministic-model",
+          "evidence": "qualification/baseline"
+        },
+        "variant_id": "staggered-rekey-v1",
+        "variant": {
+          "name": "crypto-operations",
+          "value": "14000",
+          "unit": "ppm",
+          "fidelity": "deterministic-model",
+          "evidence": "qualification/variant"
+        },
+        "relative_change_ppm": -416666,
+        "causal_explanation": "seeded expiry staggering spreads setup work without changing key-window rules"
+      },
+      "assertions": [
+        {
+          "id": "topology-and-rekey-causal-trees-remain-distinct",
+          "outcome": "pass",
+          "evidence": "qualification/synchronized-rekey-avalanche/topology-and-rekey-causal-trees-remain-distinct"
+        },
+        {
+          "id": "session-counters-reconcile",
+          "outcome": "pass",
+          "evidence": "qualification/synchronized-rekey-avalanche/session-counters-reconcile"
+        },
+        {
+          "id": "replay-rejection-is-typed",
+          "outcome": "pass",
+          "evidence": "qualification/synchronized-rekey-avalanche/replay-rejection-is-typed"
+        }
+      ],
+      "minimized_reproduction": {
+        "id": "synchronized-rekey-avalanche-boundary-min",
+        "normalized_plan": {
+          "api_version": "experiments.fips.network/normalized-plan/v1alpha1",
+          "campaign_sha256": "9dfac5d7c4e724416340b1ac27fdb967cfb22211077ea7f0769c8799294ae8b9",
+          "campaign": {
+            "apiVersion": "experiments.fips.network/v1alpha1",
+            "assertions": [
+              {
+                "reconcile": {
+                  "condition": "rekey-causal-trees-remain-distinct"
+                }
+              }
+            ],
+            "engine": {
+              "deterministic": true,
+              "modes": "compact-discrete-event",
+              "variant": "fips-80c956a-baseline"
+            },
+            "events": [
+              {
+                "action": "synchronized-session-rekey",
+                "at": {
+                  "nanoseconds": 10000000000
+                }
+              },
+              {
+                "action": "topology-change",
+                "at": {
+                  "nanoseconds": 10000000000
+                }
+              }
+            ],
+            "fidelity": {
+              "billion_node_representation": "not-requested",
+              "crypto": {
+                "values": [
+                  "calibrated-cost",
+                  "operation-count"
+                ]
+              },
+              "protocol": "operation-counted",
+              "serialization": "executable-codec"
+            },
+            "identities": {
+              "initial": {
+                "distribution": "uniform-128"
+              }
+            },
+            "instrumentation": {
+              "queue_wait": true,
+              "session_metrics": true,
+              "transition_stages": true
+            },
+            "kind": "Campaign",
+            "metadata": {
+              "name": "synchronized-rekey-avalanche"
+            },
+            "objectives": {
+              "maximize": [
+                "rekey-setup-latency",
+                "session-table-pressure"
+              ]
+            },
+            "protocol": {
+              "parameters": {
+                "crypto_mode": {
+                  "values": [
+                    "calibrated-cost",
+                    "operation-count"
+                  ]
+                }
+              },
+              "variant": "fips-80c956a-baseline"
+            },
+            "resources": {
+              "assignment": "uniform",
+              "node_profiles": [
+                {
+                  "cpu_units": 100,
+                  "memory_bytes": 268435456,
+                  "name": "constrained",
+                  "queue_bytes": 65536,
+                  "table_entries": 10000
+                }
+              ]
+            },
+            "scale": {
+              "nodes": {
+                "values": [
+                  1000,
+                  100000
+                ]
+              }
+            },
+            "seed": 1009,
+            "topology": {
+              "average_degree": 4,
+              "connected": true,
+              "generator": "random-regular"
+            },
+            "traffic": {
+              "model": "session-churn",
+              "rate_bps": 100000000
+            },
+            "transports": {
+              "assignment": "random-mixed"
+            }
+          },
+          "axes": [
+            {
+              "path": "/fidelity/crypto",
+              "values": [
+                "calibrated-cost",
+                "operation-count"
+              ]
+            },
+            {
+              "path": "/protocol/parameters/crypto_mode",
+              "values": [
+                "calibrated-cost",
+                "operation-count"
+              ]
+            },
+            {
+              "path": "/scale/nodes",
+              "values": [
+                1000,
+                100000
+              ]
+            }
+          ],
+          "seed": 1009
+        },
+        "selector_overrides": {
+          "/events/0/at": "boundary-at"
+        },
+        "expected_assertion": "topology-and-rekey-causal-trees-remain-distinct",
+        "oracle": {
+          "status": "unsupported",
+          "reason": "pinned daemon harness lacks the required typed injection or observation"
+        }
+      }
+    },
+    {
+      "contract": {
+        "id": "authenticated-sybil-pressure",
+        "title": "Authenticated Sybil Pressure",
+        "campaign_source": "examples/campaigns/authenticated-sybil-pressure.yaml",
+        "normative_schema": "experiments.fips.network/v1alpha1",
+        "dimensions": [
+          "identity budget",
+          "signing budget",
+          "placement",
+          "visibility",
+          "withholding"
+        ],
+        "boundary_matrix": [
+          {
+            "name": "attacker identities",
+            "values": [
+              "1",
+              "10",
+              "1000"
+            ],
+            "reason": "damage frontier by authenticated identity budget"
+          }
+        ],
+        "assertions": [
+          "malformed input remains outside this subsystem",
+          "accepted and rejected actions are distinct",
+          "attacker spend is bounded"
+        ],
+        "report_recipe": [
+          "damage per operation",
+          "damage per byte",
+          "root concentration",
+          "bounded Pareto frontier"
+        ],
+        "resource_budget": {
+          "maximum_individual_nodes": 1000000,
+          "maximum_events": 1000000,
+          "maximum_memory_bytes": 4294967296,
+          "maximum_wall_time_seconds": 600,
+          "larger_scale_mode": "cohort or hybrid with explicit uncertainty"
+        },
+        "fidelity": {
+          "supported": [
+            "authenticated semantic actions",
+            "operation-counted attacker budget"
+          ],
+          "unsupported": [
+            "invalid-wire behavior",
+            "unbounded identity generation"
+          ],
+          "calibration": "fixtures/m4/calibration.json; family boundary evidence is deterministic"
+        }
+      },
+      "baseline": [
+        {
+          "name": "damage-per-million-operations",
+          "value": "830000",
+          "unit": "ppm",
+          "fidelity": "deterministic-model",
+          "evidence": "qualification/baseline"
+        }
+      ],
+      "discovered_boundary": {
+        "id": "hub-concentration",
+        "below": {
+          "name": "dishonest-transitive-reach",
+          "value": "120",
+          "unit": "per-thousand nodes",
+          "fidelity": "deterministic-model",
+          "evidence": "boundary-matrix/below"
+        },
+        "at": {
+          "name": "dishonest-transitive-reach",
+          "value": "510",
+          "unit": "per-thousand nodes",
+          "fidelity": "deterministic-model",
+          "evidence": "boundary-matrix/at"
+        },
+        "above": {
+          "name": "dishonest-transitive-reach",
+          "value": "830",
+          "unit": "per-thousand nodes",
+          "fidelity": "deterministic-model",
+          "evidence": "boundary-matrix/above"
+        },
+        "conclusion": "strategic high-degree placement crosses majority transitive reach between 10 and 1000 identities"
+      },
+      "variant_comparison": {
+        "baseline": {
+          "name": "damage-per-million-operations",
+          "value": "830000",
+          "unit": "ppm",
+          "fidelity": "deterministic-model",
+          "evidence": "qualification/baseline"
+        },
+        "variant_id": "peer-diversity-v1",
+        "variant": {
+          "name": "damage-per-million-operations",
+          "value": "370000",
+          "unit": "ppm",
+          "fidelity": "deterministic-model",
+          "evidence": "qualification/variant"
+        },
+        "relative_change_ppm": -554216,
+        "causal_explanation": "peer diversity caps same-budget concentration without reclassifying authenticated actions"
+      },
+      "assertions": [
+        {
+          "id": "malformed-input-remains-outside-this-subsystem",
+          "outcome": "pass",
+          "evidence": "qualification/authenticated-sybil-pressure/malformed-input-remains-outside-this-subsystem"
+        },
+        {
+          "id": "accepted-and-rejected-actions-are-distinct",
+          "outcome": "pass",
+          "evidence": "qualification/authenticated-sybil-pressure/accepted-and-rejected-actions-are-distinct"
+        },
+        {
+          "id": "attacker-spend-is-bounded",
+          "outcome": "pass",
+          "evidence": "qualification/authenticated-sybil-pressure/attacker-spend-is-bounded"
+        }
+      ],
+      "minimized_reproduction": {
+        "id": "authenticated-sybil-pressure-boundary-min",
+        "normalized_plan": {
+          "api_version": "experiments.fips.network/normalized-plan/v1alpha1",
+          "campaign_sha256": "cd3a86e50d7de193bb286344d9b4db6eeb6677ce48bd946c332c2a51f69eeef7",
+          "campaign": {
+            "adversaries": {
+              "actions": [
+                "bounded-root-grinding",
+                "selective-visibility",
+                "valid-lookup-pressure",
+                "withheld-forwarding"
+              ],
+              "budgets": {
+                "bytes": 1000000000,
+                "compute_units": 1000000,
+                "identities": {
+                  "values": [
+                    10,
+                    1000
+                  ]
+                },
+                "operations": {
+                  "values": [
+                    1000,
+                    1000000
+                  ]
+                },
+                "wall_time": {
+                  "nanoseconds": 60000000000
+                }
+              },
+              "mode": "authenticated-protocol-valid"
+            },
+            "apiVersion": "experiments.fips.network/v1alpha1",
+            "assertions": [
+              {
+                "always": {
+                  "condition": "malformed-wire-input-is-excluded"
+                }
+              }
+            ],
+            "engine": {
+              "deterministic": true,
+              "modes": "compact-discrete-event",
+              "variant": "fips-80c956a-baseline"
+            },
+            "events": [
+              {
+                "action": "attach-authenticated-sybils"
+              }
+            ],
+            "fidelity": {
+              "billion_node_representation": "not-requested",
+              "bloom": {
+                "values": [
+                  "exact-bits",
+                  "occupancy"
+                ]
+              },
+              "protocol": "semantic-exact",
+              "serialization": "executable-codec"
+            },
+            "identities": {
+              "initial": {
+                "distribution": "uniform-128"
+              }
+            },
+            "instrumentation": {
+              "causal_cost_ledger": true,
+              "state_tables": true,
+              "transition_stages": true
+            },
+            "kind": "Campaign",
+            "metadata": {
+              "name": "authenticated-sybil-pressure"
+            },
+            "objectives": {
+              "maximize": [
+                "damage-per-attacker-operation",
+                "sybil-concentration"
+              ]
+            },
+            "scale": {
+              "nodes": {
+                "values": [
+                  1000,
+                  100000
+                ]
+              }
+            },
+            "seed": 1010,
+            "topology": {
+              "average_degree": 6,
+              "connected": true,
+              "generator": "scale-free"
+            },
+            "traffic": {
+              "model": "session-churn"
+            },
+            "transports": {
+              "assignment": "random-mixed"
+            }
+          },
+          "axes": [
+            {
+              "path": "/adversaries/budgets/identities",
+              "values": [
+                10,
+                1000
+              ]
+            },
+            {
+              "path": "/adversaries/budgets/operations",
+              "values": [
+                1000,
+                1000000
+              ]
+            },
+            {
+              "path": "/fidelity/bloom",
+              "values": [
+                "exact-bits",
+                "occupancy"
+              ]
+            },
+            {
+              "path": "/scale/nodes",
+              "values": [
+                1000,
+                100000
+              ]
+            }
+          ],
+          "seed": 1010
+        },
+        "selector_overrides": {
+          "/adversaries/budgets/identities": "boundary-at"
+        },
+        "expected_assertion": "malformed-input-remains-outside-this-subsystem",
+        "oracle": {
+          "status": "unsupported",
+          "reason": "pinned daemon harness lacks the required typed injection or observation"
+        }
+      }
+    }
+  ],
+  "family_count": 10,
+  "all_contracts_complete": true,
+  "accounting_note": "Values are model evidence unless labeled executable-codec; unsupported observations are never zero or a match."
+}

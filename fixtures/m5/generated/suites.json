@@ -1,0 +1,38 @@
+[
+  {
+    "id": "smoke-root-ratchet",
+    "kind": "pull-request-smoke",
+    "revision": "80c956a6fdb85dde1450969a21891c1158e43267",
+    "expected": "unsupported-observation",
+    "maximum_minutes": 10,
+    "cache_key": "image:80c956a6fdb85dde1450969a21891c1158e43267",
+    "retain_failure_bundle": true
+  },
+  {
+    "id": "nightly-bloom-storm",
+    "kind": "nightly-calibration",
+    "revision": "80c956a6fdb85dde1450969a21891c1158e43267",
+    "expected": "classified",
+    "maximum_minutes": 45,
+    "cache_key": "image:80c956a6fdb85dde1450969a21891c1158e43267",
+    "retain_failure_bundle": true
+  },
+  {
+    "id": "historical-known-good",
+    "kind": "historical-regression",
+    "revision": "80c956a6fdb85dde1450969a21891c1158e43267",
+    "expected": "exact-match",
+    "maximum_minutes": 60,
+    "cache_key": "image:80c956a6fdb85dde1450969a21891c1158e43267",
+    "retain_failure_bundle": true
+  },
+  {
+    "id": "historical-known-bad-fixture",
+    "kind": "historical-regression",
+    "revision": "fixture-known-bad-bloom-storm",
+    "expected": "implementation-bug",
+    "maximum_minutes": 60,
+    "cache_key": "fixture:known-bad-bloom-storm",
+    "retain_failure_bundle": true
+  }
+]

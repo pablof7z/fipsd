@@ -1,0 +1,999 @@
+{
+  "kind": "hierarchical-shrink/v1alpha1",
+  "source_case_id": "bundle-31c4515d471b029e80c6c1c0d06d0f44",
+  "predicate": "amplification-at-least-90-percent",
+  "initial_plan_sha256": "a8ef09bcf75b02c88fec79deabf8dc366b38679559caadff54a60d7b05124aa1",
+  "final_plan": {
+    "api_version": "experiments.fips.network/normalized-plan/v1alpha1",
+    "campaign_sha256": "d1c3a63f99402785df388ed48c6b841ffa1d3d1fb5b06a4fbd34cc75caf708e0",
+    "campaign": {
+      "accounting": {
+        "causal_lineage": true,
+        "network_overhead": "configured",
+        "reconcile_serialized_frames": true,
+        "transport_overhead": true
+      },
+      "adversaries": {
+        "actions": [
+          "bounded-root-grinding",
+          "strategic-attachment"
+        ],
+        "budgets": {
+          "identities": 4,
+          "operations": 4
+        },
+        "mode": "authenticated-protocol-valid"
+      },
+      "apiVersion": "experiments.fips.network/v1alpha1",
+      "assertions": [
+        {
+          "always": {
+            "condition": "no_forwarding_loops"
+          }
+        },
+        {
+          "eventually": {
+            "condition": "data_plane_makes_progress"
+          }
+        },
+        {
+          "reconcile": {
+            "condition": "measured_bytes_equal_serialized_frames"
+          }
+        }
+      ],
+      "engine": {
+        "deterministic": true,
+        "modes": "compact-discrete-event",
+        "variant": "fips-80c956a-baseline"
+      },
+      "events": [
+        {
+          "action": "introduce-lower-root-identities",
+          "id": "descending-root-arrivals"
+        }
+      ],
+      "fidelity": {
+        "billion_node_representation": "not-requested",
+        "bloom": "exact-bits",
+        "crypto": "operation-count",
+        "protocol": "semantic-exact",
+        "serialization": "executable-codec"
+      },
+      "identities": {
+        "arrivals": {
+          "address_policy": "strictly-lower-than-current-root",
+          "attachment": "current-root",
+          "attacker_budget": {
+            "identities": 4,
+            "mode": "bounded",
+            "operations": 4
+          },
+          "count": 1,
+          "schedule": {
+            "interval": {
+              "nanoseconds": 1
+            },
+            "start": {
+              "nanoseconds": 2000000000
+            }
+          }
+        },
+        "initial": {
+          "distribution": "uniform-128"
+        }
+      },
+      "instrumentation": {
+        "causal_cost_ledger": true,
+        "control_and_useful_bytes": true,
+        "queue_wait": true,
+        "quiescence_markers": [
+          "root",
+          "tree",
+          "bloom",
+          "lookup",
+          "data-plane"
+        ],
+        "root_agreement_by_depth": true,
+        "transition_stages": true
+      },
+      "kind": "Campaign",
+      "links": {
+        "bandwidth_bps": 10000000,
+        "drop_policy": "tail-drop",
+        "duplication_ppm": 0,
+        "latency": {
+          "nanoseconds": 1000000
+        },
+        "loss_ppm": 0,
+        "mtu_bytes": 1500,
+        "ordering": "stream",
+        "queue_bytes": 1048576
+      },
+      "metadata": {
+        "description": "M3 authenticated Root Ratchet search and shrink matrix",
+        "name": "root-ratchet-search"
+      },
+      "objectives": {
+        "constraints": [
+          "/scale/nodes <= 12"
+        ],
+        "maximize": [
+          "control_bytes_per_root_arrival",
+          "data_plane_stall_duration"
+        ]
+      },
+      "protocol": {
+        "parameters": {},
+        "variant": "fips-80c956a-baseline"
+      },
+      "resources": {
+        "assignment": "uniform",
+        "node_profiles": [
+          {
+            "cpu_units": 1000,
+            "memory_bytes": 1073741824,
+            "name": "baseline",
+            "queue_bytes": 1048576,
+            "table_entries": 1000
+          }
+        ]
+      },
+      "scale": {
+        "nodes": 6
+      },
+      "seed": 7331,
+      "topology": {
+        "average_degree": 1,
+        "connected": true,
+        "generator": "chain"
+      },
+      "traffic": {
+        "model": "session-churn",
+        "parameters": {
+          "flow_count": 1
+        },
+        "payload_bytes": 1,
+        "rate_bps": 40960
+      },
+      "transports": {
+        "assignment": "all-udp"
+      }
+    },
+    "axes": [],
+    "seed": 7331
+  },
+  "steps": [
+    {
+      "ordinal": 0,
+      "dimension": "traffic",
+      "before_sha256": "a8ef09bcf75b02c88fec79deabf8dc366b38679559caadff54a60d7b05124aa1",
+      "candidate_sha256": "619d63c64989690f5d2b7e8a3a2c4298308919c66f03c9f1b365c30a81e37a24",
+      "change": "/traffic/parameters/flow_count: 24 -> 12",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 1,
+      "dimension": "traffic",
+      "before_sha256": "a8ef09bcf75b02c88fec79deabf8dc366b38679559caadff54a60d7b05124aa1",
+      "candidate_sha256": "9ee6c0b9fe5ba49ecd80f45c52b217f2a2bbe3e5f231e55e83bc42678c006cd6",
+      "change": "/traffic/payload_bytes: 512 -> 256",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 2,
+      "dimension": "traffic",
+      "before_sha256": "619d63c64989690f5d2b7e8a3a2c4298308919c66f03c9f1b365c30a81e37a24",
+      "candidate_sha256": "45203b61b2ead73a92d41de558373340f2956cb106b90309d85581106781d80f",
+      "change": "/traffic/parameters/flow_count: 12 -> 6",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 3,
+      "dimension": "traffic",
+      "before_sha256": "619d63c64989690f5d2b7e8a3a2c4298308919c66f03c9f1b365c30a81e37a24",
+      "candidate_sha256": "d5ae80009c559da2914f7298afe07760a10514ae80ff60b87d7312c960b3a6ef",
+      "change": "/traffic/payload_bytes: 512 -> 256",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 4,
+      "dimension": "traffic",
+      "before_sha256": "45203b61b2ead73a92d41de558373340f2956cb106b90309d85581106781d80f",
+      "candidate_sha256": "b08307775b40cac4d13fe34d25975fbb7b7f0d137946e23917fdbb6087462f63",
+      "change": "/traffic/payload_bytes: 512 -> 256",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 5,
+      "dimension": "traffic",
+      "before_sha256": "45203b61b2ead73a92d41de558373340f2956cb106b90309d85581106781d80f",
+      "candidate_sha256": "cf1ac724fb9e9ff09defc66bfe04c847617a0b185542333af3ee2ec82a503134",
+      "change": "/traffic/parameters/flow_count: 6 -> 3",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 6,
+      "dimension": "traffic",
+      "before_sha256": "b08307775b40cac4d13fe34d25975fbb7b7f0d137946e23917fdbb6087462f63",
+      "candidate_sha256": "afc198326391d5a0b66d12e0816c1a45a8edab138fc0f90bd7cffe82c931c10f",
+      "change": "/traffic/payload_bytes: 256 -> 128",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 7,
+      "dimension": "traffic",
+      "before_sha256": "b08307775b40cac4d13fe34d25975fbb7b7f0d137946e23917fdbb6087462f63",
+      "candidate_sha256": "b26db0debba3469d71328f8489249808f6d8b01e8fa564dcdd4511e32ed39bb7",
+      "change": "/traffic/parameters/flow_count: 6 -> 3",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 8,
+      "dimension": "traffic",
+      "before_sha256": "afc198326391d5a0b66d12e0816c1a45a8edab138fc0f90bd7cffe82c931c10f",
+      "candidate_sha256": "3c2f8b37596f753a6cc312a5b539e847ab34aff304009ade23d3ad89c787954c",
+      "change": "/traffic/parameters/flow_count: 6 -> 3",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 9,
+      "dimension": "traffic",
+      "before_sha256": "afc198326391d5a0b66d12e0816c1a45a8edab138fc0f90bd7cffe82c931c10f",
+      "candidate_sha256": "c11ac24123b10afd2f6b2ee0ff0bc192405bee8bdf1c12850832410985760fe6",
+      "change": "/traffic/payload_bytes: 128 -> 64",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 10,
+      "dimension": "traffic",
+      "before_sha256": "3c2f8b37596f753a6cc312a5b539e847ab34aff304009ade23d3ad89c787954c",
+      "candidate_sha256": "2aae5c9e07d7f28f1d06c1c5df963e2e6153297959b517f19fcc44e9374b4e0d",
+      "change": "/traffic/payload_bytes: 128 -> 64",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 11,
+      "dimension": "traffic",
+      "before_sha256": "3c2f8b37596f753a6cc312a5b539e847ab34aff304009ade23d3ad89c787954c",
+      "candidate_sha256": "ba665eb69934bda1d4d8832abb702c5ee6146f7daf81f6c16264151e382c543b",
+      "change": "/traffic/parameters/flow_count: 3 -> 2",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 12,
+      "dimension": "traffic",
+      "before_sha256": "2aae5c9e07d7f28f1d06c1c5df963e2e6153297959b517f19fcc44e9374b4e0d",
+      "candidate_sha256": "3081f33ce16ece05556f51f7bd9ddf1ac21616e39d35fe5f5b849dcd29bd088d",
+      "change": "/traffic/payload_bytes: 64 -> 32",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 13,
+      "dimension": "traffic",
+      "before_sha256": "2aae5c9e07d7f28f1d06c1c5df963e2e6153297959b517f19fcc44e9374b4e0d",
+      "candidate_sha256": "cae688871518891b4c9506fdcba03282fa257e3225b151767d677071bbb43486",
+      "change": "/traffic/parameters/flow_count: 3 -> 2",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 14,
+      "dimension": "traffic",
+      "before_sha256": "3081f33ce16ece05556f51f7bd9ddf1ac21616e39d35fe5f5b849dcd29bd088d",
+      "candidate_sha256": "33c6758def3ce206c9c8cd07ae039e2e63bbbd411b5b75cc54179b01e931daea",
+      "change": "/traffic/parameters/flow_count: 3 -> 2",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 15,
+      "dimension": "traffic",
+      "before_sha256": "3081f33ce16ece05556f51f7bd9ddf1ac21616e39d35fe5f5b849dcd29bd088d",
+      "candidate_sha256": "efd411a6287d6e367999cf1cd9f161ae15103fc7c20cdc97b2552d6f5cd19621",
+      "change": "/traffic/payload_bytes: 32 -> 16",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 16,
+      "dimension": "traffic",
+      "before_sha256": "33c6758def3ce206c9c8cd07ae039e2e63bbbd411b5b75cc54179b01e931daea",
+      "candidate_sha256": "5a3ecebc8e285ad09bdec143399d4cdd9ce2f5ed648f6c45251f295b12730d3f",
+      "change": "/traffic/payload_bytes: 32 -> 16",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 17,
+      "dimension": "traffic",
+      "before_sha256": "33c6758def3ce206c9c8cd07ae039e2e63bbbd411b5b75cc54179b01e931daea",
+      "candidate_sha256": "d14870a09c57863b1486a58785e026930f5d403335e2b2a6e9c682ce8261b24b",
+      "change": "/traffic/parameters/flow_count: 2 -> 1",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 18,
+      "dimension": "traffic",
+      "before_sha256": "5a3ecebc8e285ad09bdec143399d4cdd9ce2f5ed648f6c45251f295b12730d3f",
+      "candidate_sha256": "a2a64ab3a0fb1ca00d5e2172bbf03ac0f6545c34eb13255b0a5586624d5cbc49",
+      "change": "/traffic/payload_bytes: 16 -> 8",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 19,
+      "dimension": "traffic",
+      "before_sha256": "5a3ecebc8e285ad09bdec143399d4cdd9ce2f5ed648f6c45251f295b12730d3f",
+      "candidate_sha256": "e447d94696c08b90001faf8c9bfb284f5c7aa2deadc8b6e893707746b4bf1816",
+      "change": "/traffic/parameters/flow_count: 2 -> 1",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 20,
+      "dimension": "traffic",
+      "before_sha256": "a2a64ab3a0fb1ca00d5e2172bbf03ac0f6545c34eb13255b0a5586624d5cbc49",
+      "candidate_sha256": "748675fe56e8c882f2a4e00502b7546dd4589c52aa67dfb0aface45e8acb2037",
+      "change": "/traffic/payload_bytes: 8 -> 4",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 21,
+      "dimension": "traffic",
+      "before_sha256": "a2a64ab3a0fb1ca00d5e2172bbf03ac0f6545c34eb13255b0a5586624d5cbc49",
+      "candidate_sha256": "b7609a051aec2f22e015a55fea899827ac88057075fe6ba85d3fdbd2ed9fed1f",
+      "change": "/traffic/parameters/flow_count: 2 -> 1",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 22,
+      "dimension": "traffic",
+      "before_sha256": "748675fe56e8c882f2a4e00502b7546dd4589c52aa67dfb0aface45e8acb2037",
+      "candidate_sha256": "4a411b4913a2a4021dbd2940f5c0932cf0bc2e826ff8728018cc11bb5d25d985",
+      "change": "/traffic/payload_bytes: 4 -> 2",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 23,
+      "dimension": "traffic",
+      "before_sha256": "748675fe56e8c882f2a4e00502b7546dd4589c52aa67dfb0aface45e8acb2037",
+      "candidate_sha256": "fc681b680b48bd9096ba8189125e3e6046cf7315b8919008116e392c2cbc31ca",
+      "change": "/traffic/parameters/flow_count: 2 -> 1",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 24,
+      "dimension": "traffic",
+      "before_sha256": "4a411b4913a2a4021dbd2940f5c0932cf0bc2e826ff8728018cc11bb5d25d985",
+      "candidate_sha256": "1ac69697695cb24b8aab73f06296d38011adb77a450828963c1d1ed4b2b77131",
+      "change": "/traffic/parameters/flow_count: 2 -> 1",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 25,
+      "dimension": "traffic",
+      "before_sha256": "4a411b4913a2a4021dbd2940f5c0932cf0bc2e826ff8728018cc11bb5d25d985",
+      "candidate_sha256": "6473631a2868b13cf985ac571513183bcbef58210da76122b649ef2eabf1ba82",
+      "change": "/traffic/payload_bytes: 2 -> 1",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 26,
+      "dimension": "traffic",
+      "before_sha256": "1ac69697695cb24b8aab73f06296d38011adb77a450828963c1d1ed4b2b77131",
+      "candidate_sha256": "a08bcaa946999347a5963d609788659b8e09a45216a94088d548853454ff9b9c",
+      "change": "/traffic/payload_bytes: 2 -> 1",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 27,
+      "dimension": "nodes",
+      "before_sha256": "a08bcaa946999347a5963d609788659b8e09a45216a94088d548853454ff9b9c",
+      "candidate_sha256": "602337a124366d34f0516b9e228d4bd318c6cb5ecd1cacb5b2fc9d9de667e9d5",
+      "change": "/scale/nodes: 12 -> 6",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 28,
+      "dimension": "nodes",
+      "before_sha256": "602337a124366d34f0516b9e228d4bd318c6cb5ecd1cacb5b2fc9d9de667e9d5",
+      "candidate_sha256": "a6f02691a5f3e4a6568c35a4b25b0eff79604dc0252803d92bd305776a3c2814",
+      "change": "/scale/nodes: 6 -> 3",
+      "predicate_held": false,
+      "cached": false
+    },
+    {
+      "ordinal": 29,
+      "dimension": "edges",
+      "before_sha256": "602337a124366d34f0516b9e228d4bd318c6cb5ecd1cacb5b2fc9d9de667e9d5",
+      "candidate_sha256": "99657b0b969f718399d43f957bf429a4c307df870c92e75d3854f7d772505117",
+      "change": "/topology/average_degree: 2 -> 1",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 30,
+      "dimension": "root-transitions",
+      "before_sha256": "99657b0b969f718399d43f957bf429a4c307df870c92e75d3854f7d772505117",
+      "candidate_sha256": "5116f1ff75466f3c23d42c1a9ca19856aad490c3d30d38b8fbbe1caefc1b6eee",
+      "change": "/identities/arrivals/count: 4 -> 2",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 31,
+      "dimension": "root-transitions",
+      "before_sha256": "5116f1ff75466f3c23d42c1a9ca19856aad490c3d30d38b8fbbe1caefc1b6eee",
+      "candidate_sha256": "88af506a3533b297fd948741bb679bbd87404d2072193c1165d30952c101a566",
+      "change": "/identities/arrivals/count: 2 -> 1",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 32,
+      "dimension": "event-timing",
+      "before_sha256": "88af506a3533b297fd948741bb679bbd87404d2072193c1165d30952c101a566",
+      "candidate_sha256": "d741500bc52921d3ff19ece5e75caff39c81ebff25b086faaf4eba9845ad5392",
+      "change": "/identities/arrivals/schedule/interval: {\"nanoseconds\":501000000} -> {\"nanoseconds\":250500000}",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 33,
+      "dimension": "event-timing",
+      "before_sha256": "d741500bc52921d3ff19ece5e75caff39c81ebff25b086faaf4eba9845ad5392",
+      "candidate_sha256": "ed28c4bbb62491f2f8146c21c4b5791bc9cf667b6c04598c24a9a476dfb32fdc",
+      "change": "/identities/arrivals/schedule/interval: {\"nanoseconds\":250500000} -> {\"nanoseconds\":125250000}",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 34,
+      "dimension": "event-timing",
+      "before_sha256": "ed28c4bbb62491f2f8146c21c4b5791bc9cf667b6c04598c24a9a476dfb32fdc",
+      "candidate_sha256": "d5990f126620075ac59b7a4edafac0e5f616b546b4efcdade5fb3e63829c48de",
+      "change": "/identities/arrivals/schedule/interval: {\"nanoseconds\":125250000} -> {\"nanoseconds\":62625000}",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 35,
+      "dimension": "event-timing",
+      "before_sha256": "d5990f126620075ac59b7a4edafac0e5f616b546b4efcdade5fb3e63829c48de",
+      "candidate_sha256": "60cd37a50e49ede7fb8bffd579f083be4c8c8698341b1f17479c65ad0f19a62c",
+      "change": "/identities/arrivals/schedule/interval: {\"nanoseconds\":62625000} -> {\"nanoseconds\":31312500}",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 36,
+      "dimension": "event-timing",
+      "before_sha256": "60cd37a50e49ede7fb8bffd579f083be4c8c8698341b1f17479c65ad0f19a62c",
+      "candidate_sha256": "eb8b48f9911c87b8911dbfa6e020335e9419472dd66907a16b055c0b4deda62d",
+      "change": "/identities/arrivals/schedule/interval: {\"nanoseconds\":31312500} -> {\"nanoseconds\":15656250}",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 37,
+      "dimension": "event-timing",
+      "before_sha256": "eb8b48f9911c87b8911dbfa6e020335e9419472dd66907a16b055c0b4deda62d",
+      "candidate_sha256": "0be92f2ec4e6f51d893d78b140bc57fcc6e096186169dc5b94922b766d517d3e",
+      "change": "/identities/arrivals/schedule/interval: {\"nanoseconds\":15656250} -> {\"nanoseconds\":7828125}",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 38,
+      "dimension": "event-timing",
+      "before_sha256": "0be92f2ec4e6f51d893d78b140bc57fcc6e096186169dc5b94922b766d517d3e",
+      "candidate_sha256": "6b62f21f580acd5aa08661f9d6ee2e4f660409fe636934a3b6ebf67e37acbb44",
+      "change": "/identities/arrivals/schedule/interval: {\"nanoseconds\":7828125} -> {\"nanoseconds\":3914063}",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 39,
+      "dimension": "event-timing",
+      "before_sha256": "6b62f21f580acd5aa08661f9d6ee2e4f660409fe636934a3b6ebf67e37acbb44",
+      "candidate_sha256": "5a1dcfa1c39b2268177ede255c60045d9c8aa8f269ec4e9c9729b4a59c376cee",
+      "change": "/identities/arrivals/schedule/interval: {\"nanoseconds\":3914063} -> {\"nanoseconds\":1957032}",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 40,
+      "dimension": "event-timing",
+      "before_sha256": "5a1dcfa1c39b2268177ede255c60045d9c8aa8f269ec4e9c9729b4a59c376cee",
+      "candidate_sha256": "3b772758bd05a09037b1a5e7f1e1e6a99727d977edef590ee7c1ffe01c5da31b",
+      "change": "/identities/arrivals/schedule/interval: {\"nanoseconds\":1957032} -> {\"nanoseconds\":978516}",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 41,
+      "dimension": "event-timing",
+      "before_sha256": "3b772758bd05a09037b1a5e7f1e1e6a99727d977edef590ee7c1ffe01c5da31b",
+      "candidate_sha256": "e564cd8e629974985fbb76fcb8b2896ea5bb079410277d6c1e906ee24e721c95",
+      "change": "/identities/arrivals/schedule/interval: {\"nanoseconds\":978516} -> {\"nanoseconds\":489258}",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 42,
+      "dimension": "event-timing",
+      "before_sha256": "e564cd8e629974985fbb76fcb8b2896ea5bb079410277d6c1e906ee24e721c95",
+      "candidate_sha256": "286389ff76c342f8dc826d6c6f5222e03008fb75f66ab7378b6b3952502500b5",
+      "change": "/identities/arrivals/schedule/interval: {\"nanoseconds\":489258} -> {\"nanoseconds\":244629}",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 43,
+      "dimension": "event-timing",
+      "before_sha256": "286389ff76c342f8dc826d6c6f5222e03008fb75f66ab7378b6b3952502500b5",
+      "candidate_sha256": "7cb8f7c4f1f71926762638794bf4cf46118d7b63edc4fea4514ac9192c29fb1d",
+      "change": "/identities/arrivals/schedule/interval: {\"nanoseconds\":244629} -> {\"nanoseconds\":122315}",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 44,
+      "dimension": "event-timing",
+      "before_sha256": "7cb8f7c4f1f71926762638794bf4cf46118d7b63edc4fea4514ac9192c29fb1d",
+      "candidate_sha256": "b8d31d36775edb2f9763f87f66ce1c477c9126081d78cefa17ad37d9b5c71fb7",
+      "change": "/identities/arrivals/schedule/interval: {\"nanoseconds\":122315} -> {\"nanoseconds\":61158}",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 45,
+      "dimension": "event-timing",
+      "before_sha256": "b8d31d36775edb2f9763f87f66ce1c477c9126081d78cefa17ad37d9b5c71fb7",
+      "candidate_sha256": "6c8efa8c2bfbce3d8d31f5639d5c57b60b3bb47bd9c5ebbadac7c2254c241117",
+      "change": "/identities/arrivals/schedule/interval: {\"nanoseconds\":61158} -> {\"nanoseconds\":30579}",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 46,
+      "dimension": "event-timing",
+      "before_sha256": "6c8efa8c2bfbce3d8d31f5639d5c57b60b3bb47bd9c5ebbadac7c2254c241117",
+      "candidate_sha256": "4ae469071e0bd64ed1312eed13d3d407ff34a3f96ff5a7b194a2a0d518e66954",
+      "change": "/identities/arrivals/schedule/interval: {\"nanoseconds\":30579} -> {\"nanoseconds\":15290}",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 47,
+      "dimension": "event-timing",
+      "before_sha256": "4ae469071e0bd64ed1312eed13d3d407ff34a3f96ff5a7b194a2a0d518e66954",
+      "candidate_sha256": "32c26c86ba5295f1bbb32bc2d4a40cd257f387c9120065f67ddbcdb331584f52",
+      "change": "/identities/arrivals/schedule/interval: {\"nanoseconds\":15290} -> {\"nanoseconds\":7645}",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 48,
+      "dimension": "event-timing",
+      "before_sha256": "32c26c86ba5295f1bbb32bc2d4a40cd257f387c9120065f67ddbcdb331584f52",
+      "candidate_sha256": "0a62f41497c4048e4a335abde60155d5d2551a10be2e463e34c83054e957e77c",
+      "change": "/identities/arrivals/schedule/interval: {\"nanoseconds\":7645} -> {\"nanoseconds\":3823}",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 49,
+      "dimension": "event-timing",
+      "before_sha256": "0a62f41497c4048e4a335abde60155d5d2551a10be2e463e34c83054e957e77c",
+      "candidate_sha256": "ac67a98dea650d5d33d9724d25968ae52341fd258018fb5cc7151dc83c9a4aae",
+      "change": "/identities/arrivals/schedule/interval: {\"nanoseconds\":3823} -> {\"nanoseconds\":1912}",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 50,
+      "dimension": "event-timing",
+      "before_sha256": "ac67a98dea650d5d33d9724d25968ae52341fd258018fb5cc7151dc83c9a4aae",
+      "candidate_sha256": "36935fc6930a08c40f23452497119b5f9a5a63dd02cb925d951a4682eb137874",
+      "change": "/identities/arrivals/schedule/interval: {\"nanoseconds\":1912} -> {\"nanoseconds\":956}",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 51,
+      "dimension": "event-timing",
+      "before_sha256": "36935fc6930a08c40f23452497119b5f9a5a63dd02cb925d951a4682eb137874",
+      "candidate_sha256": "7a34a4c83f3332e51ef1a52ac84e985f30ec5445f0eafe2825f7e78172be5f2f",
+      "change": "/identities/arrivals/schedule/interval: {\"nanoseconds\":956} -> {\"nanoseconds\":478}",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 52,
+      "dimension": "event-timing",
+      "before_sha256": "7a34a4c83f3332e51ef1a52ac84e985f30ec5445f0eafe2825f7e78172be5f2f",
+      "candidate_sha256": "dc81e03e6f442b8e0540c78e0408e6a84b33093d9d11206bc939d3568418cb9d",
+      "change": "/identities/arrivals/schedule/interval: {\"nanoseconds\":478} -> {\"nanoseconds\":239}",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 53,
+      "dimension": "event-timing",
+      "before_sha256": "dc81e03e6f442b8e0540c78e0408e6a84b33093d9d11206bc939d3568418cb9d",
+      "candidate_sha256": "d146c626acb416d03ca56ee8a16a86c107d0a4eed958594a44253c41b1383508",
+      "change": "/identities/arrivals/schedule/interval: {\"nanoseconds\":239} -> {\"nanoseconds\":120}",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 54,
+      "dimension": "event-timing",
+      "before_sha256": "d146c626acb416d03ca56ee8a16a86c107d0a4eed958594a44253c41b1383508",
+      "candidate_sha256": "57d4b05b729ed296454179ce2e41d0eba28f0b3c30ae47db39078a9adf7bd2a4",
+      "change": "/identities/arrivals/schedule/interval: {\"nanoseconds\":120} -> {\"nanoseconds\":60}",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 55,
+      "dimension": "event-timing",
+      "before_sha256": "57d4b05b729ed296454179ce2e41d0eba28f0b3c30ae47db39078a9adf7bd2a4",
+      "candidate_sha256": "742b9e0861f58d088bc0740ba18b7dc16bacc1425602b194a08ba4d14e66a505",
+      "change": "/identities/arrivals/schedule/interval: {\"nanoseconds\":60} -> {\"nanoseconds\":30}",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 56,
+      "dimension": "event-timing",
+      "before_sha256": "742b9e0861f58d088bc0740ba18b7dc16bacc1425602b194a08ba4d14e66a505",
+      "candidate_sha256": "b3b4ba381df14bc3b7fbcbec4a6a7b663a0d51a321ac2cac38ea3a3a2c0afb15",
+      "change": "/identities/arrivals/schedule/interval: {\"nanoseconds\":30} -> {\"nanoseconds\":15}",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 57,
+      "dimension": "event-timing",
+      "before_sha256": "b3b4ba381df14bc3b7fbcbec4a6a7b663a0d51a321ac2cac38ea3a3a2c0afb15",
+      "candidate_sha256": "67457101418a1844045c1c66334e0800ce263e58eda3d55039d7492581e34d67",
+      "change": "/identities/arrivals/schedule/interval: {\"nanoseconds\":15} -> {\"nanoseconds\":8}",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 58,
+      "dimension": "event-timing",
+      "before_sha256": "67457101418a1844045c1c66334e0800ce263e58eda3d55039d7492581e34d67",
+      "candidate_sha256": "0b767493e10f393784d33cd3f5d9b124401e6564580b1e7606a0286f5c54d6d1",
+      "change": "/identities/arrivals/schedule/interval: {\"nanoseconds\":8} -> {\"nanoseconds\":4}",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 59,
+      "dimension": "event-timing",
+      "before_sha256": "0b767493e10f393784d33cd3f5d9b124401e6564580b1e7606a0286f5c54d6d1",
+      "candidate_sha256": "f486efc302abeb6ba9158b1ea48ecda167b9309c181336d19d69978ffc7abc54",
+      "change": "/identities/arrivals/schedule/interval: {\"nanoseconds\":4} -> {\"nanoseconds\":2}",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 60,
+      "dimension": "event-timing",
+      "before_sha256": "f486efc302abeb6ba9158b1ea48ecda167b9309c181336d19d69978ffc7abc54",
+      "candidate_sha256": "8f3ed98ca109ef3a44268615d6aea4172b35651227d36b6204692a52155f1def",
+      "change": "/identities/arrivals/schedule/interval: {\"nanoseconds\":2} -> {\"nanoseconds\":1}",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 61,
+      "dimension": "protocol-parameters",
+      "before_sha256": "8f3ed98ca109ef3a44268615d6aea4172b35651227d36b6204692a52155f1def",
+      "candidate_sha256": "29c94784d12cca54ed28fff5905131080353977132d57e2f853bf54047464b11",
+      "change": "/protocol/parameters: removed tree_announce_debounce",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 62,
+      "dimension": "protocol-parameters",
+      "before_sha256": "29c94784d12cca54ed28fff5905131080353977132d57e2f853bf54047464b11",
+      "candidate_sha256": "babce434c34b49725781a5aa833349019898937fe2363dcbb55e31cbd98263e6",
+      "change": "/protocol/parameters: removed lookup_ttl",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 63,
+      "dimension": "protocol-parameters",
+      "before_sha256": "babce434c34b49725781a5aa833349019898937fe2363dcbb55e31cbd98263e6",
+      "candidate_sha256": "0aff4172cdfba3e609955c44deda4dd8389f742f371c3d8e3c42a0db52878d2a",
+      "change": "/protocol/parameters: removed lookup_attempts",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 64,
+      "dimension": "protocol-parameters",
+      "before_sha256": "0aff4172cdfba3e609955c44deda4dd8389f742f371c3d8e3c42a0db52878d2a",
+      "candidate_sha256": "ffc5e43cbcf463ef7754794a73111cfdaf249837f183b76f2cb971cf9e5f1c50",
+      "change": "/protocol/parameters: removed coord_cache_ttl",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 65,
+      "dimension": "protocol-parameters",
+      "before_sha256": "ffc5e43cbcf463ef7754794a73111cfdaf249837f183b76f2cb971cf9e5f1c50",
+      "candidate_sha256": "d2743602a0f8a627ed926ec085d4d01ba9e8c09def513299f1f463f6c31a5276",
+      "change": "/protocol/parameters: removed coord_cache_entries",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 66,
+      "dimension": "protocol-parameters",
+      "before_sha256": "d2743602a0f8a627ed926ec085d4d01ba9e8c09def513299f1f463f6c31a5276",
+      "candidate_sha256": "ce2b9329b8e738700a715e3ea39124bb6f5d37cfa08198bd58aa9477e0976822",
+      "change": "/protocol/parameters: removed bloom_update_debounce",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 67,
+      "dimension": "protocol-parameters",
+      "before_sha256": "ce2b9329b8e738700a715e3ea39124bb6f5d37cfa08198bd58aa9477e0976822",
+      "candidate_sha256": "ae40534b5a65586d05a41e07aead1e4a20649ea3848098f7ee8f09ec4f88c2c1",
+      "change": "/protocol/parameters: removed bloom_max_fpr_ppm",
+      "predicate_held": true,
+      "cached": false
+    },
+    {
+      "ordinal": 68,
+      "dimension": "resource-classes",
+      "before_sha256": "ae40534b5a65586d05a41e07aead1e4a20649ea3848098f7ee8f09ec4f88c2c1",
+      "candidate_sha256": "d1c3a63f99402785df388ed48c6b841ffa1d3d1fb5b06a4fbd34cc75caf708e0",
+      "change": "/resources/assignment: \"heterogeneous\" -> \"uniform\"",
+      "predicate_held": true,
+      "cached": false
+    }
+  ],
+  "cache_entries": 70,
+  "reproduction": {
+    "api_version": "experiments.fips.network/reproduction-bundle/v1alpha1",
+    "bundle_id": "bundle-587f4c2d7f2f997a89b0e7f72c7bc0d2",
+    "normalized_plan": {
+      "api_version": "experiments.fips.network/normalized-plan/v1alpha1",
+      "axes": [],
+      "campaign": {
+        "accounting": {
+          "causal_lineage": true,
+          "network_overhead": "configured",
+          "reconcile_serialized_frames": true,
+          "transport_overhead": true
+        },
+        "adversaries": {
+          "actions": [
+            "bounded-root-grinding",
+            "strategic-attachment"
+          ],
+          "budgets": {
+            "identities": 4,
+            "operations": 4
+          },
+          "mode": "authenticated-protocol-valid"
+        },
+        "apiVersion": "experiments.fips.network/v1alpha1",
+        "assertions": [
+          {
+            "always": {
+              "condition": "no_forwarding_loops"
+            }
+          },
+          {
+            "eventually": {
+              "condition": "data_plane_makes_progress"
+            }
+          },
+          {
+            "reconcile": {
+              "condition": "measured_bytes_equal_serialized_frames"
+            }
+          }
+        ],
+        "engine": {
+          "deterministic": true,
+          "modes": "compact-discrete-event",
+          "variant": "fips-80c956a-baseline"
+        },
+        "events": [
+          {
+            "action": "introduce-lower-root-identities",
+            "id": "descending-root-arrivals"
+          }
+        ],
+        "fidelity": {
+          "billion_node_representation": "not-requested",
+          "bloom": "exact-bits",
+          "crypto": "operation-count",
+          "protocol": "semantic-exact",
+          "serialization": "executable-codec"
+        },
+        "identities": {
+          "arrivals": {
+            "address_policy": "strictly-lower-than-current-root",
+            "attachment": "current-root",
+            "attacker_budget": {
+              "identities": 4,
+              "mode": "bounded",
+              "operations": 4
+            },
+            "count": 1,
+            "schedule": {
+              "interval": {
+                "nanoseconds": 1
+              },
+              "start": {
+                "nanoseconds": 2000000000
+              }
+            }
+          },
+          "initial": {
+            "distribution": "uniform-128"
+          }
+        },
+        "instrumentation": {
+          "causal_cost_ledger": true,
+          "control_and_useful_bytes": true,
+          "queue_wait": true,
+          "quiescence_markers": [
+            "root",
+            "tree",
+            "bloom",
+            "lookup",
+            "data-plane"
+          ],
+          "root_agreement_by_depth": true,
+          "transition_stages": true
+        },
+        "kind": "Campaign",
+        "links": {
+          "bandwidth_bps": 10000000,
+          "drop_policy": "tail-drop",
+          "duplication_ppm": 0,
+          "latency": {
+            "nanoseconds": 1000000
+          },
+          "loss_ppm": 0,
+          "mtu_bytes": 1500,
+          "ordering": "stream",
+          "queue_bytes": 1048576
+        },
+        "metadata": {
+          "description": "M3 authenticated Root Ratchet search and shrink matrix",
+          "name": "root-ratchet-search"
+        },
+        "objectives": {
+          "constraints": [
+            "/scale/nodes <= 12"
+          ],
+          "maximize": [
+            "control_bytes_per_root_arrival",
+            "data_plane_stall_duration"
+          ]
+        },
+        "protocol": {
+          "parameters": {},
+          "variant": "fips-80c956a-baseline"
+        },
+        "resources": {
+          "assignment": "uniform",
+          "node_profiles": [
+            {
+              "cpu_units": 1000,
+              "memory_bytes": 1073741824,
+              "name": "baseline",
+              "queue_bytes": 1048576,
+              "table_entries": 1000
+            }
+          ]
+        },
+        "scale": {
+          "nodes": 6
+        },
+        "seed": 7331,
+        "topology": {
+          "average_degree": 1,
+          "connected": true,
+          "generator": "chain"
+        },
+        "traffic": {
+          "model": "session-churn",
+          "parameters": {
+            "flow_count": 1
+          },
+          "payload_bytes": 1,
+          "rate_bps": 40960
+        },
+        "transports": {
+          "assignment": "all-udp"
+        }
+      },
+      "campaign_sha256": "d1c3a63f99402785df388ed48c6b841ffa1d3d1fb5b06a4fbd34cc75caf708e0",
+      "seed": 7331
+    },
+    "seed": 7331,
+    "engine": "fips-individual-reference",
+    "variant": "fips-80c956a-baseline",
+    "fidelity": {
+      "wire": "executable-codec",
+      "protocol": "semantic-exact",
+      "compute": "operation-counted",
+      "scale": "individual",
+      "bloom": "exact-bits",
+      "represented_nodes": 6,
+      "approximations": [],
+      "sampled_regions": []
+    },
+    "provenance": {
+      "engine_name": "fips-individual-reference",
+      "engine_version": "m2-v1",
+      "engine_source_revision": "d0466d2951861b24ea2ea7c21da9f78e5f7415c6",
+      "schema_versions": {
+        "normalized-plan": "experiments.fips.network/normalized-plan/v1alpha1",
+        "reproduction-bundle": "experiments.fips.network/reproduction-bundle/v1alpha1",
+        "run-artifact": "experiments.fips.network/run-artifact/v1alpha1"
+      },
+      "seed": 7331,
+      "normalized_plan_sha256": "6699c183029a6702dc89f44624b584b8600ac6f0261386f66386a346d3c019a2",
+      "fips_commit": "80c956a6fdb85dde1450969a21891c1158e43267",
+      "image_digest": null,
+      "hardware_profile": null
+    },
+    "expected_assertions": [
+      "root-agreement",
+      "loop-freedom",
+      "no-obsolete-root-retention",
+      "per-peer-debounce",
+      "coordinate-consistency",
+      "control-queues-return-to-baseline",
+      "tree-lifecycle-reconciliation",
+      "byte-reconciliation",
+      "deterministic-total-order",
+      "bloom-replacement-reconciliation",
+      "causal-ledger-frame-reconciliation",
+      "cache-invalidation-scope",
+      "continuous-control-eventual-data-progress",
+      "modeled-work-has-resource-receipts"
+    ],
+    "external_blobs": []
+  }
+}

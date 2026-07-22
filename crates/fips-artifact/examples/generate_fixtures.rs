@@ -99,6 +99,7 @@ fn main() {
         }],
         causal_ledger: vec![LedgerEntry {
             causal_id: "input-0002".to_owned(),
+            causal_parent: None,
             stage: "serialized".to_owned(),
             count: 1,
             evidence: vec!["frame-tree-depth-0".to_owned()],

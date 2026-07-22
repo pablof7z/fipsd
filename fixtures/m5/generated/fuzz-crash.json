@@ -1,0 +1,16 @@
+{
+  "kind": "invalid-wire-fuzz-artifact/v1alpha1",
+  "backend": "cargo-fuzz",
+  "backend_version": "pinned-v1",
+  "protocol_version": "fmp-80c956a",
+  "codec_commit": "80c956a6fdb85dde1450969a21891c1158e43267",
+  "corpus_sha256": "corpus-v1",
+  "coverage_edges": 42,
+  "outcome": "crash",
+  "minimized_input_hex": "ff00",
+  "standalone_replay": [
+    "fips-codec-fuzz-replay",
+    "ff00"
+  ],
+  "routed_to_semantic_engine": false
+}

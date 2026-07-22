@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://experiments.fips.network/schemas/qualification-atlas-v1alpha1.schema.json",
+  "title": "FIPS Wind Tunnel Qualification Atlas v1alpha1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["api_version", "atlas_id", "fips_commit", "families", "family_count", "all_contracts_complete"],
+  "properties": {
+    "api_version": {"const": "experiments.fips.network/qualification-atlas/v1alpha1"},
+    "atlas_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "fips_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "generated_by": {"type": "string"},
+    "family_count": {"const": 10},
+    "all_contracts_complete": {"const": true},
+    "accounting_note": {"type": "string"},
+    "families": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "required": ["contract", "baseline", "discovered_boundary", "variant_comparison", "assertions", "minimized_reproduction"]
+      }
+    }
+  }
+}

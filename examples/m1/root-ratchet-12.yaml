@@ -1,0 +1,90 @@
+apiVersion: experiments.fips.network/v1alpha1
+kind: Campaign
+metadata:
+  name: root-ratchet-12
+  description: M1 deterministic descending-root ladder with four arrivals
+seed: 424242
+engine:
+  modes: compact-discrete-event
+  deterministic: true
+scale:
+  nodes: 12
+topology:
+  generator: chain
+  average_degree: 2
+identities:
+  initial:
+    distribution: uniform-128
+  arrivals:
+    count: 4
+    schedule:
+      start: 2s
+      interval: 499ms
+    address_policy: strictly-lower-than-current-root
+    attachment: current-root
+    attacker_budget:
+      mode: bounded
+      operations: 4
+      identities: 4
+transports:
+  assignment: all-udp
+links:
+  latency: 1ms
+  bandwidth_bps: 100000000
+  loss_ppm: 0
+  duplication_ppm: 0
+  ordering: stream
+  mtu_bytes: 9000
+  queue_bytes: 1048576
+  drop_policy: tail-drop
+resources:
+  assignment: uniform
+  node_profiles:
+    - name: baseline
+      cpu_units: 1000
+      memory_bytes: 1073741824
+      queue_bytes: 1048576
+      table_entries: 100000
+events:
+  - id: descending-root-arrivals
+    action: introduce-lower-root-identities
+protocol:
+  variant: fips-80c956a-baseline
+  parameters:
+    tree_announce_debounce: 500ms
+    parent_hysteresis_ppm: 0
+    parent_hold_down: 0ms
+traffic:
+  model: idle
+fidelity:
+  protocol: semantic-exact
+  serialization: executable-codec
+  bloom: exact-bits
+  crypto: operation-count
+  billion_node_representation: not-requested
+accounting:
+  causal_lineage: true
+  transport_overhead: true
+  network_overhead: configured
+  reconcile_serialized_frames: true
+instrumentation:
+  root_agreement_by_depth: true
+  transition_stages: true
+  causal_cost_ledger: true
+  queue_wait: true
+  control_and_useful_bytes: true
+  quiescence_markers: [root, tree]
+assertions:
+  - eventually:
+      condition: all_connected_nodes_agree_on_minimum_root
+      after_input_quiescence: 30s
+  - always:
+      condition: no_forwarding_loops
+  - always:
+      condition: per_peer_announcements_obey_debounce
+  - reconcile:
+      condition: measured_bytes_equal_serialized_frames
+  - deterministic:
+      condition: same_seed_same_event_order_and_result
+objectives:
+  maximize: [control_bytes_per_root_arrival]

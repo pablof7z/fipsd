@@ -1,0 +1,41 @@
+fips_overrides: {}
+link_flaps:
+  enabled: false
+logging:
+  output_dir: ./sim-results
+  rust_log: info
+netem:
+  default_policy:
+    delay_ms:
+    - 1.0
+    - 1.0
+    jitter_ms:
+    - 0
+    - 0
+    loss_pct:
+    - 0.0
+    - 0.0
+  enabled: true
+scenario:
+  duration_secs: 30
+  name: compiled-69affbe1931a
+  seed: 42
+topology:
+  algorithm: random_geometric
+  default_transport: udp
+  ensure_connected: true
+  ip_start: 10
+  num_nodes: 10
+  params:
+    radius: 0.5
+  subnet: 172.31.0.0/24
+traffic:
+  duration_secs:
+    max: 2
+    min: 2
+  enabled: false
+  interval_secs:
+    max: 1
+    min: 1
+  max_concurrent: 0
+  parallel_streams: 1

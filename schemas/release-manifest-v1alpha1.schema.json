@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://experiments.fips.network/schemas/release-manifest-v1alpha1.schema.json",
+  "title": "FIPS Wind Tunnel Release Manifest v1alpha1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["api_version", "release", "files", "total_bytes", "compatibility", "signing", "upgrade_policy"],
+  "properties": {
+    "api_version": {"const": "experiments.fips.network/release-manifest/v1alpha1"},
+    "release": {"const": "0.1.0"},
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "size_bytes", "sha256"],
+        "properties": {
+          "path": {"type": "string", "pattern": "^(?!/)(?!.*\\.\\.).+$"},
+          "size_bytes": {"type": "integer", "minimum": 0, "maximum": 268435456},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+        }
+      }
+    },
+    "total_bytes": {"type": "integer", "minimum": 0, "maximum": 1073741824},
+    "compatibility": {"type": "array", "minItems": 1},
+    "signing": {"type": "string", "minLength": 1},
+    "upgrade_policy": {"type": "string", "minLength": 1}
+  }
+}

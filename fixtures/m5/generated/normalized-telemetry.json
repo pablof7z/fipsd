@@ -1,0 +1,115 @@
+{
+  "kind": "normalized-daemon-telemetry/v1alpha1",
+  "adapter_version": "fips-control-80c956a/v1",
+  "nodes": [
+    {
+      "node_id": "n01",
+      "root": {
+        "status": "observed",
+        "value": "root-a",
+        "raw_source": "tree:n01",
+        "sampling_window_ns": null
+      },
+      "parent": {
+        "status": "unknown",
+        "value": null,
+        "raw_source": null,
+        "sampling_window_ns": null
+      },
+      "ancestry": {
+        "status": "observed",
+        "value": [
+          "n01"
+        ],
+        "raw_source": "tree:n01",
+        "sampling_window_ns": null
+      },
+      "bloom_occupancy_ppb": {
+        "status": "sampled",
+        "value": 100,
+        "raw_source": "tree:n01",
+        "sampling_window_ns": [
+          1000000000,
+          2000000000
+        ]
+      },
+      "cache_entries": {
+        "status": "sampled",
+        "value": 2,
+        "raw_source": "tree:n01",
+        "sampling_window_ns": [
+          1000000000,
+          2000000000
+        ]
+      },
+      "sessions": {
+        "status": "sampled",
+        "value": 1,
+        "raw_source": "tree:n01",
+        "sampling_window_ns": [
+          1000000000,
+          2000000000
+        ]
+      },
+      "lookup_count": {
+        "status": "sampled",
+        "value": 3,
+        "raw_source": "tree:n01",
+        "sampling_window_ns": [
+          1000000000,
+          2000000000
+        ]
+      },
+      "signal_count": {
+        "status": "sampled",
+        "value": 4,
+        "raw_source": "tree:n01",
+        "sampling_window_ns": [
+          1000000000,
+          2000000000
+        ]
+      },
+      "queue_bytes": {
+        "status": "sampled",
+        "value": 20,
+        "raw_source": "tree:n01",
+        "sampling_window_ns": [
+          1000000000,
+          2000000000
+        ]
+      }
+    }
+  ],
+  "metrics": {
+    "traffic.useful-payload-bytes": {
+      "status": "sampled",
+      "value": 4096,
+      "raw_source": "iperf:0",
+      "sampling_window_ns": [
+        2000000000,
+        3000000000
+      ]
+    }
+  },
+  "frames": [
+    {
+      "id": "frame-0",
+      "source": "frame:0",
+      "sha256": "frame-b",
+      "size_bytes": 168,
+      "executable_codec_commit": "80c956a6fdb85dde1450969a21891c1158e43267"
+    }
+  ],
+  "assertion_results": {},
+  "raw_source_ids": [
+    "tree:n01",
+    "iperf:0",
+    "frame:0"
+  ],
+  "clock_offset_ns": 20000,
+  "clock_uncertainty_ns": 2000000,
+  "unobservable_fields": [
+    "internal-scheduler-stage",
+    "unlogged-cache-invalidation-cause"
+  ]
+}

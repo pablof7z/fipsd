@@ -8,9 +8,10 @@ minimizing [FIPS](https://github.com/jmcorgan/fips) network behavior—from a
 handful of real daemons to billion-node analytical cohorts.
 
 > [!IMPORTANT]
-> M0 ships the scientific contracts, Campaign validator/normalizer, artifact
-> schemas, and pinned codec-conformance proof. It does not yet ship a simulation
-> engine or browser application. Those remain gated by later milestones.
+> v0.1 implements the M0–M8 roadmap: scientific contracts, deterministic
+> engines, causal accounting, replayable campaign search, honest cohort/hybrid
+> scale, variants, a pinned real-daemon oracle, read-only artifact analysis, the
+> ten-family qualification atlas, and reproducible release audits.
 
 The flagship campaign is **Root Ratchet**, formally a Descending-Minimum Root
 Cascade: authenticated identities with successively lower addresses arrive
@@ -55,9 +56,10 @@ The system must show:
 
 No view may present an approximate result as an exact replay.
 
-## Target experiment loop
+## Experiment loop
 
-This is the design contract, not a shipped CLI yet:
+v0.1 ships the loop through deterministic search, shrinking, variant/cohort
+execution, pinned real-daemon comparison, analysis, and export:
 
 ```text
 author or generate a campaign
@@ -68,13 +70,14 @@ author or generate a campaign
   → shrink the failure
   → replay the minimized case against real FIPS daemons
   → compare a protocol variant
+  → inspect and export provenance-linked evidence
 ```
 
 The normative Root Ratchet campaign is checked in at
 [`examples/root-ratchet.yaml`](examples/root-ratchet.yaml) and validated by the
 published Campaign v1alpha1 schema.
 
-## M0 quick start
+## Quick start
 
 ```bash
 cargo run -p fips-cli --bin fips-wind-tunnel -- \
@@ -82,11 +85,20 @@ cargo run -p fips-cli --bin fips-wind-tunnel -- \
 
 cargo run -p fips-cli --bin fips-wind-tunnel -- \
   normalize examples/root-ratchet.yaml --output root-ratchet.normalized.json
+
+cargo run -p fips-cli --bin fips-wind-tunnel -- \
+  atlas verify fixtures/m7/qualification-atlas.json
+
+cargo run -p fips-cli --bin fips-wind-tunnel -- \
+  release verify-audit fixtures/m8/release-audit.json
 ```
 
 The same input and seed produce byte-identical normalized output. Run the full
 local gate with `scripts/check.sh`; run the pinned production-codec drift gate
 with `scripts/check-fips-codecs.sh --check`.
+
+See the [v0.1 quick start](docs/quickstart.md) for run, report, search, shrink,
+variant, oracle, custom-campaign, package, and clean-install workflows.
 
 M0 contracts and evidence:
 
@@ -99,6 +111,49 @@ M0 contracts and evidence:
 - [Artifact format](docs/artifact-format.md)
 - [Pinned FIPS seam inventory](docs/fips-seam-inventory.md)
 - [M0 acceptance and verification map](docs/m0-verification.md)
+
+M1's runnable individual-node loop is documented in
+[M1 deterministic individual engine](docs/m1-individual-engine.md), with a
+checked-in 12-node campaign, immutable artifact, reproduction bundle, and
+plain-language report under `fixtures/m1/`. The requirement-by-requirement
+evidence is indexed in the [M1 verification map](docs/m1-verification.md).
+
+M2's coupled protocol/data-plane slice is documented in
+[M2 recovery and causal accounting](docs/m2-recovery-accounting.md). Its small
+active-traffic campaign and byte-stable evidence live under `examples/m2/` and
+`fixtures/m2/`; the [M2 verification map](docs/m2-verification.md) ties every
+child issue to executable evidence.
+
+M3's bounded experiment loop is documented in
+[M3 deterministic campaign search and shrinking](docs/m3-campaign-search.md).
+Its pairwise plan, full search evidence, minimized replay, symbolic million-node
+input, and corpus result live under `fixtures/m3/`; the
+[M3 verification map](docs/m3-verification.md) maps every child issue to tests.
+
+M4's bounded scale engine and variants are documented in
+[M4 honest cohort/hybrid scale and protocol variants](docs/m4-scale-variants.md).
+The one-billion-node campaign and byte-stable evidence live under `examples/m4/`
+and `fixtures/m4/`; the [M4 verification map](docs/m4-verification.md) records
+the fidelity, calibration, variant, and resource-budget proofs.
+
+M5's pinned implementation oracle is documented in
+[M5 pinned-daemon oracle](docs/m5-daemon-oracle.md). Six imported chaos families,
+deterministic compiled/normalized/differential fixtures, suite manifests, and a
+three-repeat live smoke summary live under `fixtures/m5/`; the
+[M5 verification map](docs/m5-verification.md) ties each oracle contract to
+tests and reproducible evidence.
+
+M6's read-only query and static browser layers are documented in
+[M6 multi-resolution analysis](docs/m6-analysis.md), with a checked-in analysis
+fixture under `fixtures/m6/`.
+
+M7's ten-family qualification evidence is documented in
+[M7 campaign atlas](docs/m7-campaign-atlas.md) and checked in under
+`fixtures/m7/`.
+
+M8's determinism/accounting audit, measured performance, threat boundary,
+support matrix, package manifest, SBOM/checksum workflow, and clean-install gate
+are indexed in the [M8 verification map](docs/m8-verification.md).
 
 ## Architecture direction
 

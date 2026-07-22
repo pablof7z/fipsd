@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://experiments.fips.network/schemas/analysis-v1alpha1.schema.json",
+  "title": "FIPS Wind Tunnel Analysis v1alpha1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["api_version", "artifact_id", "run_id", "represented_nodes", "representation", "fidelity", "provenance", "metrics", "quiescence", "causal", "network", "root_wave"],
+  "properties": {
+    "api_version": {"const": "experiments.fips.network/analysis/v1alpha1"},
+    "artifact_id": {"type": "string", "minLength": 1},
+    "run_id": {"type": "string", "minLength": 1},
+    "represented_nodes": {"type": "integer", "minimum": 1},
+    "representation": {"enum": ["exact-graph", "aggregated", "cohort", "hybrid"]},
+    "representation_boundaries": {"type": "object"},
+    "fidelity": {"type": "object", "required": ["exact", "statement", "uncertainty"]},
+    "provenance": {"type": "object"},
+    "assertions": {"type": "object"},
+    "metrics": {"type": "array"},
+    "quiescence": {"type": "object"},
+    "causal": {"type": "object"},
+    "network": {"type": "object"},
+    "root_wave": {"type": "object"},
+    "sample_count": {"type": "integer", "minimum": 0},
+    "event_count": {"type": "integer", "minimum": 0},
+    "normalized_plan": {}
+  }
+}

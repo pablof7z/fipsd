@@ -1,0 +1,40 @@
+{
+  "kind": "live-daemon-smoke-summary/v1alpha1",
+  "executed_at": "2026-07-22",
+  "live_verification": true,
+  "source_scenario": "fixtures/m5/chaos/smoke.yaml",
+  "fips_commit": "80c956a6fdb85dde1450969a21891c1158e43267",
+  "checkout_dirty": false,
+  "binary_sha256": "d6a3ae7ba593c113ac978d066065ed89e838360712e600bc6b4083aa8b519218",
+  "binary_version": "fips 0.5.0-dev (rev 80c956a6fd)",
+  "binary_target": "aarch64-unknown-linux-gnu",
+  "docker_runtime_version": "27.5.1",
+  "host_profile": "macos-aarch64",
+  "repeats": 3,
+  "successful_exits": 3,
+  "nodes_observed_per_repeat": [10, 10, 10],
+  "raw_sources_per_repeat": [10, 10, 10],
+  "root_agreement_per_repeat": ["exact-match", "exact-match", "exact-match"],
+  "dominant_classification": "unsupported-observation",
+  "dominant_confidence_ppm": 1000000,
+  "stable": true,
+  "comparative_claim_allowed": false,
+  "unobserved_values_preserved": true,
+  "classification_basis": "Root agreement matched on every repeat; daemon telemetry did not expose every model metric, so missing observations were not called matches.",
+  "image_ids": [
+    "sha256:420477228e1e5fa1ecd01e6e4c3d2fb21e236889df95f666934f6f3ef4dc2d0c",
+    "sha256:afb2fcf367d6b6e299af98a85e81960956e2580168fae10b10444c06f099a4ec",
+    "sha256:05d34c13d38207f32f1ba50567ebf2961002c50f88c0f476cbb075b38415ca52"
+  ],
+  "evidence_sha256": [
+    "676b5003238f18c07cd8114f1c18c1afaf8943c01478b9da889a8dc580ed3640",
+    "b4622bcfbe3b1d07251d5dab5252e5ef9ef3063db85e87f9a59866447e9e8f9f",
+    "6e2056f90318559439e5ef8078b3c4bc1eb3ca21c1b4f741dac5b074a2fbb608"
+  ],
+  "generated_config_count_per_repeat": 13,
+  "stable_node_config_sha256": {
+    "n01.yaml": "946dffe9cec021c8093a19fa8e355e7151bf01a5a3f20c4c4922963a98167b28",
+    "n10.yaml": "2c97bf0f1e0d48d9fd0392325a20524014e05ef2eeab89c817af0b2ac8311be0"
+  },
+  "rerun": "scripts/check-m5-daemon.sh <pinned-fips-checkout>"
+}

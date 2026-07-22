@@ -1,0 +1,1060 @@
+{
+  "api_version": "experiments.fips.network/analysis/v1alpha1",
+  "artifact_id": "artifact-90ff624e536126c7a335ec138874d2a6",
+  "run_id": "run-90ff624e536126c7a335ec13",
+  "represented_nodes": 12,
+  "representation": "exact-graph",
+  "representation_boundaries": {
+    "aggregate_max_nodes": 1000000,
+    "exact_graph_max_nodes": 200
+  },
+  "fidelity": {
+    "exact": true,
+    "statement": "Wire evidence uses executable production codec; protocol fidelity is individually modeled semantic state; compute fidelity is operation-counted compute; scale uses individual nodes across 12 represented nodes; Bloom fidelity uses exact Bloom bits. No approximation metadata applies.",
+    "uncertainty": []
+  },
+  "provenance": {
+    "engine_name": "fips-individual-reference",
+    "engine_version": "m2-v1",
+    "engine_source_revision": "d0466d2951861b24ea2ea7c21da9f78e5f7415c6",
+    "schema_versions": {
+      "normalized-plan": "experiments.fips.network/normalized-plan/v1alpha1",
+      "reproduction-bundle": "experiments.fips.network/reproduction-bundle/v1alpha1",
+      "run-artifact": "experiments.fips.network/run-artifact/v1alpha1"
+    },
+    "seed": 424242,
+    "normalized_plan_sha256": "c855a48b0380ce1ddff72ded27afc421da8f88f048b9a5eb4bc05952b141a46f",
+    "fips_commit": "80c956a6fdb85dde1450969a21891c1158e43267",
+    "image_digest": null,
+    "hardware_profile": null
+  },
+  "assertions": {
+    "bloom-replacement-reconciliation": "pass",
+    "byte-reconciliation": "pass",
+    "cache-invalidation-scope": "pass",
+    "causal-ledger-frame-reconciliation": "pass",
+    "continuous-control-eventual-data-progress": "pass",
+    "control-queues-return-to-baseline": "pass",
+    "coordinate-consistency": "pass",
+    "deterministic-total-order": "pass",
+    "loop-freedom": "pass",
+    "modeled-work-has-resource-receipts": "pass",
+    "no-obsolete-root-retention": "pass",
+    "per-peer-debounce": "pass",
+    "root-agreement": "pass",
+    "tree-lifecycle-reconciliation": "pass"
+  },
+  "metrics": [
+    {
+      "name": "root.generations",
+      "unit": "count",
+      "first": "11",
+      "last": "11",
+      "minimum": "11",
+      "maximum": "11",
+      "source": {
+        "collection": "metric_series/root.generations",
+        "start": 0,
+        "end_exclusive": 1,
+        "total": 1
+      }
+    },
+    {
+      "name": "tree.maximum-depth",
+      "unit": "edges",
+      "first": "5",
+      "last": "5",
+      "minimum": "5",
+      "maximum": "5",
+      "source": {
+        "collection": "metric_series/tree.maximum-depth",
+        "start": 0,
+        "end_exclusive": 1,
+        "total": 1
+      }
+    },
+    {
+      "name": "tree.parent-transitions",
+      "unit": "count",
+      "first": "24",
+      "last": "24",
+      "minimum": "24",
+      "maximum": "24",
+      "source": {
+        "collection": "metric_series/tree.parent-transitions",
+        "start": 0,
+        "end_exclusive": 1,
+        "total": 1
+      }
+    },
+    {
+      "name": "tree-announce.transmitted-bytes",
+      "unit": "bytes",
+      "first": "40296",
+      "last": "40296",
+      "minimum": "40296",
+      "maximum": "40296",
+      "source": {
+        "collection": "metric_series/tree-announce.transmitted-bytes",
+        "start": 0,
+        "end_exclusive": 1,
+        "total": 1
+      }
+    },
+    {
+      "name": "quiescence",
+      "unit": "nanoseconds",
+      "first": "5002544000",
+      "last": "5002544000",
+      "minimum": "5002544000",
+      "maximum": "5002544000",
+      "source": {
+        "collection": "metric_series/quiescence",
+        "start": 0,
+        "end_exclusive": 1,
+        "total": 1
+      }
+    },
+    {
+      "name": "quiescence.root",
+      "unit": "nanoseconds",
+      "first": "5002544000",
+      "last": "5002544000",
+      "minimum": "5002544000",
+      "maximum": "5002544000",
+      "source": {
+        "collection": "metric_series/quiescence.root",
+        "start": 0,
+        "end_exclusive": 1,
+        "total": 1
+      }
+    },
+    {
+      "name": "quiescence.tree",
+      "unit": "nanoseconds",
+      "first": "5002544000",
+      "last": "5002544000",
+      "minimum": "5002544000",
+      "maximum": "5002544000",
+      "source": {
+        "collection": "metric_series/quiescence.tree",
+        "start": 0,
+        "end_exclusive": 1,
+        "total": 1
+      }
+    },
+    {
+      "name": "quiescence.bloom",
+      "unit": "nanoseconds",
+      "first": "5005544000",
+      "last": "5005544000",
+      "minimum": "5005544000",
+      "maximum": "5005544000",
+      "source": {
+        "collection": "metric_series/quiescence.bloom",
+        "start": 0,
+        "end_exclusive": 1,
+        "total": 1
+      }
+    },
+    {
+      "name": "quiescence.lookup",
+      "unit": "nanoseconds",
+      "first": "6301341600",
+      "last": "6301341600",
+      "minimum": "6301341600",
+      "maximum": "6301341600",
+      "source": {
+        "collection": "metric_series/quiescence.lookup",
+        "start": 0,
+        "end_exclusive": 1,
+        "total": 1
+      }
+    },
+    {
+      "name": "quiescence.data-plane",
+      "unit": "nanoseconds",
+      "first": "6601516800",
+      "last": "6601516800",
+      "minimum": "6601516800",
+      "maximum": "6601516800",
+      "source": {
+        "collection": "metric_series/quiescence.data-plane",
+        "start": 0,
+        "end_exclusive": 1,
+        "total": 1
+      }
+    },
+    {
+      "name": "traffic.useful-delivered",
+      "unit": "bytes",
+      "first": "24576",
+      "last": "24576",
+      "minimum": "24576",
+      "maximum": "24576",
+      "source": {
+        "collection": "metric_series/traffic.useful-delivered",
+        "start": 0,
+        "end_exclusive": 1,
+        "total": 1
+      }
+    },
+    {
+      "name": "cache.invalidations",
+      "unit": "count",
+      "first": "20",
+      "last": "20",
+      "minimum": "20",
+      "maximum": "20",
+      "source": {
+        "collection": "metric_series/cache.invalidations",
+        "start": 0,
+        "end_exclusive": 1,
+        "total": 1
+      }
+    },
+    {
+      "name": "bloom.fpr",
+      "unit": "parts-per-billion",
+      "first": "0",
+      "last": "0",
+      "minimum": "0",
+      "maximum": "0",
+      "source": {
+        "collection": "metric_series/bloom.fpr",
+        "start": 0,
+        "end_exclusive": 1,
+        "total": 1
+      }
+    },
+    {
+      "name": "resource.maximum-queue-wait",
+      "unit": "nanoseconds",
+      "first": "20000",
+      "last": "20000",
+      "minimum": "20000",
+      "maximum": "20000",
+      "source": {
+        "collection": "metric_series/resource.maximum-queue-wait",
+        "start": 0,
+        "end_exclusive": 1,
+        "total": 1
+      }
+    }
+  ],
+  "quiescence": {
+    "root_ns": 5002544000,
+    "tree_ns": 5002544000,
+    "bloom_ns": 5005544000,
+    "lookup_ns": 6301341600,
+    "data_plane_ns": 6601516800
+  },
+  "causal": {
+    "stages": [
+      {
+        "stage": "coalesced",
+        "count": 8,
+        "entries": 3
+      },
+      {
+        "stage": "compute",
+        "count": 417,
+        "entries": 123
+      },
+      {
+        "stage": "constructed",
+        "count": 165,
+        "entries": 5
+      },
+      {
+        "stage": "delivered",
+        "count": 185524,
+        "entries": 195
+      },
+      {
+        "stage": "fmp",
+        "count": 135288,
+        "entries": 190
+      },
+      {
+        "stage": "fsp",
+        "count": 9432,
+        "entries": 54
+      },
+      {
+        "stage": "identity-generation-operations",
+        "count": 4,
+        "entries": 4
+      },
+      {
+        "stage": "lower-bound",
+        "count": 140608,
+        "entries": 190
+      },
+      {
+        "stage": "network",
+        "count": 140608,
+        "entries": 190
+      },
+      {
+        "stage": "payload",
+        "count": 24576,
+        "entries": 48
+      },
+      {
+        "stage": "performed",
+        "count": 81,
+        "entries": 81
+      },
+      {
+        "stage": "queued",
+        "count": 180904,
+        "entries": 195
+      },
+      {
+        "stage": "requested",
+        "count": 201,
+        "entries": 29
+      },
+      {
+        "stage": "serialized",
+        "count": 175584,
+        "entries": 195
+      },
+      {
+        "stage": "signed",
+        "count": 165,
+        "entries": 5
+      },
+      {
+        "stage": "state",
+        "count": 2128,
+        "entries": 1
+      },
+      {
+        "stage": "state-mutated",
+        "count": 24696,
+        "entries": 88
+      },
+      {
+        "stage": "superseded",
+        "count": 8,
+        "entries": 3
+      },
+      {
+        "stage": "time",
+        "count": 6601516800,
+        "entries": 1
+      },
+      {
+        "stage": "transmitted",
+        "count": 185524,
+        "entries": 195
+      },
+      {
+        "stage": "transport",
+        "count": 5320,
+        "entries": 190
+      },
+      {
+        "stage": "useful-payload",
+        "count": 24576,
+        "entries": 48
+      }
+    ],
+    "roots": [
+      "flow-00000000",
+      "flow-00000001",
+      "flow-00000002",
+      "flow-00000003",
+      "flow-00000004",
+      "flow-00000005",
+      "flow-00000006",
+      "flow-00000007",
+      "flow-00000008",
+      "flow-00000009",
+      "flow-00000010",
+      "flow-00000011",
+      "flow-00000012",
+      "flow-00000013",
+      "flow-00000014",
+      "flow-00000015",
+      "flow-00000016",
+      "flow-00000017",
+      "flow-00000018",
+      "flow-00000019",
+      "flow-00000020",
+      "flow-00000021",
+      "flow-00000022",
+      "flow-00000023",
+      "flow-00000024",
+      "flow-00000025",
+      "flow-00000026",
+      "flow-00000027",
+      "flow-00000028",
+      "flow-00000029",
+      "flow-00000030",
+      "flow-00000031",
+      "flow-00000032",
+      "flow-00000033",
+      "flow-00000034",
+      "flow-00000035",
+      "flow-00000036",
+      "flow-00000037",
+      "flow-00000038",
+      "flow-00000039",
+      "flow-00000040",
+      "flow-00000041",
+      "flow-00000042",
+      "flow-00000043",
+      "flow-00000044",
+      "flow-00000045",
+      "flow-00000046",
+      "flow-00000047",
+      "input:arrival-0000",
+      "input:arrival-0001",
+      "input:arrival-0002",
+      "input:arrival-0003",
+      "input:initial-topology"
+    ],
+    "critical_path": [
+      "input:arrival-0003",
+      "flow-00000016",
+      "lookup-0000000000000010-attempt-0"
+    ],
+    "source_entries": 2033
+  },
+  "network": {
+    "mode": "exact",
+    "exact_nodes": [
+      {
+        "id": 0,
+        "observed_events": 68
+      },
+      {
+        "id": 1,
+        "observed_events": 48
+      },
+      {
+        "id": 2,
+        "observed_events": 56
+      },
+      {
+        "id": 3,
+        "observed_events": 64
+      },
+      {
+        "id": 4,
+        "observed_events": 74
+      },
+      {
+        "id": 5,
+        "observed_events": 84
+      },
+      {
+        "id": 6,
+        "observed_events": 86
+      },
+      {
+        "id": 7,
+        "observed_events": 62
+      },
+      {
+        "id": 8,
+        "observed_events": 52
+      },
+      {
+        "id": 9,
+        "observed_events": 34
+      },
+      {
+        "id": 10,
+        "observed_events": 22
+      },
+      {
+        "id": 11,
+        "observed_events": 10
+      }
+    ],
+    "exact_edges": [
+      {
+        "from": 0,
+        "to": 1,
+        "frames": 10,
+        "frame_bytes": 1936,
+        "maximum_depth": 1
+      },
+      {
+        "from": 0,
+        "to": 8,
+        "frames": 8,
+        "frame_bytes": 1536,
+        "maximum_depth": 1
+      },
+      {
+        "from": 0,
+        "to": 9,
+        "frames": 6,
+        "frame_bytes": 1200,
+        "maximum_depth": 1
+      },
+      {
+        "from": 0,
+        "to": 10,
+        "frames": 6,
+        "frame_bytes": 1200,
+        "maximum_depth": 1
+      },
+      {
+        "from": 0,
+        "to": 11,
+        "frames": 4,
+        "frame_bytes": 800,
+        "maximum_depth": 1
+      },
+      {
+        "from": 1,
+        "to": 0,
+        "frames": 12,
+        "frame_bytes": 2592,
+        "maximum_depth": 2
+      },
+      {
+        "from": 1,
+        "to": 2,
+        "frames": 12,
+        "frame_bytes": 2592,
+        "maximum_depth": 2
+      },
+      {
+        "from": 2,
+        "to": 1,
+        "frames": 14,
+        "frame_bytes": 3312,
+        "maximum_depth": 3
+      },
+      {
+        "from": 2,
+        "to": 3,
+        "frames": 14,
+        "frame_bytes": 3312,
+        "maximum_depth": 3
+      },
+      {
+        "from": 3,
+        "to": 2,
+        "frames": 16,
+        "frame_bytes": 4096,
+        "maximum_depth": 4
+      },
+      {
+        "from": 3,
+        "to": 4,
+        "frames": 16,
+        "frame_bytes": 4096,
+        "maximum_depth": 4
+      },
+      {
+        "from": 4,
+        "to": 3,
+        "frames": 18,
+        "frame_bytes": 4944,
+        "maximum_depth": 5
+      },
+      {
+        "from": 4,
+        "to": 5,
+        "frames": 18,
+        "frame_bytes": 4944,
+        "maximum_depth": 5
+      },
+      {
+        "from": 5,
+        "to": 4,
+        "frames": 22,
+        "frame_bytes": 6512,
+        "maximum_depth": 6
+      },
+      {
+        "from": 5,
+        "to": 6,
+        "frames": 22,
+        "frame_bytes": 6512,
+        "maximum_depth": 6
+      },
+      {
+        "from": 6,
+        "to": 5,
+        "frames": 22,
+        "frame_bytes": 5808,
+        "maximum_depth": 5
+      },
+      {
+        "from": 6,
+        "to": 7,
+        "frames": 22,
+        "frame_bytes": 5808,
+        "maximum_depth": 5
+      },
+      {
+        "from": 7,
+        "to": 6,
+        "frames": 20,
+        "frame_bytes": 4832,
+        "maximum_depth": 4
+      },
+      {
+        "from": 7,
+        "to": 8,
+        "frames": 10,
+        "frame_bytes": 2512,
+        "maximum_depth": 4
+      },
+      {
+        "from": 8,
+        "to": 0,
+        "frames": 10,
+        "frame_bytes": 2192,
+        "maximum_depth": 3
+      },
+      {
+        "from": 8,
+        "to": 7,
+        "frames": 10,
+        "frame_bytes": 2192,
+        "maximum_depth": 3
+      },
+      {
+        "from": 8,
+        "to": 9,
+        "frames": 8,
+        "frame_bytes": 1856,
+        "maximum_depth": 3
+      },
+      {
+        "from": 9,
+        "to": 0,
+        "frames": 6,
+        "frame_bytes": 1200,
+        "maximum_depth": 2
+      },
+      {
+        "from": 9,
+        "to": 8,
+        "frames": 6,
+        "frame_bytes": 1200,
+        "maximum_depth": 2
+      },
+      {
+        "from": 9,
+        "to": 10,
+        "frames": 4,
+        "frame_bytes": 864,
+        "maximum_depth": 2
+      },
+      {
+        "from": 10,
+        "to": 0,
+        "frames": 4,
+        "frame_bytes": 736,
+        "maximum_depth": 1
+      },
+      {
+        "from": 10,
+        "to": 9,
+        "frames": 4,
+        "frame_bytes": 736,
+        "maximum_depth": 1
+      },
+      {
+        "from": 10,
+        "to": 11,
+        "frames": 2,
+        "frame_bytes": 400,
+        "maximum_depth": 1
+      },
+      {
+        "from": 11,
+        "to": 0,
+        "frames": 2,
+        "frame_bytes": 336,
+        "maximum_depth": 0
+      },
+      {
+        "from": 11,
+        "to": 10,
+        "frames": 2,
+        "frame_bytes": 336,
+        "maximum_depth": 0
+      }
+    ],
+    "depth_frame_distribution": {
+      "0": 188,
+      "1": 39,
+      "2": 32,
+      "3": 26,
+      "4": 21,
+      "5": 16,
+      "6": 8
+    },
+    "top_edges": [
+      {
+        "from": 5,
+        "to": 4,
+        "frames": 22,
+        "frame_bytes": 6512,
+        "maximum_depth": 6
+      },
+      {
+        "from": 5,
+        "to": 6,
+        "frames": 22,
+        "frame_bytes": 6512,
+        "maximum_depth": 6
+      },
+      {
+        "from": 6,
+        "to": 5,
+        "frames": 22,
+        "frame_bytes": 5808,
+        "maximum_depth": 5
+      },
+      {
+        "from": 6,
+        "to": 7,
+        "frames": 22,
+        "frame_bytes": 5808,
+        "maximum_depth": 5
+      },
+      {
+        "from": 4,
+        "to": 3,
+        "frames": 18,
+        "frame_bytes": 4944,
+        "maximum_depth": 5
+      },
+      {
+        "from": 4,
+        "to": 5,
+        "frames": 18,
+        "frame_bytes": 4944,
+        "maximum_depth": 5
+      },
+      {
+        "from": 7,
+        "to": 6,
+        "frames": 20,
+        "frame_bytes": 4832,
+        "maximum_depth": 4
+      },
+      {
+        "from": 3,
+        "to": 2,
+        "frames": 16,
+        "frame_bytes": 4096,
+        "maximum_depth": 4
+      },
+      {
+        "from": 3,
+        "to": 4,
+        "frames": 16,
+        "frame_bytes": 4096,
+        "maximum_depth": 4
+      },
+      {
+        "from": 2,
+        "to": 1,
+        "frames": 14,
+        "frame_bytes": 3312,
+        "maximum_depth": 3
+      },
+      {
+        "from": 2,
+        "to": 3,
+        "frames": 14,
+        "frame_bytes": 3312,
+        "maximum_depth": 3
+      },
+      {
+        "from": 1,
+        "to": 0,
+        "frames": 12,
+        "frame_bytes": 2592,
+        "maximum_depth": 2
+      },
+      {
+        "from": 1,
+        "to": 2,
+        "frames": 12,
+        "frame_bytes": 2592,
+        "maximum_depth": 2
+      },
+      {
+        "from": 7,
+        "to": 8,
+        "frames": 10,
+        "frame_bytes": 2512,
+        "maximum_depth": 4
+      },
+      {
+        "from": 8,
+        "to": 0,
+        "frames": 10,
+        "frame_bytes": 2192,
+        "maximum_depth": 3
+      },
+      {
+        "from": 8,
+        "to": 7,
+        "frames": 10,
+        "frame_bytes": 2192,
+        "maximum_depth": 3
+      },
+      {
+        "from": 0,
+        "to": 1,
+        "frames": 10,
+        "frame_bytes": 1936,
+        "maximum_depth": 1
+      },
+      {
+        "from": 8,
+        "to": 9,
+        "frames": 8,
+        "frame_bytes": 1856,
+        "maximum_depth": 3
+      },
+      {
+        "from": 0,
+        "to": 8,
+        "frames": 8,
+        "frame_bytes": 1536,
+        "maximum_depth": 1
+      },
+      {
+        "from": 0,
+        "to": 9,
+        "frames": 6,
+        "frame_bytes": 1200,
+        "maximum_depth": 1
+      }
+    ],
+    "source": {
+      "collection": "event_trace/tree-announce",
+      "start": 0,
+      "end_exclusive": 335,
+      "total": 335
+    },
+    "fidelity": "all observed event edges; physical peer edges remain distinct from root/parent semantics"
+  },
+  "root_wave": {
+    "points": [
+      {
+        "causal_id": "event-0000000000000002",
+        "root": "7fffffffffffffffffffffffffffffff",
+        "arrival_ns": 2000000000,
+        "propagated_events": 3,
+        "status": "adopted"
+      },
+      {
+        "causal_id": "event-0000000000000003",
+        "root": "7ffffffffffffffffffffffffffffffe",
+        "arrival_ns": 2499000000,
+        "propagated_events": 3,
+        "status": "adopted"
+      },
+      {
+        "causal_id": "event-0000000000000004",
+        "root": "7ffffffffffffffffffffffffffffffd",
+        "arrival_ns": 2998000000,
+        "propagated_events": 3,
+        "status": "adopted"
+      },
+      {
+        "causal_id": "event-0000000000000005",
+        "root": "7ffffffffffffffffffffffffffffffc",
+        "arrival_ns": 3497000000,
+        "propagated_events": 3,
+        "status": "adopted"
+      }
+    ],
+    "final_consensus_root": "7ffffffffffffffffffffffffffffffc",
+    "fidelity": "arrival lineage is exact; propagation counts include direct causal descendants recorded by the source artifact"
+  },
+  "sample_count": 2,
+  "event_count": 335,
+  "normalized_plan": {
+    "api_version": "experiments.fips.network/normalized-plan/v1alpha1",
+    "axes": [],
+    "campaign": {
+      "accounting": {
+        "causal_lineage": true,
+        "network_overhead": "configured",
+        "reconcile_serialized_frames": true,
+        "transport_overhead": true
+      },
+      "apiVersion": "experiments.fips.network/v1alpha1",
+      "assertions": [
+        {
+          "eventually": {
+            "after_input_quiescence": {
+              "nanoseconds": 30000000000
+            },
+            "condition": "all_connected_nodes_agree_on_minimum_root"
+          }
+        },
+        {
+          "always": {
+            "condition": "no_forwarding_loops"
+          }
+        },
+        {
+          "eventually": {
+            "condition": "data_plane_makes_progress"
+          }
+        },
+        {
+          "reconcile": {
+            "condition": "measured_bytes_equal_serialized_frames"
+          }
+        },
+        {
+          "deterministic": {
+            "condition": "same_seed_same_event_order_and_result"
+          }
+        }
+      ],
+      "engine": {
+        "deterministic": true,
+        "modes": "compact-discrete-event",
+        "variant": "fips-80c956a-baseline"
+      },
+      "events": [
+        {
+          "action": "introduce-lower-root-identities",
+          "id": "descending-root-arrivals"
+        }
+      ],
+      "fidelity": {
+        "billion_node_representation": "not-requested",
+        "bloom": "exact-bits",
+        "crypto": "operation-count",
+        "protocol": "semantic-exact",
+        "serialization": "executable-codec"
+      },
+      "identities": {
+        "arrivals": {
+          "address_policy": "strictly-lower-than-current-root",
+          "attachment": "current-root",
+          "attacker_budget": {
+            "identities": 4,
+            "mode": "bounded",
+            "operations": 4
+          },
+          "count": 4,
+          "schedule": {
+            "interval": {
+              "nanoseconds": 499000000
+            },
+            "start": {
+              "nanoseconds": 2000000000
+            }
+          }
+        },
+        "initial": {
+          "distribution": "uniform-128"
+        }
+      },
+      "instrumentation": {
+        "causal_cost_ledger": true,
+        "control_and_useful_bytes": true,
+        "queue_wait": true,
+        "quiescence_markers": [
+          "root",
+          "tree",
+          "bloom",
+          "lookup",
+          "data-plane"
+        ],
+        "root_agreement_by_depth": true,
+        "transition_stages": true
+      },
+      "kind": "Campaign",
+      "links": {
+        "bandwidth_bps": 10000000,
+        "drop_policy": "tail-drop",
+        "duplication_ppm": 0,
+        "latency": {
+          "nanoseconds": 1000000
+        },
+        "loss_ppm": 0,
+        "mtu_bytes": 1500,
+        "ordering": "stream",
+        "queue_bytes": 1048576
+      },
+      "metadata": {
+        "description": "M2 coupled Bloom, cache, lookup, resource, and useful-traffic recovery",
+        "name": "root-ratchet-recovery"
+      },
+      "objectives": {
+        "maximize": [
+          "control_bytes_per_root_arrival",
+          "data_plane_stall_duration",
+          "coordinate_cache_invalidations"
+        ]
+      },
+      "protocol": {
+        "parameters": {
+          "bloom_max_fpr_ppm": 200000,
+          "bloom_update_debounce": {
+            "nanoseconds": 500000000
+          },
+          "coord_cache_entries": 8,
+          "coord_cache_ttl": {
+            "nanoseconds": 5000000000
+          },
+          "lookup_attempts": 3,
+          "lookup_ttl": 64,
+          "tree_announce_debounce": {
+            "nanoseconds": 500000000
+          }
+        },
+        "variant": "fips-80c956a-baseline"
+      },
+      "resources": {
+        "assignment": "heterogeneous",
+        "node_profiles": [
+          {
+            "cpu_units": 1000,
+            "memory_bytes": 1073741824,
+            "name": "baseline",
+            "queue_bytes": 1048576,
+            "table_entries": 1000
+          }
+        ]
+      },
+      "scale": {
+        "nodes": 12
+      },
+      "seed": 424242,
+      "topology": {
+        "average_degree": 2,
+        "connected": true,
+        "generator": "chain"
+      },
+      "traffic": {
+        "model": "uniform-random",
+        "parameters": {
+          "flow_count": 48
+        },
+        "payload_bytes": 512,
+        "rate_bps": 40960
+      },
+      "transports": {
+        "assignment": "all-udp"
+      }
+    },
+    "campaign_sha256": "42541b80f010f26a0ee904e212ebbbeeb35bdacbc2a0ce3632461a34c890caed",
+    "seed": 424242
+  }
+}

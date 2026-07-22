@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>FIPS Wind Tunnel Analysis</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <div>
+      <p class="eyebrow">FIPS WIND TUNNEL</p>
+      <h1>Artifact analysis</h1>
+    </div>
+    <label class="import">Open one or two artifacts<input id="artifact-file" type="file" multiple accept="application/json,.json"></label>
+  </header>
+  <aside id="notice" role="status">Open an immutable run artifact, or inspect this exported report.</aside>
+  <nav aria-label="Analysis views">
+    <a href="#summary">Summary</a><a href="#root-wave">Root wave</a><a href="#network">Network</a><a href="#metrics">Metrics</a><a href="#causal">Causal</a><a href="#comparison">Compare</a><a href="#provenance">Provenance</a>
+  </nav>
+  <main id="content">
+    <section class="empty"><h2>No artifact loaded</h2><p>Files are parsed locally. The analysis browser never runs protocol semantics.</p></section>
+  </main>
+  <footer>Read-only analysis · unknown values are never rendered as zero</footer>
+  <script src="data.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

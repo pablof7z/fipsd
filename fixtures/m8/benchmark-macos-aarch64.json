@@ -1,0 +1,64 @@
+{
+  "api_version": "experiments.fips.network/benchmark/v1alpha1",
+  "os": "macos",
+  "architecture": "aarch64",
+  "cases": [
+    {
+      "name": "artifact-analysis",
+      "iterations": 30,
+      "p50_ns": 1385792,
+      "p95_ns": 1453750,
+      "input_bytes": 989864,
+      "output_bytes": 9892,
+      "memory_evidence": "portable lower bound: 989864 input plus 9892 output bytes; peak RSS unobserved",
+      "fidelity": "wall-clock measured on recorded host; no cross-host extrapolation",
+      "represented_nodes": null
+    },
+    {
+      "name": "million-node-cohort",
+      "iterations": 30,
+      "p50_ns": 1232834,
+      "p95_ns": 1294667,
+      "input_bytes": 2572,
+      "output_bytes": 21705,
+      "memory_evidence": "portable lower bound: 2572 input plus 21705 output bytes; peak RSS unobserved",
+      "fidelity": "measured cohort execution with declared deterministic bounds",
+      "represented_nodes": 1000000
+    },
+    {
+      "name": "billion-node-cohort",
+      "iterations": 30,
+      "p50_ns": 1457709,
+      "p95_ns": 1520292,
+      "input_bytes": 2575,
+      "output_bytes": 25956,
+      "memory_evidence": "portable lower bound: 2575 input plus 25956 output bytes; peak RSS unobserved",
+      "fidelity": "measured cohort execution with declared deterministic bounds",
+      "represented_nodes": 1000000000
+    },
+    {
+      "name": "bounded-event-query",
+      "iterations": 30,
+      "p50_ns": 108625,
+      "p95_ns": 109417,
+      "input_bytes": 989864,
+      "output_bytes": 100,
+      "memory_evidence": "portable lower bound: 989864 input plus 100 output bytes; peak RSS unobserved",
+      "fidelity": "wall-clock measured on recorded host; no cross-host extrapolation",
+      "represented_nodes": null
+    },
+    {
+      "name": "ten-family-atlas",
+      "iterations": 30,
+      "p50_ns": 53481667,
+      "p95_ns": 55412375,
+      "input_bytes": 10,
+      "output_bytes": 50937,
+      "memory_evidence": "portable lower bound: 10 input plus 50937 output bytes; peak RSS unobserved",
+      "fidelity": "wall-clock measured on recorded host; no cross-host extrapolation",
+      "represented_nodes": null
+    }
+  ],
+  "claim_boundary": "timings apply only to this recorded host/build; input/output bytes are measured, peak RSS is not observed by the portable harness",
+  "resource_failure_policy": "bounded allocation is checked before execution; failures return typed errors and retain prior immutable evidence"
+}

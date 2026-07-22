@@ -1,11 +1,14 @@
 # Security policy
 
-## Project status
+## Supported versions
 
-FIPS Wind Tunnel is currently a roadmap-stage research and engineering project.
-There are no supported releases yet. Security boundaries will evolve before
-v0.1, but reports concerning repository automation, campaign/artifact parsing,
-or the planned daemon oracle are welcome now.
+| Version | Supported |
+| --- | --- |
+| 0.1.x | Yes |
+| Pre-release snapshots | Best effort |
+
+The v0.1 trust zones, parser/resource limits, container authority, and residual
+risks are documented in [the threat model](docs/threat-model.md).
 
 ## Reporting a vulnerability
 
@@ -17,9 +20,9 @@ Include the affected revision, environment, minimal reproduction, impact, and
 whether untrusted campaign or artifact input is required. Avoid attaching real
 private keys or credentials.
 
-## Planned trust boundary
+## Trust boundary
 
-The P0 threat model covers:
+The v0.1 threat model covers:
 
 - untrusted campaign YAML and run artifacts;
 - archive extraction, path traversal, decompression, and allocation limits;
@@ -30,7 +33,7 @@ The P0 threat model covers:
 - artifact export, redaction, and public reproduction bundles;
 - CPU, memory, disk, queue, and telemetry exhaustion.
 
-The semantic simulator is not a sandbox. The real-daemon backend may execute
+The semantic simulator is not a sandbox. The real-daemon backend can execute
 containers and make local network changes. Those operations must be explicit,
 bounded, and separated from read-only artifact analysis.
 
@@ -39,3 +42,8 @@ bounded, and separated from read-only artifact analysis.
 Public bundles must exclude private keys, credentials, environment secrets,
 private host paths, and private network data by default. Provenance should use
 hashes, public commit IDs, image digests, and redacted hardware profiles.
+
+Release packages reject symlinks, parent traversal, oversized files, and
+checksum drift. Hosted packages require SHA-256 checksums, an SPDX SBOM, and
+platform artifact attestation. These controls establish provenance; they do not
+make untrusted engine or variant code safe to execute.

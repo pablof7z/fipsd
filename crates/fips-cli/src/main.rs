@@ -1,7 +1,27 @@
 use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
+use fips_artifact::{ReproductionBundle, RunArtifact};
+use fips_engine::IndividualEngine;
+use fips_model::NormalizedPlan;
 use std::fs;
 use std::path::PathBuf;
+
+mod campaign_commands;
+use campaign_commands::CampaignCommand;
+mod scale_commands;
+use scale_commands::ScaleCommand;
+mod oracle_commands;
+use oracle_commands::OracleCommand;
+mod analysis_commands;
+use analysis_commands::AnalysisCommand;
+mod atlas_commands;
+use atlas_commands::AtlasCommand;
+mod release_commands;
+use release_commands::ReleaseCommand;
+mod io_helpers;
+use io_helpers::{
+    causal_subtree, embedded_recovery_report, embedded_report, write_bytes, write_json,
+};
 
 #[derive(Debug, Parser)]
 #[command(name = "fips-wind-tunnel")]
@@ -26,6 +46,68 @@ enum Command {
         #[arg(short, long)]
         output: Option<PathBuf>,
     },
+    /// Run one resolved individual-node campaign and write immutable evidence.
+    Run {
+        /// Concrete Campaign YAML path (no unresolved value-set axes).
+        campaign: PathBuf,
+        /// Output directory containing artifact.json, reproduction.json, and report.json.
+        #[arg(short, long)]
+        output: PathBuf,
+    },
+    /// Inspect an immutable artifact without simulation state or UI.
+    Inspect {
+        /// Run artifact JSON path.
+        artifact: PathBuf,
+        /// Restrict causal ledger output to this initiating causal ID.
+        #[arg(long)]
+        causal_id: Option<String>,
+    },
+    /// Replay a deterministic reproduction bundle.
+    Replay {
+        /// Reproduction bundle JSON path.
+        bundle: PathBuf,
+        /// Optional replay artifact output path.
+        #[arg(short, long)]
+        output: Option<PathBuf>,
+    },
+    /// M1 compatibility command; M3 replaces this with hierarchical shrinking.
+    MinimizeBundle {
+        /// Existing reproduction bundle.
+        bundle: PathBuf,
+        /// Output path for the validated unchanged M1 bundle.
+        #[arg(short, long)]
+        output: PathBuf,
+    },
+    /// M3 campaign algebra, generation, search, shrinking, and corpus workflows.
+    Campaign {
+        #[command(subcommand)]
+        command: CampaignCommand,
+    },
+    /// M4 cohort/hybrid scale, calibration, and protocol-variant workflows.
+    Scale {
+        #[command(subcommand)]
+        command: ScaleCommand,
+    },
+    /// M5 real-daemon import, harness, telemetry, differential, and fuzz workflows.
+    Oracle {
+        #[command(subcommand)]
+        command: OracleCommand,
+    },
+    /// M6 immutable artifact analysis, comparison, query, and static export.
+    Analyze {
+        #[command(subcommand)]
+        command: AnalysisCommand,
+    },
+    /// M7 ten-family qualification atlas workflows.
+    Atlas {
+        #[command(subcommand)]
+        command: AtlasCommand,
+    },
+    /// M8 audit, benchmark, and release-package workflows.
+    Release {
+        #[command(subcommand)]
+        command: ReleaseCommand,
+    },
 }
 
 fn main() -> Result<()> {
@@ -49,6 +131,127 @@ fn main() -> Result<()> {
                 );
             }
         }
+        Command::Run { campaign, output } => {
+            let plan = fips_model::normalize_path(&campaign)
+                .with_context(|| format!("normalization failed for {}", campaign.display()))?;
+            let run = IndividualEngine
+                .run_plan(&plan)
+                .with_context(|| format!("run failed for {}", campaign.display()))?;
+            fs::create_dir_all(&output)
+                .with_context(|| format!("cannot create {}", output.display()))?;
+            write_bytes(
+                &output.join("artifact.json"),
+                &run.artifact.to_canonical_json()?,
+            )?;
+            write_bytes(
+                &output.join("reproduction.json"),
+                &run.reproduction.to_canonical_json()?,
+            )?;
+            write_json(&output.join("report.json"), &run.report)?;
+            if let Some(recovery) = &run.recovery_report {
+                write_json(&output.join("recovery-report.json"), recovery)?;
+            }
+            println!(
+                "run {}: {} nodes, {} arrivals, root {}, quiescent at {} ns",
+                run.report.run_id,
+                run.report.node_count,
+                run.report.arrivals,
+                run.report.final_root,
+                run.report.quiescence_ns
+            );
+            println!("evidence: {}", output.display());
+            if let Some(recovery) = &run.recovery_report {
+                println!(
+                    "M2 recovery: {} useful bytes delivered, Bloom/lookup/data quiescence at {}/{}/{} ns",
+                    recovery.traffic.delivered_useful_bytes,
+                    recovery.markers.bloom_ns,
+                    recovery.markers.lookup_ns,
+                    recovery.markers.throughput_ns
+                );
+            }
+        }
+        Command::Inspect {
+            artifact,
+            causal_id,
+        } => {
+            let bytes = fs::read(&artifact)
+                .with_context(|| format!("cannot read {}", artifact.display()))?;
+            let artifact_document: RunArtifact = serde_json::from_slice(&bytes)
+                .with_context(|| format!("invalid artifact {}", artifact.display()))?;
+            artifact_document.validate()?;
+            let report = embedded_report(&artifact_document)?;
+            let recovery = embedded_recovery_report(&artifact_document);
+            let inspection = recovery.as_ref().map_or_else(
+                || serde_json::to_value(&report),
+                |recovery| {
+                    serde_json::to_value(serde_json::json!({
+                        "root": report,
+                        "recovery": recovery,
+                    }))
+                },
+            )?;
+            let output = if let Some(causal_id) = causal_id {
+                let entries = causal_subtree(&artifact_document.causal_ledger, &causal_id);
+                if entries.is_empty() {
+                    anyhow::bail!("artifact has no causal ledger entries for {causal_id}");
+                }
+                serde_json::json!({
+                    "report": inspection,
+                    "causal_root": causal_id,
+                    "causal_tree": entries,
+                })
+            } else {
+                inspection
+            };
+            println!(
+                "{}",
+                String::from_utf8(serde_json::to_vec_pretty(&output)?)?
+            );
+        }
+        Command::Replay { bundle, output } => {
+            let bytes =
+                fs::read(&bundle).with_context(|| format!("cannot read {}", bundle.display()))?;
+            let reproduction: ReproductionBundle = serde_json::from_slice(&bytes)
+                .with_context(|| format!("invalid reproduction bundle {}", bundle.display()))?;
+            reproduction.to_canonical_json()?;
+            let plan: NormalizedPlan = serde_json::from_value(reproduction.normalized_plan.clone())
+                .context("bundle normalized_plan is not a normalized plan")?;
+            let run = IndividualEngine.run_plan(&plan)?;
+            for expected in &reproduction.expected_assertions {
+                if !run
+                    .artifact
+                    .assertion_results
+                    .iter()
+                    .any(|assertion| assertion.id == *expected && assertion.outcome == "pass")
+                {
+                    anyhow::bail!("replay did not satisfy expected assertion {expected}");
+                }
+            }
+            if let Some(path) = output {
+                write_bytes(&path, &run.artifact.to_canonical_json()?)?;
+            }
+            println!(
+                "replayed {} as {}",
+                reproduction.bundle_id, run.report.run_id
+            );
+        }
+        Command::MinimizeBundle { bundle, output } => {
+            let bytes =
+                fs::read(&bundle).with_context(|| format!("cannot read {}", bundle.display()))?;
+            let reproduction: ReproductionBundle = serde_json::from_slice(&bytes)
+                .with_context(|| format!("invalid reproduction bundle {}", bundle.display()))?;
+            write_bytes(&output, &reproduction.to_canonical_json()?)?;
+            println!(
+                "M1 placeholder preserved {} unchanged; hierarchical shrinking ships in M3",
+                reproduction.bundle_id
+            );
+        }
+        Command::Campaign { command } => campaign_commands::execute(command)?,
+        Command::Scale { command } => scale_commands::execute(command)?,
+        Command::Oracle { command } => oracle_commands::execute(command)?,
+        Command::Analyze { command } => analysis_commands::execute(command)?,
+        Command::Atlas { command } => atlas_commands::execute(command)?,
+        Command::Release { command } => release_commands::execute(command)?,
     }
     Ok(())
 }

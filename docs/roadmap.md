@@ -26,6 +26,10 @@ artifact/query fixtures exist and may then proceed alongside later engine work.
 M7 qualifies the product boundary; M8 converts that evidence into a supported
 release.
 
+The source tree now contains executable evidence for M0 through M8. GitHub issue
+and milestone state remains the public review/closure record; the verification
+maps and checked-in fixtures are the implementation record.
+
 ## M0 — Scientific contract & repository spine
 
 Demo: validate Root Ratchet v1alpha1, emit a byte-stable normalized plan, and
