@@ -16,7 +16,8 @@ m1_run="$(mktemp -d)"
 m2_run="$(mktemp -d)"
 m3_run="$(mktemp -d)"
 m4_run="$(mktemp -d)"
-trap 'rm -f "$first" "$second"; rm -rf "$m1_run" "$m2_run" "$m3_run" "$m4_run"' EXIT
+m5_run="$(mktemp -d)"
+trap 'rm -f "$first" "$second"; rm -rf "$m1_run" "$m2_run" "$m3_run" "$m4_run" "$m5_run"' EXIT
 cargo run --quiet -p fips-cli --bin fips-wind-tunnel -- normalize examples/root-ratchet.yaml --output "$first"
 cargo run --quiet -p fips-cli --bin fips-wind-tunnel -- normalize examples/root-ratchet.yaml --output "$second"
 cmp "$first" "$second"
@@ -73,3 +74,22 @@ cmp "$m4_run/calibration.json" fixtures/m4/calibration.json
 cargo run --quiet -p fips-cli --bin fips-wind-tunnel -- scale billion-demo \
   examples/m4/billion-root-ratchet.yaml --output "$m4_run/billion.json"
 cmp "$m4_run/billion.json" fixtures/m4/billion-demo.json
+
+cargo run --quiet -p fips-oracle --example generate_m5_fixtures -- "$m5_run/generated"
+diff -ru fixtures/m5/generated "$m5_run/generated"
+cargo run --quiet -p fips-cli --bin fips-wind-tunnel -- oracle import \
+  fixtures/m5/chaos/smoke.yaml --output "$m5_run/imported-smoke.json"
+cmp "$m5_run/imported-smoke.json" fixtures/m5/generated/imported-smoke.json
+cargo run --quiet -p fips-cli --bin fips-wind-tunnel -- oracle compile \
+  "$m5_run/imported-smoke.json" --output "$m5_run/compiled-smoke.yaml"
+cmp "$m5_run/compiled-smoke.yaml" fixtures/m5/generated/compiled-smoke.yaml
+cmp "$m5_run/compiled-smoke.manifest.json" \
+  fixtures/m5/generated/compiled-smoke-manifest.json
+cargo run --quiet -p fips-cli --bin fips-wind-tunnel -- oracle suites \
+  --output "$m5_run/suites.json"
+cmp "$m5_run/suites.json" fixtures/m5/generated/suites.json
+cargo run --quiet -p fips-cli --bin fips-wind-tunnel -- oracle fuzz-result \
+  --backend cargo-fuzz --outcome crash --input-hex ff00 \
+  --corpus-sha256 corpus-v1 --coverage-edges 42 \
+  --output "$m5_run/fuzz-crash.json"
+cmp "$m5_run/fuzz-crash.json" fixtures/m5/generated/fuzz-crash.json

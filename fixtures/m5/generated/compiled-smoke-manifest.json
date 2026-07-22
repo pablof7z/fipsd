@@ -1,0 +1,88 @@
+{
+  "kind": "compiled-chaos-harness/v1alpha1",
+  "adapter_version": "fips-chaos-80c956a/v1",
+  "fips_commit": "80c956a6fdb85dde1450969a21891c1158e43267",
+  "normalized_plan_sha256": "69affbe1931a8a3bab60ac2ff8eee0f91b668612d283477d543569c9d2b27b2c",
+  "scenario": {
+    "fips_overrides": {},
+    "link_flaps": {
+      "enabled": false
+    },
+    "logging": {
+      "output_dir": "./sim-results",
+      "rust_log": "info"
+    },
+    "netem": {
+      "default_policy": {
+        "delay_ms": [
+          1.0,
+          1.0
+        ],
+        "jitter_ms": [
+          0,
+          0
+        ],
+        "loss_pct": [
+          0.0,
+          0.0
+        ]
+      },
+      "enabled": true
+    },
+    "scenario": {
+      "duration_secs": 30,
+      "name": "compiled-69affbe1931a",
+      "seed": 42
+    },
+    "topology": {
+      "algorithm": "random_geometric",
+      "default_transport": "udp",
+      "ensure_connected": true,
+      "ip_start": 10,
+      "num_nodes": 10,
+      "params": {
+        "radius": 0.5
+      },
+      "subnet": "172.31.0.0/24"
+    },
+    "traffic": {
+      "duration_secs": {
+        "max": 2,
+        "min": 2
+      },
+      "enabled": false,
+      "interval_secs": {
+        "max": 1,
+        "min": 1
+      },
+      "max_concurrent": 0,
+      "parallel_streams": 1
+    }
+  },
+  "deterministic_identity_ids": [
+    "identity-aefdce03def94ffed42159e5",
+    "identity-c953b283023f000d3b5411c5",
+    "identity-ab865bbef77ed3f5450e911f",
+    "identity-5be8afe6cbede15e0b3ca82d",
+    "identity-a74dafa0d9664c13c3568859",
+    "identity-7c38b15f7844cf57ecafba40",
+    "identity-ac478e89775dd8c01d4c8ab8",
+    "identity-6dc5ba4732e25aef34d35f25",
+    "identity-391dcc2202fef891e38d944b",
+    "identity-33b7685a7b56df31475b4b08"
+  ],
+  "diagnostics": [
+    {
+      "source_path": "/topology/generator",
+      "disposition": "approximated",
+      "target_path": "/topology/algorithm",
+      "message": "compiled random-regular to chaos random_geometric"
+    },
+    {
+      "source_path": "/transports/assignment",
+      "disposition": "exact",
+      "target_path": "/topology/default_transport",
+      "message": "compiled deterministic transport assignment all-udp"
+    }
+  ]
+}

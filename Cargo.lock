@@ -322,7 +322,9 @@ dependencies = [
  "fips-campaign",
  "fips-engine",
  "fips-model",
+ "fips-oracle",
  "fips-scale",
+ "hex",
  "serde",
  "serde_json",
 ]
@@ -363,6 +365,23 @@ dependencies = [
  "serde_json",
  "serde_yaml_ng",
  "sha2",
+ "thiserror",
+]
+
+[[package]]
+name = "fips-oracle"
+version = "0.1.0"
+dependencies = [
+ "fips-artifact",
+ "fips-campaign",
+ "fips-engine",
+ "fips-model",
+ "hex",
+ "serde",
+ "serde_json",
+ "serde_yaml_ng",
+ "sha2",
+ "tempfile",
  "thiserror",
 ]
 

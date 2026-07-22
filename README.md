@@ -9,10 +9,10 @@ handful of real daemons to billion-node analytical cohorts.
 
 > [!IMPORTANT]
 > M0 ships the scientific contracts, Campaign validator/normalizer, artifact
-> schemas, and pinned codec-conformance proof. M1-M3 add the headless
+> schemas, and pinned codec-conformance proof. M1-M5 add the headless
 > deterministic engine, coupled recovery accounting, replayable campaign
-> search, and shrinking. The browser application remains a later, separately
-> gated milestone.
+> search, honest cohort/hybrid scale, variants, and a pinned real-daemon oracle.
+> The browser application remains a later, separately gated milestone.
 
 The flagship campaign is **Root Ratchet**, formally a Descending-Minimum Root
 Cascade: authenticated identities with successively lower addresses arrive
@@ -59,8 +59,8 @@ No view may present an approximate result as an exact replay.
 
 ## Target experiment loop
 
-M3 ships the loop through deterministic search, shrinking, and model-regression
-replay; later milestones add daemon comparison and variant/cohort execution:
+M5 ships the loop through deterministic search, shrinking, variant/cohort
+execution, and pinned real-daemon comparison:
 
 ```text
 author or generate a campaign
@@ -126,6 +126,13 @@ M4's bounded scale engine and variants are documented in
 The one-billion-node campaign and byte-stable evidence live under `examples/m4/`
 and `fixtures/m4/`; the [M4 verification map](docs/m4-verification.md) records
 the fidelity, calibration, variant, and resource-budget proofs.
+
+M5's pinned implementation oracle is documented in
+[M5 pinned-daemon oracle](docs/m5-daemon-oracle.md). Six imported chaos families,
+deterministic compiled/normalized/differential fixtures, suite manifests, and a
+three-repeat live smoke summary live under `fixtures/m5/`; the
+[M5 verification map](docs/m5-verification.md) ties each oracle contract to
+tests and reproducible evidence.
 
 ## Architecture direction
 

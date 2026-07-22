@@ -1,0 +1,222 @@
+{
+  "kind": "chaos-import/v1alpha1",
+  "plan": {
+    "api_version": "experiments.fips.network/normalized-plan/v1alpha1",
+    "campaign_sha256": "69affbe1931a8a3bab60ac2ff8eee0f91b668612d283477d543569c9d2b27b2c",
+    "campaign": {
+      "accounting": {
+        "causal_lineage": true,
+        "network_overhead": "configured",
+        "reconcile_serialized_frames": true,
+        "transport_overhead": true
+      },
+      "adversaries": {
+        "actions": [],
+        "budgets": {
+          "identities": 0,
+          "operations": 0
+        },
+        "mode": "none"
+      },
+      "apiVersion": "experiments.fips.network/v1alpha1",
+      "assertions": [
+        {
+          "always": {
+            "condition": "no_forwarding_loops"
+          }
+        }
+      ],
+      "engine": {
+        "deterministic": true,
+        "modes": "compact-discrete-event",
+        "variant": "fips-80c956a-baseline"
+      },
+      "events": [
+        {
+          "action": "introduce-lower-root-identities",
+          "id": "chaos-source"
+        }
+      ],
+      "fidelity": {
+        "billion_node_representation": "not-requested",
+        "bloom": "exact-bits",
+        "crypto": "execute",
+        "protocol": "semantic-exact",
+        "serialization": "captured-wire"
+      },
+      "identities": {
+        "arrivals": {
+          "address_policy": "strictly-lower-than-current-root",
+          "attachment": "current-root",
+          "count": 0,
+          "schedule": {
+            "interval": {
+              "nanoseconds": 500000000
+            },
+            "start": {
+              "nanoseconds": 2000000000
+            }
+          }
+        },
+        "initial": {
+          "distribution": "deterministic-chaos-seed"
+        }
+      },
+      "instrumentation": {
+        "causal_cost_ledger": true,
+        "control_and_useful_bytes": true,
+        "queue_wait": true,
+        "quiescence_markers": [
+          "root",
+          "tree",
+          "bloom",
+          "lookup",
+          "data-plane"
+        ],
+        "root_agreement_by_depth": true,
+        "transition_stages": true
+      },
+      "kind": "Campaign",
+      "links": {
+        "bandwidth_bps": 1000000000,
+        "drop_policy": "tail-drop",
+        "duplication_ppm": 0,
+        "latency": {
+          "nanoseconds": 1000000
+        },
+        "loss_ppm": 0,
+        "mtu_bytes": 1500,
+        "ordering": "stream",
+        "queue_bytes": 1048576
+      },
+      "metadata": {
+        "description": "Imported from FIPS chaos scenario fixtures/m5/chaos/smoke.yaml",
+        "name": "imported-smoke-10"
+      },
+      "objectives": {
+        "maximize": [
+          "control_bytes_per_root_arrival"
+        ]
+      },
+      "protocol": {
+        "parameters": {
+          "bloom_max_fpr_ppm": 200000,
+          "bloom_update_debounce": {
+            "nanoseconds": 500000000
+          },
+          "coord_cache_entries": 64,
+          "coord_cache_ttl": {
+            "nanoseconds": 5000000000
+          },
+          "lookup_attempts": 3,
+          "lookup_ttl": 64,
+          "tree_announce_debounce": {
+            "nanoseconds": 500000000
+          }
+        },
+        "variant": "fips-80c956a-baseline"
+      },
+      "resources": {
+        "assignment": "uniform",
+        "node_profiles": [
+          {
+            "cpu_units": 1000,
+            "memory_bytes": 1073741824,
+            "name": "daemon",
+            "queue_bytes": 1048576,
+            "table_entries": 1000
+          }
+        ]
+      },
+      "scale": {
+        "nodes": 10
+      },
+      "seed": 42,
+      "topology": {
+        "average_degree": 2,
+        "connected": true,
+        "generator": "random-regular"
+      },
+      "traffic": {
+        "model": "uniform-random",
+        "parameters": {
+          "flow_count": 0
+        },
+        "payload_bytes": 512,
+        "rate_bps": 0
+      },
+      "transports": {
+        "assignment": "all-udp"
+      }
+    },
+    "axes": [],
+    "seed": 42
+  },
+  "diagnostics": [
+    {
+      "source_path": "/topology/algorithm",
+      "disposition": "approximated",
+      "target_path": "/topology/generator",
+      "message": "mapped chaos topology random_geometric"
+    },
+    {
+      "source_path": "/netem/default_policy",
+      "disposition": "approximated",
+      "target_path": "/links",
+      "message": "stochastic ranges collapse to deterministic midpoint; raw source retained"
+    },
+    {
+      "source_path": "/traffic",
+      "disposition": "exact",
+      "target_path": "/traffic",
+      "message": "stochastic ranges collapse to deterministic midpoint; raw source retained"
+    },
+    {
+      "source_path": "/topology/transport_mix",
+      "disposition": "exact",
+      "target_path": "/transports/assignment",
+      "message": "transport ratios map to a deterministic assignment class; raw ratios retained"
+    },
+    {
+      "source_path": "/link_flaps",
+      "disposition": "preserved-metadata",
+      "target_path": null,
+      "message": "harness behavior retained as source metadata; semantic model support is partial"
+    }
+  ],
+  "source": {
+    "source_path": "fixtures/m5/chaos/smoke.yaml",
+    "fips_commit": "80c956a6fdb85dde1450969a21891c1158e43267",
+    "source_sha256": "3329a5061a6f78fb81ea56b943b3c862abb63a130e9b2dfca96f4e39b38bedcf",
+    "preserved_fields": {
+      "link_flaps": {
+        "enabled": false
+      },
+      "logging": {
+        "output_dir": "./sim-results",
+        "rust_log": "info"
+      },
+      "netem": {
+        "enabled": false
+      },
+      "scenario": {
+        "duration_secs": 30,
+        "name": "smoke-10",
+        "seed": 42
+      },
+      "topology": {
+        "algorithm": "random_geometric",
+        "ensure_connected": true,
+        "ip_start": 10,
+        "num_nodes": 10,
+        "params": {
+          "radius": 0.5
+        },
+        "subnet": "172.20.0.0/24"
+      },
+      "traffic": {
+        "enabled": false
+      }
+    }
+  }
+}

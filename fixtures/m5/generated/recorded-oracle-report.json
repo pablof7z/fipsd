@@ -1,0 +1,246 @@
+{
+  "kind": "daemon-oracle-run/v1alpha1",
+  "backend": "recorded-fixture-not-live-daemon",
+  "repeats": [
+    {
+      "ordinal": 0,
+      "classification": "exact-match",
+      "evidence_sha256": "b0ce52413f2e040f89440ecadffb06ab49368778bae192825e8ad7afb1c93d0a",
+      "differential": {
+        "kind": "daemon-differential-report/v1alpha1",
+        "classification": "exact-match",
+        "first_divergent_transition": null,
+        "differences": [
+          {
+            "path": "/transitions/0",
+            "disposition": "exact-match",
+            "model": "pass",
+            "daemon": "pass",
+            "model_evidence": "evidence:pass",
+            "daemon_evidence": "evidence:pass",
+            "message": "aligned transition; time delta 0 ns"
+          }
+        ],
+        "comparative_claim_allowed": true,
+        "timing_tolerance_ns": 1000000
+      },
+      "exit_code": 0
+    },
+    {
+      "ordinal": 1,
+      "classification": "exact-match",
+      "evidence_sha256": "b0ce52413f2e040f89440ecadffb06ab49368778bae192825e8ad7afb1c93d0a",
+      "differential": {
+        "kind": "daemon-differential-report/v1alpha1",
+        "classification": "exact-match",
+        "first_divergent_transition": null,
+        "differences": [
+          {
+            "path": "/transitions/0",
+            "disposition": "exact-match",
+            "model": "pass",
+            "daemon": "pass",
+            "model_evidence": "evidence:pass",
+            "daemon_evidence": "evidence:pass",
+            "message": "aligned transition; time delta 0 ns"
+          }
+        ],
+        "comparative_claim_allowed": true,
+        "timing_tolerance_ns": 1000000
+      },
+      "exit_code": 0
+    },
+    {
+      "ordinal": 2,
+      "classification": "exact-match",
+      "evidence_sha256": "b0ce52413f2e040f89440ecadffb06ab49368778bae192825e8ad7afb1c93d0a",
+      "differential": {
+        "kind": "daemon-differential-report/v1alpha1",
+        "classification": "exact-match",
+        "first_divergent_transition": null,
+        "differences": [
+          {
+            "path": "/transitions/0",
+            "disposition": "exact-match",
+            "model": "pass",
+            "daemon": "pass",
+            "model_evidence": "evidence:pass",
+            "daemon_evidence": "evidence:pass",
+            "message": "aligned transition; time delta 0 ns"
+          }
+        ],
+        "comparative_claim_allowed": true,
+        "timing_tolerance_ns": 1000000
+      },
+      "exit_code": 0
+    }
+  ],
+  "dominant_classification": "exact-match",
+  "dominant_confidence_ppm": 1000000,
+  "stable": true,
+  "oracle_predicate_held": false,
+  "attached_daemon_evidence": [
+    {
+      "kind": "recorded-fixture-daemon-evidence/v1alpha1",
+      "comparable": {
+        "transitions": [
+          {
+            "ordinal": 0,
+            "kind": "root-agreement",
+            "node": "network",
+            "state": "pass",
+            "at_ns": 0,
+            "evidence": "evidence:pass"
+          }
+        ],
+        "frames": [],
+        "metrics": {},
+        "unsupported_fields": []
+      },
+      "telemetry": {
+        "kind": "normalized-daemon-telemetry/v1alpha1",
+        "adapter_version": "fips-control-80c956a/v1",
+        "nodes": [],
+        "metrics": {},
+        "frames": [],
+        "assertion_results": {},
+        "raw_source_ids": [],
+        "clock_offset_ns": 0,
+        "clock_uncertainty_ns": 1000000,
+        "unobservable_fields": [
+          "internal-scheduler-stage",
+          "unlogged-cache-invalidation-cause"
+        ]
+      },
+      "provenance": {
+        "fips_commit": "80c956a6fdb85dde1450969a21891c1158e43267",
+        "git_dirty": false,
+        "patch_sha256": null,
+        "binary_sha256": "a7ef8030cb9779016c3e211c4c5155b05217c325a7c231905e9e139581ce841d",
+        "binary_version": "fips 0.4.1",
+        "image_digest": "sha256:recorded-pinned-image",
+        "generated_config_sha256": {
+          "n01.yaml": "a751c77ec2d5ce71d6a87bfc4cb6af86f4baf7553065f4aeb3be08be35e2170c"
+        },
+        "scenario_compiler_version": "fips-chaos-80c956a/v1",
+        "docker_runtime_version": "fixture-docker-27.5.1",
+        "host_profile": "recorded-linux-arm64-2cpu-4gib",
+        "public_bundle_redactions": [
+          "private_key",
+          "secret",
+          "token"
+        ]
+      },
+      "raw_output_sha256": "recorded-fixture-output",
+      "exit_code": 0
+    },
+    {
+      "kind": "recorded-fixture-daemon-evidence/v1alpha1",
+      "comparable": {
+        "transitions": [
+          {
+            "ordinal": 0,
+            "kind": "root-agreement",
+            "node": "network",
+            "state": "pass",
+            "at_ns": 0,
+            "evidence": "evidence:pass"
+          }
+        ],
+        "frames": [],
+        "metrics": {},
+        "unsupported_fields": []
+      },
+      "telemetry": {
+        "kind": "normalized-daemon-telemetry/v1alpha1",
+        "adapter_version": "fips-control-80c956a/v1",
+        "nodes": [],
+        "metrics": {},
+        "frames": [],
+        "assertion_results": {},
+        "raw_source_ids": [],
+        "clock_offset_ns": 0,
+        "clock_uncertainty_ns": 1000000,
+        "unobservable_fields": [
+          "internal-scheduler-stage",
+          "unlogged-cache-invalidation-cause"
+        ]
+      },
+      "provenance": {
+        "fips_commit": "80c956a6fdb85dde1450969a21891c1158e43267",
+        "git_dirty": false,
+        "patch_sha256": null,
+        "binary_sha256": "a7ef8030cb9779016c3e211c4c5155b05217c325a7c231905e9e139581ce841d",
+        "binary_version": "fips 0.4.1",
+        "image_digest": "sha256:recorded-pinned-image",
+        "generated_config_sha256": {
+          "n01.yaml": "a751c77ec2d5ce71d6a87bfc4cb6af86f4baf7553065f4aeb3be08be35e2170c"
+        },
+        "scenario_compiler_version": "fips-chaos-80c956a/v1",
+        "docker_runtime_version": "fixture-docker-27.5.1",
+        "host_profile": "recorded-linux-arm64-2cpu-4gib",
+        "public_bundle_redactions": [
+          "private_key",
+          "secret",
+          "token"
+        ]
+      },
+      "raw_output_sha256": "recorded-fixture-output",
+      "exit_code": 0
+    },
+    {
+      "kind": "recorded-fixture-daemon-evidence/v1alpha1",
+      "comparable": {
+        "transitions": [
+          {
+            "ordinal": 0,
+            "kind": "root-agreement",
+            "node": "network",
+            "state": "pass",
+            "at_ns": 0,
+            "evidence": "evidence:pass"
+          }
+        ],
+        "frames": [],
+        "metrics": {},
+        "unsupported_fields": []
+      },
+      "telemetry": {
+        "kind": "normalized-daemon-telemetry/v1alpha1",
+        "adapter_version": "fips-control-80c956a/v1",
+        "nodes": [],
+        "metrics": {},
+        "frames": [],
+        "assertion_results": {},
+        "raw_source_ids": [],
+        "clock_offset_ns": 0,
+        "clock_uncertainty_ns": 1000000,
+        "unobservable_fields": [
+          "internal-scheduler-stage",
+          "unlogged-cache-invalidation-cause"
+        ]
+      },
+      "provenance": {
+        "fips_commit": "80c956a6fdb85dde1450969a21891c1158e43267",
+        "git_dirty": false,
+        "patch_sha256": null,
+        "binary_sha256": "a7ef8030cb9779016c3e211c4c5155b05217c325a7c231905e9e139581ce841d",
+        "binary_version": "fips 0.4.1",
+        "image_digest": "sha256:recorded-pinned-image",
+        "generated_config_sha256": {
+          "n01.yaml": "a751c77ec2d5ce71d6a87bfc4cb6af86f4baf7553065f4aeb3be08be35e2170c"
+        },
+        "scenario_compiler_version": "fips-chaos-80c956a/v1",
+        "docker_runtime_version": "fixture-docker-27.5.1",
+        "host_profile": "recorded-linux-arm64-2cpu-4gib",
+        "public_bundle_redactions": [
+          "private_key",
+          "secret",
+          "token"
+        ]
+      },
+      "raw_output_sha256": "recorded-fixture-output",
+      "exit_code": 0
+    }
+  ]
+}

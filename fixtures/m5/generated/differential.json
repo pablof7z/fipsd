@@ -1,0 +1,27 @@
+{
+  "kind": "daemon-differential-report/v1alpha1",
+  "classification": "implementation-bug",
+  "first_divergent_transition": 0,
+  "differences": [
+    {
+      "path": "/transitions/0",
+      "disposition": "semantic-divergence",
+      "model": "root-agreement:network:root-a",
+      "daemon": "root-agreement:network:root-b",
+      "model_evidence": "evidence:root-a",
+      "daemon_evidence": "evidence:root-b",
+      "message": "first state-transition divergence"
+    },
+    {
+      "path": "/frames/0",
+      "disposition": "frame-divergence",
+      "model": "frame-a:168",
+      "daemon": "frame-b:168",
+      "model_evidence": "frame:frame-a",
+      "daemon_evidence": "frame:frame-b",
+      "message": "byte comparison uses executable and captured evidence"
+    }
+  ],
+  "comparative_claim_allowed": true,
+  "timing_tolerance_ns": 2000000
+}

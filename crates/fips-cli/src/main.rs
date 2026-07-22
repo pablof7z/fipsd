@@ -11,6 +11,8 @@ mod campaign_commands;
 use campaign_commands::CampaignCommand;
 mod scale_commands;
 use scale_commands::ScaleCommand;
+mod oracle_commands;
+use oracle_commands::OracleCommand;
 
 #[derive(Debug, Parser)]
 #[command(name = "fips-wind-tunnel")]
@@ -76,6 +78,11 @@ enum Command {
     Scale {
         #[command(subcommand)]
         command: ScaleCommand,
+    },
+    /// M5 real-daemon import, harness, telemetry, differential, and fuzz workflows.
+    Oracle {
+        #[command(subcommand)]
+        command: OracleCommand,
     },
 }
 
@@ -217,6 +224,7 @@ fn main() -> Result<()> {
         }
         Command::Campaign { command } => campaign_commands::execute(command)?,
         Command::Scale { command } => scale_commands::execute(command)?,
+        Command::Oracle { command } => oracle_commands::execute(command)?,
     }
     Ok(())
 }
