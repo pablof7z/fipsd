@@ -60,7 +60,7 @@ jobs:
             name="$(basename "$directory" | tr '[:upper:]' '[:lower:]')"
             tar -C "$directory" -czf "release/fips-wind-tunnel-0.1.0-${name}.tar.gz" .
           done
-          sha256sum release/*.tar.gz > release/checksums.sha256
+          (cd release && sha256sum -- *.tar.gz > checksums.sha256)
       - name: Signed build provenance
         uses: actions/attest@v4
         with:
