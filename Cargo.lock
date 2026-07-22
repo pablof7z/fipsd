@@ -297,6 +297,33 @@ dependencies = [
 ]
 
 [[package]]
+name = "fips-atlas"
+version = "0.1.0"
+dependencies = [
+ "fips-adapter",
+ "fips-model",
+ "serde",
+ "serde_json",
+ "sha2",
+ "thiserror",
+]
+
+[[package]]
+name = "fips-audit"
+version = "0.1.0"
+dependencies = [
+ "fips-artifact",
+ "fips-atlas",
+ "fips-model",
+ "fips-query",
+ "fips-scale",
+ "serde",
+ "serde_json",
+ "sha2",
+ "thiserror",
+]
+
+[[package]]
 name = "fips-campaign"
 version = "0.1.0"
 dependencies = [
@@ -319,10 +346,13 @@ dependencies = [
  "anyhow",
  "clap",
  "fips-artifact",
+ "fips-atlas",
+ "fips-audit",
  "fips-campaign",
  "fips-engine",
  "fips-model",
  "fips-oracle",
+ "fips-query",
  "fips-scale",
  "hex",
  "serde",
@@ -382,6 +412,17 @@ dependencies = [
  "serde_yaml_ng",
  "sha2",
  "tempfile",
+ "thiserror",
+]
+
+[[package]]
+name = "fips-query"
+version = "0.1.0"
+dependencies = [
+ "fips-artifact",
+ "serde",
+ "serde_json",
+ "sha2",
  "thiserror",
 ]
 

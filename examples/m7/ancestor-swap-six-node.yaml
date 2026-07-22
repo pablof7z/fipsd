@@ -1,0 +1,42 @@
+apiVersion: experiments.fips.network/v1alpha1
+kind: Campaign
+metadata:
+  name: ancestor-swap-six-node-regression
+  description: Minimized ancestor-swap Bloom replacement boundary
+seed: 70069
+engine:
+  modes: compact-discrete-event
+  deterministic: true
+scale:
+  nodes: 6
+topology:
+  generator: explicit
+  explicit_edges: [[0, 1], [0, 2], [1, 3], [1, 4], [2, 5], [2, 3]]
+identities:
+  initial:
+    distribution: uniform-128
+transports:
+  assignment: all-udp
+events:
+  - id: ancestor-swap
+    action: swap-parent-ancestry
+    at: 501ms
+traffic:
+  model: idle
+protocol:
+  variant: fips-80c956a-baseline
+  parameters:
+    bloom_debounce: 500ms
+fidelity:
+  protocol: semantic-exact
+  serialization: executable-codec
+  bloom: exact-bits
+  billion_node_representation: not-requested
+instrumentation:
+  transition_stages: true
+  causal_cost_ledger: true
+assertions:
+  - reconcile:
+      condition: bloom-announcements-equal-serialized-evidence
+objectives:
+  maximize: [bloom-recomputations, control-bytes]

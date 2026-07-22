@@ -1,6 +1,7 @@
 [workspace]
 members = [
     "crates/fips-adapter",
+    "crates/fips-atlas",
     "crates/fips-artifact",
     "crates/fips-campaign",
     "crates/fips-cli",
@@ -8,6 +9,8 @@ members = [
     "crates/fips-engine-api",
     "crates/fips-model",
     "crates/fips-oracle",
+    "crates/fips-query",
+    "crates/fips-audit",
     "crates/fips-scale",
 ]
 resolver = "2"

@@ -1,11 +1,10 @@
 use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
-use fips_artifact::{LedgerEntry, ReproductionBundle, RunArtifact};
-use fips_engine::{IndividualEngine, RecoveryReport, RootRatchetReport};
+use fips_artifact::{ReproductionBundle, RunArtifact};
+use fips_engine::IndividualEngine;
 use fips_model::NormalizedPlan;
-use std::collections::BTreeSet;
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 mod campaign_commands;
 use campaign_commands::CampaignCommand;
@@ -13,6 +12,16 @@ mod scale_commands;
 use scale_commands::ScaleCommand;
 mod oracle_commands;
 use oracle_commands::OracleCommand;
+mod analysis_commands;
+use analysis_commands::AnalysisCommand;
+mod atlas_commands;
+use atlas_commands::AtlasCommand;
+mod release_commands;
+use release_commands::ReleaseCommand;
+mod io_helpers;
+use io_helpers::{
+    causal_subtree, embedded_recovery_report, embedded_report, write_bytes, write_json,
+};
 
 #[derive(Debug, Parser)]
 #[command(name = "fips-wind-tunnel")]
@@ -83,6 +92,21 @@ enum Command {
     Oracle {
         #[command(subcommand)]
         command: OracleCommand,
+    },
+    /// M6 immutable artifact analysis, comparison, query, and static export.
+    Analyze {
+        #[command(subcommand)]
+        command: AnalysisCommand,
+    },
+    /// M7 ten-family qualification atlas workflows.
+    Atlas {
+        #[command(subcommand)]
+        command: AtlasCommand,
+    },
+    /// M8 audit, benchmark, and release-package workflows.
+    Release {
+        #[command(subcommand)]
+        command: ReleaseCommand,
     },
 }
 
@@ -225,58 +249,9 @@ fn main() -> Result<()> {
         Command::Campaign { command } => campaign_commands::execute(command)?,
         Command::Scale { command } => scale_commands::execute(command)?,
         Command::Oracle { command } => oracle_commands::execute(command)?,
+        Command::Analyze { command } => analysis_commands::execute(command)?,
+        Command::Atlas { command } => atlas_commands::execute(command)?,
+        Command::Release { command } => release_commands::execute(command)?,
     }
     Ok(())
-}
-
-fn embedded_report(artifact: &RunArtifact) -> Result<RootRatchetReport> {
-    artifact
-        .samples
-        .iter()
-        .find_map(|sample| serde_json::from_value::<RootRatchetReport>(sample.clone()).ok())
-        .context("artifact does not contain a root-ratchet report")
-}
-
-fn embedded_recovery_report(artifact: &RunArtifact) -> Option<RecoveryReport> {
-    artifact
-        .samples
-        .iter()
-        .find_map(|sample| serde_json::from_value::<RecoveryReport>(sample.clone()).ok())
-}
-
-fn causal_subtree<'a>(ledger: &'a [LedgerEntry], root: &str) -> Vec<&'a LedgerEntry> {
-    let mut ids = BTreeSet::from([root.to_owned()]);
-    loop {
-        let before = ids.len();
-        for entry in ledger {
-            if entry
-                .causal_parent
-                .as_ref()
-                .is_some_and(|parent| ids.contains(parent))
-            {
-                ids.insert(entry.causal_id.clone());
-            }
-        }
-        if ids.len() == before {
-            break;
-        }
-    }
-    ledger
-        .iter()
-        .filter(|entry| ids.contains(&entry.causal_id))
-        .collect()
-}
-
-fn write_json<T: serde::Serialize>(path: &Path, value: &T) -> Result<()> {
-    let mut bytes = serde_json::to_vec_pretty(value)?;
-    bytes.push(b'\n');
-    write_bytes(path, &bytes)
-}
-
-fn write_bytes(path: &Path, bytes: &[u8]) -> Result<()> {
-    if let Some(parent) = path.parent() {
-        fs::create_dir_all(parent)
-            .with_context(|| format!("cannot create {}", parent.display()))?;
-    }
-    fs::write(path, bytes).with_context(|| format!("cannot write {}", path.display()))
 }
