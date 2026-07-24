@@ -6,9 +6,23 @@ shared link.
 
 Each node owns its local identity filter and retains the latest filter received
 from every active neighbor. An outgoing replacement unions the local filter
-with every peer view except the destination peer. This split-horizon rule is
-evaluated at the event's virtual time, so tree changes, joins, disappearance,
-reappearance, debounce, and earlier deliveries affect the next replacement.
+with the peer views of its **tree peers only** (spanning-tree parent and
+children), excluding the destination peer. Non-tree mesh peers still receive
+and store FilterAnnounce messages for routing queries, but their filters are
+**not** merged into outgoing filters. This is the FIPS tree-only merge rule
+(see `fips/docs/design/fips-bloom-filters.md`, "Filter Computation" lines
+133-144 and the per-peer table lines 188-194): folding mesh shortcuts into
+outgoing filters would saturate every node toward a full-network filter and
+destroy the upward=subtree / downward=complement directional asymmetry along
+tree edges. Split-horizon exclusion of the destination peer (lines 147-154)
+still applies on top of the tree-only restriction. This merge is evaluated at
+the event's virtual time, so tree changes, joins, disappearance, reappearance,
+debounce, and earlier deliveries affect the next replacement.
+
+Note the separate mesh-size cardinality estimator (`bloom_model` in the
+recovery report path) legitimately OR-unions *all* connected peers' filters,
+including mesh cross-links, per fips-bloom-filters.md lines 340-359; that
+estimator path is intentionally distinct from outgoing-filter computation.
 
 ## Observable events
 
