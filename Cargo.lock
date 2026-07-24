@@ -330,6 +330,7 @@ dependencies = [
  "fips-artifact",
  "fips-engine",
  "fips-model",
+ "fips-transport",
  "hex",
  "serde",
  "serde_json",
@@ -367,6 +368,7 @@ dependencies = [
  "fips-artifact",
  "fips-engine-api",
  "fips-model",
+ "fips-transport",
  "hex",
  "jsonschema",
  "serde",
@@ -438,6 +440,13 @@ dependencies = [
  "serde_json",
  "sha2",
  "thiserror",
+]
+
+[[package]]
+name = "fips-transport"
+version = "0.1.0"
+dependencies = [
+ "serde",
 ]
 
 [[package]]

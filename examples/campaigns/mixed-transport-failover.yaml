@@ -9,10 +9,14 @@ identities: {initial: {distribution: uniform-128}}
 transports:
   assignment: random-mixed
   profiles:
-    - {name: udp-fast, type: udp, mtu_bytes: 1500, latency: 1ms}
-    - {name: tcp-slow, type: tcp, mtu_bytes: 1280, latency: 100ms}
+    - {name: udp-fast, type: udp, weight: 3, bandwidth_bps: 100000000, mtu_bytes: 1500, latency: 1ms, jitter: 250us, loss_ppm: 0, queue_bytes: 1048576}
+    - {name: tcp-slow, type: tcp, weight: 1, bandwidth_bps: 5000000, mtu_bytes: 1280, latency: 100ms, jitter: 25ms, loss_ppm: 500, queue_bytes: 262144}
 events: [{action: fail-transport-class, target: udp-fast, at: 10s}]
-traffic: {model: cross-min-cut, rate_bps: 10000000}
+traffic:
+  model: persistent-streams
+  rate_bps: 1000000
+  payload_bytes: 512
+  parameters: {flow_count: 100, segments_per_stream: 100, start_ns: 500000000}
 fidelity: {protocol: semantic-exact, serialization: executable-codec, billion_node_representation: not-requested}
 instrumentation: {transition_stages: true, session_metrics: true}
 assertions: [{eventually: {condition: useful-traffic-recovers, within: 60s}}]

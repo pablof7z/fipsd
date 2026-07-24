@@ -3,9 +3,9 @@
   "release": "0.1.0",
   "determinism": {
     "repetitions": 3,
-    "artifact_sha256": "b9b84cceaa7c8f8299e923d47cc74d1a09706f04b25db7918570926d93e63b4e",
-    "analysis_sha256": "6f8ce9d3e622dc3f55d2b2f47f5ac410bd1708c9704d02f639de6999b5973c65",
-    "atlas_sha256": "a17e51b4ef1372d42be25aa796a445b13fd8108b2150ccbf94afe644d35640d9",
+    "artifact_sha256": "bda7aad340e5ed32dd606ab3aa858bb50193dad125f2160419e83f944bd9f360",
+    "analysis_sha256": "bc4d083656567acb398345185e0794cf69df1ce593ff4d02d5e000291219d782",
+    "atlas_sha256": "2083a931eb044671ce7ea1a83ba04d43979a25680cde3f39f55eb7a3e69b38e6",
     "dimensions": [
       {
         "dimension": "operating-system",
@@ -47,10 +47,10 @@
   "accounting": {
     "fidelity": "Wire evidence uses executable production codec; protocol fidelity is individually modeled semantic state; compute fidelity is operation-counted compute; scale uses individual nodes across 12 represented nodes; Bloom fidelity uses exact Bloom bits. No approximation metadata applies.",
     "stage_totals": {
-      "coalesced": 8,
+      "coalesced": 2,
       "compute": 417,
-      "constructed": 165,
-      "delivered": 185524,
+      "constructed": 139,
+      "delivered": 181004,
       "fmp": 135288,
       "fsp": 9432,
       "identity-generation-operations": 4,
@@ -58,29 +58,29 @@
       "network": 140608,
       "payload": 24576,
       "performed": 81,
-      "queued": 180904,
-      "requested": 201,
-      "serialized": 175584,
-      "signed": 165,
+      "queued": 177112,
+      "requested": 169,
+      "serialized": 171792,
+      "signed": 139,
       "state": 2128,
-      "state-mutated": 24696,
-      "superseded": 8,
+      "state-mutated": 24691,
+      "superseded": 2,
       "time": 6601516800,
-      "transmitted": 185524,
+      "transmitted": 181004,
       "transport": 5320,
       "useful-payload": 24576
     },
     "projections": [
       {
         "name": "serialized frame bytes",
-        "observed": 175584,
+        "observed": 171792,
         "unit": "bytes",
         "status": "reconciled",
         "evidence": "causal ledger and executable frame evidence"
       },
       {
         "name": "transmitted wire bytes",
-        "observed": 185524,
+        "observed": 181004,
         "unit": "bytes",
         "status": "reconciled",
         "evidence": "per-edge transmitted equals delivered plus lost"

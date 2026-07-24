@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://fips.network/schemas/event-stream-v1alpha1.schema.json",
+  "title": "FIPS Wind Tunnel Event Stream v1alpha1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["api_version", "kind", "payload"],
+  "properties": {
+    "api_version": {
+      "const": "experiments.fips.network/event-stream/v1alpha1"
+    },
+    "kind": {
+      "enum": ["stream-start", "event", "stream-complete"]
+    },
+    "run_id": { "type": "string" },
+    "payload": { "type": "object" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "kind": { "const": "event" } } },
+      "then": {
+        "properties": {
+          "payload": { "$ref": "#/$defs/event" }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "event_id",
+        "virtual_time_ns",
+        "ordinal",
+        "kind",
+        "causal_parent",
+        "data"
+      ],
+      "properties": {
+        "event_id": { "type": "string" },
+        "virtual_time_ns": { "type": "integer", "minimum": 0 },
+        "ordinal": { "type": "integer", "minimum": 0 },
+        "kind": { "type": "string", "minLength": 1 },
+        "causal_parent": { "type": ["string", "null"] },
+        "data": { "type": "object" }
+      }
+    }
+  }
+}

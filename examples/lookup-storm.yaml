@@ -1,0 +1,56 @@
+apiVersion: experiments.fips.network/v1alpha1
+kind: Campaign
+metadata:
+  name: lookup-storm
+  description: Warm coordinate caches expire immediately before a lookup wave
+seed: 20260723
+engine: {modes: compact-discrete-event, deterministic: true}
+scale: {nodes: 8}
+topology: {generator: random-regular, average_degree: 4}
+identities: {initial: {distribution: uniform-128}}
+transports:
+  assignment: random-mixed
+  profiles:
+    - {name: wifi, type: wifi, weight: 3, bandwidth_bps: 100000000, latency: 5ms, jitter: 2ms, loss_ppm: 0, mtu_bytes: 1500, queue_bytes: 1048576}
+    - {name: tor, type: tor, weight: 1, bandwidth_bps: 5000000, latency: 120ms, jitter: 30ms, loss_ppm: 0, mtu_bytes: 1500, queue_bytes: 262144}
+links:
+  latency: 1ms
+  jitter: 1ms
+  bandwidth_bps: 1000000000
+  loss_ppm: 0
+  duplication_ppm: 0
+  ordering: datagram
+  mtu_bytes: 1500
+  queue_bytes: 1048576
+resources:
+  assignment: heterogeneous
+  node_profiles:
+    - {name: constrained, cpu_units: 100, memory_bytes: 1073741824, queue_bytes: 1048576, table_entries: 1000}
+events:
+  - {id: global-expiry, action: expire-coordinate-cache, at: 3s}
+  - {id: herd, action: simultaneous-lookups, at: 3s, parameters: {count: 12}}
+protocol:
+  variant: fips-80c956a-baseline
+  parameters:
+    coord_cache_entries: 64
+    coord_cache_ttl: 10s
+    lookup_ttl: 64
+    lookup_attempts: 3
+traffic:
+  model: uniform-random
+  rate_bps: 1000000
+  payload_bytes: 512
+  parameters: {flow_count: 12, start_ns: 500000000}
+fidelity:
+  protocol: semantic-exact
+  serialization: executable-codec
+  bloom: exact-bits
+  crypto: operation-count
+  billion_node_representation: not-requested
+accounting: {causal_lineage: true, reconcile_serialized_frames: true}
+instrumentation:
+  transition_stages: true
+  queue_wait: true
+  quiescence_markers: [root, tree, lookup, data-plane]
+assertions: []
+objectives: {maximize: [lookup-fanout, queue-bytes, retry-count]}

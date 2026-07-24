@@ -5,10 +5,10 @@ seed: 1005
 engine: {modes: compact-discrete-event, deterministic: true}
 scale: {nodes: {values: [36, 65, 2001, 2044]}}
 topology: {generator: chain}
-identities: {initial: {distribution: descending-path}}
-transports: {assignment: descending-mtu-root-spine}
+identities: {initial: {distribution: uniform-128}}
+transports: {assignment: all-udp}
 links: {mtu_bytes: {values: [1280, 1288, 1500]}, latency: 1ms, bandwidth_bps: 100000000}
-events: [{action: announce-deep-tree}]
+events: []
 traffic: {model: idle}
 protocol: {variant: fips-80c956a-baseline, parameters: {lookup_ttl: {values: [64, 65, 255]}}}
 fidelity: {protocol: semantic-exact, serialization: executable-codec, billion_node_representation: not-requested}

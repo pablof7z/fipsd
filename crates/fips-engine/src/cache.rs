@@ -55,6 +55,8 @@ pub enum Invalidation {
     Root(CacheKey),
     /// A local ancestor was replaced; invalidate only paths containing it.
     PathNode(u32),
+    /// A link changed; invalidate only paths that traverse that edge.
+    PathEdge(u32, u32),
 }
 
 /// Bounded deterministic coordinate cache.
@@ -146,6 +148,10 @@ impl CoordinateCache {
                 Invalidation::Node(destination) => entry.destination == *destination,
                 Invalidation::Root(root) => entry.root == *root,
                 Invalidation::PathNode(node) => entry.path.contains(node),
+                Invalidation::PathEdge(left, right) => entry.path.windows(2).any(|pair| {
+                    (pair[0] == *left && pair[1] == *right)
+                        || (pair[0] == *right && pair[1] == *left)
+                }),
             })
             .map(|entry| entry.destination)
             .collect::<Vec<_>>();
@@ -157,6 +163,14 @@ impl CoordinateCache {
             .invalidations
             .saturating_add(keys.len() as u64);
         keys.len() as u64
+    }
+
+    /// Remove every active entry as one explicit invalidation wave.
+    pub fn invalidate_all(&mut self) -> u64 {
+        let removed = self.entries.len() as u64;
+        self.entries.clear();
+        self.counters.invalidations = self.counters.invalidations.saturating_add(removed);
+        removed
     }
 
     /// Remove all expired entries.
@@ -243,5 +257,15 @@ mod tests {
         assert_eq!(cache.counters.hits, 2);
         assert_eq!(cache.counters.misses, 2);
         assert!(cache.counters.peak_bytes > 0);
+    }
+
+    #[test]
+    fn explicit_global_invalidation_removes_and_counts_every_entry() {
+        let mut cache = CoordinateCache::new(3, 100);
+        cache.insert(key(1), key(9), vec![1], 0);
+        cache.insert(key(2), key(9), vec![2], 0);
+        assert_eq!(cache.invalidate_all(), 2);
+        assert!(cache.is_empty());
+        assert_eq!(cache.counters.invalidations, 2);
     }
 }

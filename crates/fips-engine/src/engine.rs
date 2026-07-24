@@ -1,17 +1,17 @@
 //! Current-FIPS Root Ratchet reference execution and artifact projection.
 
 use crate::{
-    AttachmentSelector, Delivery, EnqueueRequest, EventId, GraphError, GraphMemoryFootprint,
-    GraphStore, LinkClass, LinkConfig, LinkCounters, LinkError, LinkOrdering, LinkService,
-    NodeAddress, NodeId, RecoveryEngine, RecoveryReport, ScheduleError, Scheduler,
+    AttachmentSelector, Delivery, EdgeId, EnqueueRequest, EventId, GraphError,
+    GraphMemoryFootprint, GraphStore, LinkClass, LinkConfig, LinkCounters, LinkError, LinkOrdering,
+    LinkService, NodeAddress, NodeId, RecoveryEngine, RecoveryReport, ScheduleError, Scheduler,
     SchedulerDiagnostics, TopologyKind,
 };
 use fips_adapter::{CodecManifest, FIPS_COMMIT};
 use fips_artifact::{
-    AssertionResult, BloomFidelity, ComputeFidelity, EventRecord, FidelityContract, LedgerEntry,
-    MetricPoint, MetricSeries, ProtocolFidelity, ProvenanceEnvelope, REPRODUCTION_BUNDLE_VERSION,
-    RUN_ARTIFACT_VERSION, ReproductionBundle, RunArtifact, RunManifest, ScaleFidelity,
-    WireFidelity,
+    Approximation, AssertionResult, BloomFidelity, ComputeFidelity, EventRecord, FidelityContract,
+    LedgerEntry, MetricPoint, MetricSeries, ProtocolFidelity, ProvenanceEnvelope,
+    REPRODUCTION_BUNDLE_VERSION, RUN_ARTIFACT_VERSION, ReproductionBundle, RunArtifact,
+    RunManifest, ScaleFidelity, WireFidelity,
 };
 use fips_engine_api::{Engine, EngineEffect, EngineError, EngineIdentity, EngineRequest};
 use fips_model::{ModelError, NORMALIZED_PLAN_VERSION, NormalizedPlan};
@@ -74,8 +74,22 @@ pub struct RootRatchetReport {
     pub graph_sha256: String,
     /// Represented individual nodes.
     pub node_count: u64,
+    /// Seed-stable node counts by transport profile.
+    pub transport_profiles: BTreeMap<String, u64>,
+    /// Exact routed synthetic traffic when handled by the primary scheduler.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub routed_traffic: Option<RoutedTrafficCounters>,
+    /// Graph-native split-horizon Bloom propagation, when requested.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub bloom_propagation: Option<StreamedBloomCounters>,
+    /// Graph-native lookup, coordinate-cache, and session recovery, when requested.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub graph_recovery: Option<GraphRecoveryCounters>,
     /// Accepted descending-root arrivals.
     pub arrivals: u64,
+    /// Accepted authenticated protocol-valid Sybil identities.
+    #[serde(default)]
+    pub authenticated_sybil_arrivals: u64,
     /// Identity-generation trials charged to the attacker.
     pub identity_generation_trials: u64,
     /// Final minimum root address.
@@ -118,85 +132,11 @@ pub struct IndividualRun {
 #[derive(Debug, Clone, Default)]
 pub struct IndividualEngine;
 
-impl IndividualEngine {
-    /// Execute one fully resolved normalized case.
-    pub fn run_plan(&self, plan: &NormalizedPlan) -> Result<IndividualRun, RunError> {
-        let config = RunConfig::from_plan(plan)?;
-        let state = Simulation::new(plan.clone(), config)?.run()?;
-        let mut run = state.finish()?;
-        if RecoveryEngine::requested(plan) {
-            let recovery = RecoveryEngine.run(plan, &run.report)?;
-            let (bloom, approximations) = recovery.fidelity();
-            run.artifact.manifest.fidelity.bloom = bloom;
-            run.artifact.manifest.fidelity.approximations = approximations.clone();
-            run.reproduction.fidelity.bloom = bloom;
-            run.reproduction.fidelity.approximations = approximations;
-            run.artifact.metric_series.extend(recovery.metric_series());
-            run.artifact
-                .causal_ledger
-                .extend(recovery.causal_ledger.clone());
-            run.artifact
-                .assertion_results
-                .extend(recovery.assertions.clone());
-            run.reproduction.expected_assertions.extend(
-                recovery
-                    .assertions
-                    .iter()
-                    .map(|assertion| assertion.id.clone()),
-            );
-            run.artifact.samples.push(serde_json::to_value(&recovery)?);
-            run.artifact.validate()?;
-            run.recovery_report = Some(recovery);
-        }
-        Ok(run)
-    }
-}
-
-impl Engine for IndividualEngine {
-    fn identity(&self) -> EngineIdentity {
-        EngineIdentity {
-            name: ENGINE_NAME.to_owned(),
-            version: ENGINE_VERSION.to_owned(),
-            source_revision: engine_source_revision(),
-        }
-    }
-
-    fn validate(&self, request: &EngineRequest) -> Result<(), EngineError> {
-        if request.variant != "fips-80c956a-baseline" {
-            return Err(EngineError::Unsupported(format!(
-                "individual M1 engine does not support variant {}",
-                request.variant
-            )));
-        }
-        RunConfig::from_plan(&request.plan)
-            .map(|_| ())
-            .map_err(|error| EngineError::Unsupported(error.to_string()))
-    }
-
-    fn run(&self, request: &EngineRequest) -> Result<Vec<EngineEffect>, EngineError> {
-        self.validate(request)?;
-        let run = self
-            .run_plan(&request.plan)
-            .map_err(|error| EngineError::Invariant(error.to_string()))?;
-        Ok(run
-            .artifact
-            .event_trace
-            .into_iter()
-            .map(|event| EngineEffect {
-                causal_id: event.event_id,
-                ordinal: event.ordinal,
-                kind: event.kind,
-                payload: event.data,
-                virtual_time_ns: event.virtual_time_ns,
-            })
-            .collect())
-    }
-}
-
 #[derive(Debug, Clone)]
 struct RunConfig {
     nodes: u32,
     arrivals: u32,
+    reserved_arrivals: u32,
     topology: TopologyKind,
     average_degree: u32,
     explicit_edges: Vec<(NodeId, NodeId)>,
@@ -213,62 +153,15 @@ struct RunConfig {
     link: LinkConfig,
     inject_parent_loop_at_ns: Option<u64>,
     lifecycle: Vec<LifecycleInput>,
-}
-
-#[derive(Debug, Clone)]
-struct LifecycleInput {
-    at_ns: u64,
-    node: NodeId,
-    reappear: bool,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-struct TreeSnapshot {
-    root: NodeId,
-    root_address: NodeAddress,
-    parent: Option<NodeId>,
-    sequence: u64,
-    ancestry: Vec<NodeId>,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-enum SimEvent {
-    InitialAnnounce,
-    Activate {
-        node: NodeId,
-        ordinal: u32,
-    },
-    AnnounceDue {
-        from: NodeId,
-        to: NodeId,
-        cause: String,
-    },
-    DeliverAnnounce {
-        delivery: Delivery,
-        snapshot: TreeSnapshot,
-        cause: String,
-    },
-    InjectParentLoop,
-    Deactivate {
-        node: NodeId,
-    },
-    Reappear {
-        node: NodeId,
-    },
-}
-
-impl SimEvent {
-    fn kind(&self) -> &'static str {
-        match self {
-            Self::InitialAnnounce => "input.initial-topology",
-            Self::Activate { .. } => "input.descending-root-arrival",
-            Self::AnnounceDue { .. } => "tree-announce.due",
-            Self::DeliverAnnounce { .. } => "tree-announce.delivered",
-            Self::InjectParentLoop => "fault.inject-parent-loop",
-            Self::Deactivate { .. } => "input.node-disappeared",
-            Self::Reappear { .. } => "input.node-reappeared",
-        }
-    }
+    manual_arrivals: Vec<ManualArrivalInput>,
+    cuts: Vec<NetworkCutInput>,
+    link_updates: Vec<LinkUpdateInput>,
+    rekeys: Vec<SessionRekeyInput>,
+    cache_expiries: Vec<CacheExpiryInput>,
+    lookup_waves: Vec<LookupWaveInput>,
+    transport_classes: Vec<TransportClassInput>,
+    parent_costs: Vec<ParentCostInput>,
+    sybils: Vec<SybilArrivalInput>,
 }
 
 #[derive(Debug, Clone)]
@@ -289,6 +182,11 @@ struct Simulation {
     graph: GraphStore,
     scheduler: Scheduler<SimEvent>,
     links: LinkService,
+    partition_blocks: Vec<u32>,
+    failed_transport_classes: BTreeSet<String>,
+    parent_cost_ppm: Vec<u64>,
+    transports: TransportPlan,
+    media_zones: MediaZonePlan,
     peer_views: BTreeMap<(NodeId, NodeId), TreeSnapshot>,
     pending: BTreeMap<(NodeId, NodeId), PendingAnnounce>,
     last_sent_ns: BTreeMap<(NodeId, NodeId), u64>,
@@ -301,18 +199,82 @@ struct Simulation {
     parent_transitions: u64,
     identity_trials: u64,
     accepted_arrivals: u64,
+    authenticated_sybil_arrivals: u64,
+    traffic: Option<RoutedTrafficRuntime>,
+    bloom: Option<StreamedBloomRuntime>,
+    recovery: Option<GraphRecoveryRuntime>,
 }
 
+#[path = "engine_bloom.rs"]
+mod bloom_stream;
 #[path = "engine_config.rs"]
 mod config;
+#[path = "engine_data.rs"]
+mod data;
 #[path = "engine_events.rs"]
 mod events;
+#[path = "engine_api.rs"]
+mod execution_api;
+#[path = "engine_fidelity.rs"]
+mod fidelity;
 #[path = "engine_finish.rs"]
 mod finish;
+#[path = "engine_recovery.rs"]
+mod graph_recovery;
+#[path = "engine_intervention_config.rs"]
+mod intervention_config;
+#[path = "engine_intervention_inputs.rs"]
+mod intervention_inputs;
+#[path = "engine_interventions.rs"]
+mod interventions;
+#[path = "engine_invariants.rs"]
+mod invariants;
+#[path = "engine_lookup_storm.rs"]
+mod lookup_storm;
+#[path = "engine_media_zones.rs"]
+mod media_zones;
+#[path = "engine_parent_interventions.rs"]
+mod parent_interventions;
+#[path = "engine_paths.rs"]
+mod paths;
+#[path = "engine_recovery_delivery.rs"]
+mod recovery_delivery;
+#[path = "engine_recovery_flow.rs"]
+mod recovery_flow;
+#[path = "engine_recovery_io.rs"]
+mod recovery_io;
+#[path = "engine_recovery_json.rs"]
+mod recovery_json;
+#[path = "engine_rekey.rs"]
+mod rekey;
 #[path = "engine_runtime.rs"]
 mod runtime;
+#[path = "engine_schedule.rs"]
+mod schedule;
+#[path = "engine_sybil.rs"]
+mod sybil;
+#[path = "engine_transports.rs"]
+mod transports;
 #[path = "engine_tree.rs"]
 mod tree;
+#[path = "engine_types.rs"]
+mod types;
+pub use bloom_stream::StreamedBloomCounters;
+use bloom_stream::{BloomSnapshot, StreamedBloomRuntime};
+pub use data::RoutedTrafficCounters;
+use data::{RoutedFrame, RoutedTrafficRuntime};
+pub use graph_recovery::GraphRecoveryCounters;
+use graph_recovery::{GraphRecoveryRuntime, RecoveryFrame};
+use media_zones::MediaZonePlan;
+use transports::TransportPlan;
+use types::*;
+
+#[cfg(test)]
+#[path = "engine_parent_tests.rs"]
+mod parent_tests;
+#[cfg(test)]
+#[path = "engine_sybil_tests.rs"]
+mod sybil_tests;
 
 #[derive(Debug, Clone)]
 struct Transition {
@@ -361,6 +323,9 @@ pub enum RunError {
     /// JSON conversion failure.
     #[error(transparent)]
     Json(#[from] serde_json::Error),
+    /// A streaming observer could not accept an ordered event.
+    #[error("event stream observer failed: {0}")]
+    Observer(String),
     /// Codec manifest failure.
     #[error("codec manifest error: {0}")]
     Codec(String),
@@ -453,12 +418,38 @@ fn metric(name: &str, unit: &str, at: u64, value: u64) -> MetricSeries {
 fn engine_source_revision() -> String {
     let mut hasher = Sha256::new();
     hasher.update(include_bytes!("engine.rs"));
+    hasher.update(include_bytes!("engine_api.rs"));
+    hasher.update(include_bytes!("engine_bloom.rs"));
+    hasher.update(include_bytes!("engine_bloom_events.rs"));
+    hasher.update(include_bytes!("engine_data.rs"));
+    hasher.update(include_bytes!("engine_data_config.rs"));
+    hasher.update(include_bytes!("engine_data_json.rs"));
+    hasher.update(include_bytes!("engine_data_transfer.rs"));
+    hasher.update(include_bytes!("engine_data_types.rs"));
+    hasher.update(include_bytes!("engine_fidelity.rs"));
     hasher.update(include_bytes!("engine_config.rs"));
     hasher.update(include_bytes!("engine_events.rs"));
     hasher.update(include_bytes!("engine_finish.rs"));
+    hasher.update(include_bytes!("engine_invariants.rs"));
+    hasher.update(include_bytes!("engine_resource_profiles.rs"));
+    hasher.update(include_bytes!("engine_intervention_config.rs"));
+    hasher.update(include_bytes!("engine_interventions.rs"));
+    hasher.update(include_bytes!("engine_media_zones.rs"));
+    hasher.update(include_bytes!("engine_recovery.rs"));
+    hasher.update(include_bytes!("engine_recovery_flow.rs"));
+    hasher.update(include_bytes!("engine_recovery_io.rs"));
+    hasher.update(include_bytes!("engine_recovery_delivery.rs"));
+    hasher.update(include_bytes!("engine_recovery_json.rs"));
+    hasher.update(include_bytes!("engine_paths.rs"));
     hasher.update(include_bytes!("engine_runtime.rs"));
+    hasher.update(include_bytes!("network.rs"));
+    hasher.update(include_bytes!("network_stream.rs"));
+    hasher.update(include_bytes!("engine_snapshot.rs"));
     hasher.update(include_bytes!("engine_tree.rs"));
+    hasher.update(include_bytes!("engine_transports.rs"));
+    hasher.update(include_bytes!("../../fips-transport/src/lib.rs"));
     hasher.update(include_bytes!("graph.rs"));
+    hasher.update(include_bytes!("graph_errors.rs"));
     hasher.update(include_bytes!("graph_generators.rs"));
     hasher.update(include_bytes!("network.rs"));
     hasher.update(include_bytes!("bloom.rs"));
@@ -475,6 +466,8 @@ fn engine_source_revision() -> String {
     hasher.update(include_bytes!("resources.rs"));
     hasher.update(include_bytes!("scheduler.rs"));
     hasher.update(include_bytes!("traffic.rs"));
+    hasher.update(include_bytes!("traffic_generation.rs"));
+    hasher.update(include_bytes!("traffic_explicit.rs"));
     hasher.update(include_bytes!("../Cargo.toml"));
     hex::encode(hasher.finalize())[..40].to_owned()
 }
@@ -482,3 +475,6 @@ fn engine_source_revision() -> String {
 #[cfg(test)]
 #[path = "engine_tests.rs"]
 mod tests;
+
+#[path = "engine_snapshot.rs"]
+mod snapshot;

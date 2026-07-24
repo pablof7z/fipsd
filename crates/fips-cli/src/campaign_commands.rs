@@ -327,31 +327,12 @@ fn shrink(
         plan,
         (predicate_name, move |candidate: &NormalizedPlan| {
             IndividualEngine.run_plan(candidate).is_ok_and(|run| {
-                metric_value(&run, &metric_name).is_some_and(|value| value >= minimum)
+                fips_campaign::individual_metric_value(&run, &metric_name)
+                    .is_some_and(|value| value >= minimum)
             })
         }),
     )?;
     write_json(output, &result)
-}
-
-fn metric_value(run: &fips_engine::IndividualRun, metric: &str) -> Option<u64> {
-    match metric {
-        "convergence-time-ns" => Some(run.report.quiescence_ns),
-        "control-bytes" => Some(run.report.tree_announce.transmitted_frame_bytes),
-        "amplification-ppm" => run
-            .recovery_report
-            .as_ref()
-            .map(|report| report.costs.amplification_ppm),
-        "goodput-stall-ns" => run
-            .recovery_report
-            .as_ref()
-            .map(|report| report.traffic.goodput_stall_ns),
-        "peak-queue-bytes" => run
-            .recovery_report
-            .as_ref()
-            .map(|report| report.peak_queue_bytes),
-        _ => None,
-    }
 }
 
 fn read_json<T: serde::de::DeserializeOwned>(path: &Path) -> Result<T> {

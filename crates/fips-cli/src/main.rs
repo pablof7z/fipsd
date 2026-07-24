@@ -18,7 +18,10 @@ mod atlas_commands;
 use atlas_commands::AtlasCommand;
 mod release_commands;
 use release_commands::ReleaseCommand;
+mod explore_commands;
 mod io_helpers;
+mod stream_commands;
+use explore_commands::ExploreCommand;
 use io_helpers::{
     causal_subtree, embedded_recovery_report, embedded_report, write_bytes, write_json,
 };
@@ -53,6 +56,14 @@ enum Command {
         /// Output directory containing artifact.json, reproduction.json, and report.json.
         #[arg(short, long)]
         output: PathBuf,
+    },
+    /// Stream a deterministic run as versioned JSON Lines while writing evidence.
+    Stream {
+        /// Concrete Campaign YAML path (no unresolved value-set axes).
+        campaign: PathBuf,
+        /// Optional evidence directory.
+        #[arg(short, long)]
+        output: Option<PathBuf>,
     },
     /// Inspect an immutable artifact without simulation state or UI.
     Inspect {
@@ -107,6 +118,11 @@ enum Command {
     Release {
         #[command(subcommand)]
         command: ReleaseCommand,
+    },
+    /// Bounded exhaustive state-space exploration and counterexample replay.
+    Explore {
+        #[command(subcommand)]
+        command: ExploreCommand,
     },
 }
 
@@ -169,6 +185,9 @@ fn main() -> Result<()> {
                     recovery.markers.throughput_ns
                 );
             }
+        }
+        Command::Stream { campaign, output } => {
+            stream_commands::run(&campaign, output.as_deref())?;
         }
         Command::Inspect {
             artifact,
@@ -252,6 +271,7 @@ fn main() -> Result<()> {
         Command::Analyze { command } => analysis_commands::execute(command)?,
         Command::Atlas { command } => atlas_commands::execute(command)?,
         Command::Release { command } => release_commands::execute(command)?,
+        Command::Explore { command } => explore_commands::execute(command)?,
     }
     Ok(())
 }

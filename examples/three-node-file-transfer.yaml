@@ -1,0 +1,75 @@
+apiVersion: experiments.fips.network/v1alpha1
+kind: Campaign
+metadata:
+  name: three-node-file-transfer
+  description: Node 2 downloads a 500 MB object from node 0 through node 1
+seed: 20260723
+engine: {modes: compact-discrete-event, deterministic: true}
+scale: {nodes: 3}
+topology:
+  generator: explicit
+  average_degree: 2
+  explicit_edges: [[0, 1], [1, 2]]
+identities:
+  initial: {distribution: uniform-128}
+  arrivals:
+    count: 0
+    schedule: {start: 1s, interval: 1s}
+    address_policy: strictly-lower-than-current-root
+    attachment: random
+    attacker_budget: {mode: bounded, operations: 0, identities: 0}
+transports:
+  assignment: all-ethernet
+  profiles:
+    - name: ethernet
+      type: ethernet
+      weight: 1
+      bandwidth_bps: 100000000
+      latency: 1ms
+      jitter: 0ms
+      loss_ppm: 0
+      mtu_bytes: 1500
+      queue_bytes: 1048576
+links:
+  latency: 1ms
+  jitter: 0ms
+  bandwidth_bps: 100000000
+  loss_ppm: 0
+  duplication_ppm: 0
+  ordering: stream
+  mtu_bytes: 1500
+  queue_bytes: 1048576
+resources: {assignment: uniform}
+events: []
+protocol:
+  variant: fips-80c956a-baseline
+  parameters: {tree_announce_debounce: 500ms}
+traffic:
+  model: explicit-transfers
+  rate_bps: 100000000
+  transfers:
+    - id: requested-download
+      source: 0
+      destination: 2
+      total_bytes: 500000000
+      visualization_chunk_bytes: 1000000
+      start: 1s
+fidelity:
+  protocol: semantic-exact
+  serialization: modeled
+  bloom: exact-bits
+  crypto: operation-count
+  billion_node_representation: not-requested
+accounting:
+  causal_lineage: true
+  transport_overhead: true
+  network_overhead: configured
+  reconcile_serialized_frames: true
+instrumentation:
+  transition_stages: true
+  control_and_useful_bytes: true
+  quiescence_markers: [root, tree]
+assertions:
+  - always: {condition: no_forwarding_loops}
+  - reconcile: {condition: measured_bytes_equal_serialized_frames}
+objectives: {maximize: [useful_payload_delivered]}

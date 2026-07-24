@@ -1,7 +1,7 @@
 {
   "api_version": "experiments.fips.network/analysis/v1alpha1",
-  "artifact_id": "artifact-90ff624e536126c7a335ec138874d2a6",
-  "run_id": "run-90ff624e536126c7a335ec13",
+  "artifact_id": "artifact-d2a75bd7afb985f4cedc43dc5f319f08",
+  "run_id": "run-d2a75bd7afb985f4cedc43dc",
   "represented_nodes": 12,
   "representation": "exact-graph",
   "representation_boundaries": {
@@ -16,7 +16,7 @@
   "provenance": {
     "engine_name": "fips-individual-reference",
     "engine_version": "m2-v1",
-    "engine_source_revision": "d0466d2951861b24ea2ea7c21da9f78e5f7415c6",
+    "engine_source_revision": "ca7ece481e676d72267ae35c63d66ee1b691ce26",
     "schema_versions": {
       "normalized-plan": "experiments.fips.network/normalized-plan/v1alpha1",
       "reproduction-bundle": "experiments.fips.network/reproduction-bundle/v1alpha1",
@@ -62,10 +62,10 @@
     {
       "name": "tree.maximum-depth",
       "unit": "edges",
-      "first": "5",
-      "last": "5",
-      "minimum": "5",
-      "maximum": "5",
+      "first": "8",
+      "last": "8",
+      "minimum": "8",
+      "maximum": "8",
       "source": {
         "collection": "metric_series/tree.maximum-depth",
         "start": 0,
@@ -76,10 +76,10 @@
     {
       "name": "tree.parent-transitions",
       "unit": "count",
-      "first": "24",
-      "last": "24",
-      "minimum": "24",
-      "maximum": "24",
+      "first": "14",
+      "last": "14",
+      "minimum": "14",
+      "maximum": "14",
       "source": {
         "collection": "metric_series/tree.parent-transitions",
         "start": 0,
@@ -88,12 +88,26 @@
       }
     },
     {
+      "name": "adversary.authenticated-sybil-arrivals",
+      "unit": "count",
+      "first": "0",
+      "last": "0",
+      "minimum": "0",
+      "maximum": "0",
+      "source": {
+        "collection": "metric_series/adversary.authenticated-sybil-arrivals",
+        "start": 0,
+        "end_exclusive": 1,
+        "total": 1
+      }
+    },
+    {
       "name": "tree-announce.transmitted-bytes",
       "unit": "bytes",
-      "first": "40296",
-      "last": "40296",
-      "minimum": "40296",
-      "maximum": "40296",
+      "first": "36504",
+      "last": "36504",
+      "minimum": "36504",
+      "maximum": "36504",
       "source": {
         "collection": "metric_series/tree-announce.transmitted-bytes",
         "start": 0,
@@ -104,10 +118,10 @@
     {
       "name": "quiescence",
       "unit": "nanoseconds",
-      "first": "5002544000",
-      "last": "5002544000",
-      "minimum": "5002544000",
-      "maximum": "5002544000",
+      "first": "5501361600",
+      "last": "5501361600",
+      "minimum": "5501361600",
+      "maximum": "5501361600",
       "source": {
         "collection": "metric_series/quiescence",
         "start": 0,
@@ -118,10 +132,10 @@
     {
       "name": "quiescence.root",
       "unit": "nanoseconds",
-      "first": "5002544000",
-      "last": "5002544000",
-      "minimum": "5002544000",
-      "maximum": "5002544000",
+      "first": "5501361600",
+      "last": "5501361600",
+      "minimum": "5501361600",
+      "maximum": "5501361600",
       "source": {
         "collection": "metric_series/quiescence.root",
         "start": 0,
@@ -132,10 +146,10 @@
     {
       "name": "quiescence.tree",
       "unit": "nanoseconds",
-      "first": "5002544000",
-      "last": "5002544000",
-      "minimum": "5002544000",
-      "maximum": "5002544000",
+      "first": "5501361600",
+      "last": "5501361600",
+      "minimum": "5501361600",
+      "maximum": "5501361600",
       "source": {
         "collection": "metric_series/quiescence.tree",
         "start": 0,
@@ -146,10 +160,10 @@
     {
       "name": "quiescence.bloom",
       "unit": "nanoseconds",
-      "first": "5005544000",
-      "last": "5005544000",
-      "minimum": "5005544000",
-      "maximum": "5005544000",
+      "first": "5504361600",
+      "last": "5504361600",
+      "minimum": "5504361600",
+      "maximum": "5504361600",
       "source": {
         "collection": "metric_series/quiescence.bloom",
         "start": 0,
@@ -243,9 +257,9 @@
     }
   ],
   "quiescence": {
-    "root_ns": 5002544000,
-    "tree_ns": 5002544000,
-    "bloom_ns": 5005544000,
+    "root_ns": 5501361600,
+    "tree_ns": 5501361600,
+    "bloom_ns": 5504361600,
     "lookup_ns": 6301341600,
     "data_plane_ns": 6601516800
   },
@@ -253,8 +267,8 @@
     "stages": [
       {
         "stage": "coalesced",
-        "count": 8,
-        "entries": 3
+        "count": 2,
+        "entries": 2
       },
       {
         "stage": "compute",
@@ -263,12 +277,12 @@
       },
       {
         "stage": "constructed",
-        "count": 165,
+        "count": 139,
         "entries": 5
       },
       {
         "stage": "delivered",
-        "count": 185524,
+        "count": 181004,
         "entries": 195
       },
       {
@@ -308,22 +322,22 @@
       },
       {
         "stage": "queued",
-        "count": 180904,
+        "count": 177112,
         "entries": 195
       },
       {
         "stage": "requested",
-        "count": 201,
+        "count": 169,
         "entries": 29
       },
       {
         "stage": "serialized",
-        "count": 175584,
+        "count": 171792,
         "entries": 195
       },
       {
         "stage": "signed",
-        "count": 165,
+        "count": 139,
         "entries": 5
       },
       {
@@ -333,13 +347,13 @@
       },
       {
         "stage": "state-mutated",
-        "count": 24696,
+        "count": 24691,
         "entries": 88
       },
       {
         "stage": "superseded",
-        "count": 8,
-        "entries": 3
+        "count": 2,
+        "entries": 2
       },
       {
         "stage": "time",
@@ -348,7 +362,7 @@
       },
       {
         "stage": "transmitted",
-        "count": 185524,
+        "count": 181004,
         "entries": 195
       },
       {
@@ -422,14 +436,14 @@
       "flow-00000016",
       "lookup-0000000000000010-attempt-0"
     ],
-    "source_entries": 2033
+    "source_entries": 2031
   },
   "network": {
     "mode": "exact",
     "exact_nodes": [
       {
         "id": 0,
-        "observed_events": 68
+        "observed_events": 62
       },
       {
         "id": 1,
@@ -445,35 +459,35 @@
       },
       {
         "id": 4,
-        "observed_events": 74
+        "observed_events": 72
       },
       {
         "id": 5,
-        "observed_events": 84
+        "observed_events": 80
       },
       {
         "id": 6,
-        "observed_events": 86
+        "observed_events": 88
       },
       {
         "id": 7,
-        "observed_events": 62
+        "observed_events": 46
       },
       {
         "id": 8,
-        "observed_events": 52
+        "observed_events": 14
       },
       {
         "id": 9,
-        "observed_events": 34
+        "observed_events": 10
       },
       {
         "id": 10,
-        "observed_events": 22
+        "observed_events": 10
       },
       {
         "id": 11,
-        "observed_events": 10
+        "observed_events": 6
       }
     ],
     "exact_edges": [
@@ -571,160 +585,113 @@
       {
         "from": 5,
         "to": 4,
-        "frames": 22,
-        "frame_bytes": 6512,
+        "frames": 20,
+        "frame_bytes": 5856,
         "maximum_depth": 6
       },
       {
         "from": 5,
         "to": 6,
-        "frames": 22,
-        "frame_bytes": 6512,
+        "frames": 20,
+        "frame_bytes": 5856,
         "maximum_depth": 6
       },
       {
         "from": 6,
         "to": 5,
         "frames": 22,
-        "frame_bytes": 5808,
-        "maximum_depth": 5
+        "frame_bytes": 6832,
+        "maximum_depth": 7
       },
       {
         "from": 6,
         "to": 7,
         "frames": 22,
-        "frame_bytes": 5808,
-        "maximum_depth": 5
+        "frame_bytes": 6832,
+        "maximum_depth": 7
       },
       {
         "from": 7,
         "to": 6,
-        "frames": 20,
-        "frame_bytes": 4832,
-        "maximum_depth": 4
-      },
-      {
-        "from": 7,
-        "to": 8,
-        "frames": 10,
-        "frame_bytes": 2512,
-        "maximum_depth": 4
+        "frames": 24,
+        "frame_bytes": 7872,
+        "maximum_depth": 8
       },
       {
         "from": 8,
-        "to": 0,
-        "frames": 10,
-        "frame_bytes": 2192,
-        "maximum_depth": 3
-      },
-      {
-        "from": 8,
-        "to": 7,
-        "frames": 10,
-        "frame_bytes": 2192,
-        "maximum_depth": 3
-      },
-      {
-        "from": 8,
-        "to": 9,
-        "frames": 8,
-        "frame_bytes": 1856,
-        "maximum_depth": 3
-      },
-      {
-        "from": 9,
         "to": 0,
         "frames": 6,
-        "frame_bytes": 1200,
+        "frame_bytes": 1264,
         "maximum_depth": 2
       },
       {
         "from": 9,
-        "to": 8,
-        "frames": 6,
-        "frame_bytes": 1200,
-        "maximum_depth": 2
-      },
-      {
-        "from": 9,
-        "to": 10,
+        "to": 0,
         "frames": 4,
-        "frame_bytes": 864,
+        "frame_bytes": 800,
         "maximum_depth": 2
       },
       {
         "from": 10,
         "to": 0,
         "frames": 4,
-        "frame_bytes": 736,
-        "maximum_depth": 1
-      },
-      {
-        "from": 10,
-        "to": 9,
-        "frames": 4,
-        "frame_bytes": 736,
-        "maximum_depth": 1
-      },
-      {
-        "from": 10,
-        "to": 11,
-        "frames": 2,
-        "frame_bytes": 400,
-        "maximum_depth": 1
+        "frame_bytes": 800,
+        "maximum_depth": 2
       },
       {
         "from": 11,
         "to": 0,
-        "frames": 2,
-        "frame_bytes": 336,
-        "maximum_depth": 0
-      },
-      {
-        "from": 11,
-        "to": 10,
         "frames": 2,
         "frame_bytes": 336,
         "maximum_depth": 0
       }
     ],
     "depth_frame_distribution": {
-      "0": 188,
-      "1": 39,
-      "2": 32,
-      "3": 26,
-      "4": 21,
-      "5": 16,
-      "6": 8
+      "0": 158,
+      "1": 28,
+      "2": 23,
+      "3": 17,
+      "4": 15,
+      "5": 13,
+      "6": 11,
+      "7": 9,
+      "8": 4
     },
     "top_edges": [
       {
-        "from": 5,
-        "to": 4,
-        "frames": 22,
-        "frame_bytes": 6512,
-        "maximum_depth": 6
-      },
-      {
-        "from": 5,
+        "from": 7,
         "to": 6,
-        "frames": 22,
-        "frame_bytes": 6512,
-        "maximum_depth": 6
+        "frames": 24,
+        "frame_bytes": 7872,
+        "maximum_depth": 8
       },
       {
         "from": 6,
         "to": 5,
         "frames": 22,
-        "frame_bytes": 5808,
-        "maximum_depth": 5
+        "frame_bytes": 6832,
+        "maximum_depth": 7
       },
       {
         "from": 6,
         "to": 7,
         "frames": 22,
-        "frame_bytes": 5808,
-        "maximum_depth": 5
+        "frame_bytes": 6832,
+        "maximum_depth": 7
+      },
+      {
+        "from": 5,
+        "to": 4,
+        "frames": 20,
+        "frame_bytes": 5856,
+        "maximum_depth": 6
+      },
+      {
+        "from": 5,
+        "to": 6,
+        "frames": 20,
+        "frame_bytes": 5856,
+        "maximum_depth": 6
       },
       {
         "from": 4,
@@ -739,13 +706,6 @@
         "frames": 18,
         "frame_bytes": 4944,
         "maximum_depth": 5
-      },
-      {
-        "from": 7,
-        "to": 6,
-        "frames": 20,
-        "frame_bytes": 4832,
-        "maximum_depth": 4
       },
       {
         "from": 3,
@@ -788,27 +748,6 @@
         "frames": 12,
         "frame_bytes": 2592,
         "maximum_depth": 2
-      },
-      {
-        "from": 7,
-        "to": 8,
-        "frames": 10,
-        "frame_bytes": 2512,
-        "maximum_depth": 4
-      },
-      {
-        "from": 8,
-        "to": 0,
-        "frames": 10,
-        "frame_bytes": 2192,
-        "maximum_depth": 3
-      },
-      {
-        "from": 8,
-        "to": 7,
-        "frames": 10,
-        "frame_bytes": 2192,
-        "maximum_depth": 3
       },
       {
         "from": 0,
@@ -818,13 +757,6 @@
         "maximum_depth": 1
       },
       {
-        "from": 8,
-        "to": 9,
-        "frames": 8,
-        "frame_bytes": 1856,
-        "maximum_depth": 3
-      },
-      {
         "from": 0,
         "to": 8,
         "frames": 8,
@@ -832,18 +764,46 @@
         "maximum_depth": 1
       },
       {
+        "from": 8,
+        "to": 0,
+        "frames": 6,
+        "frame_bytes": 1264,
+        "maximum_depth": 2
+      },
+      {
         "from": 0,
         "to": 9,
         "frames": 6,
         "frame_bytes": 1200,
         "maximum_depth": 1
+      },
+      {
+        "from": 0,
+        "to": 10,
+        "frames": 6,
+        "frame_bytes": 1200,
+        "maximum_depth": 1
+      },
+      {
+        "from": 0,
+        "to": 11,
+        "frames": 4,
+        "frame_bytes": 800,
+        "maximum_depth": 1
+      },
+      {
+        "from": 9,
+        "to": 0,
+        "frames": 4,
+        "frame_bytes": 800,
+        "maximum_depth": 2
       }
     ],
     "source": {
       "collection": "event_trace/tree-announce",
       "start": 0,
-      "end_exclusive": 335,
-      "total": 335
+      "end_exclusive": 283,
+      "total": 283
     },
     "fidelity": "all observed event edges; physical peer edges remain distinct from root/parent semantics"
   },
@@ -853,28 +813,28 @@
         "causal_id": "event-0000000000000002",
         "root": "7fffffffffffffffffffffffffffffff",
         "arrival_ns": 2000000000,
-        "propagated_events": 3,
+        "propagated_events": 2,
         "status": "adopted"
       },
       {
         "causal_id": "event-0000000000000003",
         "root": "7ffffffffffffffffffffffffffffffe",
         "arrival_ns": 2499000000,
-        "propagated_events": 3,
+        "propagated_events": 2,
         "status": "adopted"
       },
       {
         "causal_id": "event-0000000000000004",
         "root": "7ffffffffffffffffffffffffffffffd",
         "arrival_ns": 2998000000,
-        "propagated_events": 3,
+        "propagated_events": 2,
         "status": "adopted"
       },
       {
         "causal_id": "event-0000000000000005",
         "root": "7ffffffffffffffffffffffffffffffc",
         "arrival_ns": 3497000000,
-        "propagated_events": 3,
+        "propagated_events": 2,
         "status": "adopted"
       }
     ],
@@ -882,7 +842,7 @@
     "fidelity": "arrival lineage is exact; propagation counts include direct causal descendants recorded by the source artifact"
   },
   "sample_count": 2,
-  "event_count": 335,
+  "event_count": 283,
   "normalized_plan": {
     "api_version": "experiments.fips.network/normalized-plan/v1alpha1",
     "axes": [],

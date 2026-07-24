@@ -20,7 +20,12 @@ m5_run="$(mktemp -d)"
 m6_run="$(mktemp -d)"
 m7_run="$(mktemp -d)"
 m8_run="$(mktemp -d)"
-trap 'rm -f "$first" "$second"; rm -rf "$m1_run" "$m2_run" "$m3_run" "$m4_run" "$m5_run" "$m6_run" "$m7_run" "$m8_run"' EXIT
+tiny_run="$(mktemp -d)"
+traffic_run="$(mktemp -d)"
+rekey_run="$(mktemp -d)"
+lookup_run="$(mktemp -d)"
+transport_run="$(mktemp -d)"
+trap 'rm -f "$first" "$second"; rm -rf "$m1_run" "$m2_run" "$m3_run" "$m4_run" "$m5_run" "$m6_run" "$m7_run" "$m8_run" "$tiny_run" "$traffic_run" "$rekey_run" "$lookup_run" "$transport_run"' EXIT
 cargo run --quiet -p fips-cli --bin fips-wind-tunnel -- normalize examples/root-ratchet.yaml --output "$first"
 cargo run --quiet -p fips-cli --bin fips-wind-tunnel -- normalize examples/root-ratchet.yaml --output "$second"
 cmp "$first" "$second"
@@ -70,6 +75,72 @@ cmp "$m3_run/worker-1.semantic.json" "$m3_run/worker-4.semantic.json"
 cargo run --quiet -p fips-cli --bin fips-wind-tunnel -- campaign replay-corpus \
   fixtures/corpus --output "$m3_run/corpus-report.json"
 cmp "$m3_run/corpus-report.json" fixtures/m3/corpus-report.json
+
+cargo run --quiet -p fips-cli --bin fips-wind-tunnel -- explore tiny \
+  examples/tiny-lifecycle-orders.yaml --maximum-nodes 4 --maximum-actions 2 \
+  --output "$tiny_run/first"
+cargo run --quiet -p fips-cli --bin fips-wind-tunnel -- explore tiny \
+  examples/tiny-lifecycle-orders.yaml --maximum-nodes 4 --maximum-actions 2 \
+  --output "$tiny_run/second"
+cmp "$tiny_run/first/report.json" "$tiny_run/second/report.json"
+jq -e '.exhaustive and .expected_permutations == 2 and
+  .explored_permutations == 2 and (.counterexamples | length) == 1' \
+  "$tiny_run/first/report.json" >/dev/null
+tiny_case="$(find "$tiny_run/first/counterexamples" -type f -name '*.json' -print -quit)"
+test -n "$tiny_case"
+cargo run --quiet -p fips-cli --bin fips-wind-tunnel -- explore replay "$tiny_case"
+
+cargo run --quiet -p fips-cli --bin fips-wind-tunnel -- \
+  run examples/temporal-traffic.yaml --output "$traffic_run"
+jq -e '.routed_traffic.offered_flows == 24 and
+  .routed_traffic.delivered_flows + .routed_traffic.rejected_flows == 24' \
+  "$traffic_run/report.json" >/dev/null
+jq -e '[.event_trace[] | select(.kind == "data.flow-offered") |
+  .data.shape.kind] | length == 24 and all(. == "stream-segment")' \
+  "$traffic_run/artifact.json" >/dev/null
+
+cargo run --quiet -p fips-cli --bin fips-wind-tunnel -- \
+  run examples/session-rekey-wave.yaml --output "$rekey_run"
+jq -e '
+  ([.event_trace[] | select(.kind == "input.session-rekey-wave")][0]) as $wave |
+  ([.event_trace[] | select(.kind == "session.rekey-completed")]) as $done |
+  $wave.data.scheduled_rekeys > 0 and
+  ($wave.data.scheduled_rekeys == ($done | length)) and
+  all($done[];
+    .causal_parent == $wave.event_id and
+    .data.crypto_fidelity == "operation-counted-no-wire-frame")
+' "$rekey_run/artifact.json" >/dev/null
+
+cargo run --quiet -p fips-cli --bin fips-wind-tunnel -- \
+  run examples/lookup-storm.yaml --output "$lookup_run"
+jq -e '
+  ([.event_trace[] | select(.kind == "input.coordinate-cache-expired")][0]) as $expiry |
+  ([.event_trace[] | select(.kind == "input.lookup-wave")][0]) as $wave |
+  ([.event_trace[] | select(
+    .kind == "data.flow-offered" and
+    (.data.flow_id | startswith("lookup-wave-herd-"))
+  )]) as $offers |
+  $expiry.data.invalidated_entries > 0 and
+  $expiry.ordinal < $wave.ordinal and
+  $wave.data.scheduled_lookups == 12 and
+  ($offers | length) == 12 and
+  all($offers[];
+    .virtual_time_ns == $wave.virtual_time_ns and
+    .causal_parent == $wave.event_id and
+    .data.cache == "cache-miss")
+' "$lookup_run/artifact.json" >/dev/null
+
+cargo run --quiet -p fips-cli --bin fips-wind-tunnel -- \
+  run examples/transport-class-failover.yaml --output "$transport_run"
+jq -e '
+  ([.event_trace[] | select(.kind == "input.transport-class-failed")][0]) as $down |
+  ([.event_trace[] | select(.kind == "input.transport-class-restored")][0]) as $up |
+  $down.data.profile == "wifi" and
+  ($down.data.affected_nodes | length) > 0 and
+  ($down.data.changed_edges | length) > 0 and
+  ($down.data.changed_edges | length) == ($up.data.changed_edges | length) and
+  $down.ordinal < $up.ordinal
+' "$transport_run/artifact.json" >/dev/null
 
 cargo run --quiet -p fips-cli --bin fips-wind-tunnel -- scale run \
   examples/m4/billion-root-ratchet.yaml --output "$m4_run/cohort"

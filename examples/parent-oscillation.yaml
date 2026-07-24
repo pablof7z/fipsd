@@ -1,0 +1,52 @@
+apiVersion: experiments.fips.network/v1alpha1
+kind: Campaign
+metadata:
+  name: parent-oscillation
+  description: Repeated same-root MMP-cost changes drive and suppress parent flaps.
+seed: 77
+engine: {modes: compact-discrete-event, deterministic: true}
+scale: {nodes: 5}
+topology:
+  generator: explicit
+  average_degree: 2
+  explicit_edges: [[0, 1], [0, 2], [1, 3], [2, 3], [3, 4]]
+identities: {initial: {distribution: uniform-128}}
+transports: {assignment: all-udp}
+links:
+  latency: 1ms
+  bandwidth_bps: 1000000000
+  loss_ppm: 0
+  ordering: datagram
+  mtu_bytes: 9000
+  queue_bytes: 1048576
+resources: {assignment: uniform}
+events:
+  - id: oscillate
+    action: alternate-parent-quality
+    at: 2s
+    parameters:
+      cycles: 6
+      interval: 250ms
+      preferred_cost_ppm: 1000000
+      degraded_cost_ppm: 6000000
+protocol:
+  variant: fips-80c956a-baseline
+  parameters:
+    tree_announce_debounce: 500ms
+    bloom_update_debounce: 500ms
+    parent_hysteresis_ppm: 0
+    parent_hold_down: 1s
+traffic: {model: idle}
+fidelity:
+  protocol: semantic-exact
+  serialization: executable-codec
+  bloom: exact-bits
+  crypto: operation-count
+  billion_node_representation: not-requested
+accounting: {causal_lineage: true, reconcile_serialized_frames: true}
+instrumentation:
+  transition_stages: true
+  causal_cost_ledger: true
+  quiescence_markers: [root, tree, bloom]
+assertions: []
+objectives: {maximize: [parent-switches, dampened-duration]}

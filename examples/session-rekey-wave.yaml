@@ -1,0 +1,51 @@
+apiVersion: experiments.fips.network/v1alpha1
+kind: Campaign
+metadata:
+  name: session-rekey-wave
+  description: Live mixed-transport sessions rekey together before a network cut
+seed: 20260723
+engine: {modes: compact-discrete-event, deterministic: true}
+scale: {nodes: 6}
+topology: {generator: chain, average_degree: 2}
+identities: {initial: {distribution: uniform-128}}
+transports:
+  assignment: random-mixed
+  profiles:
+    - {name: wifi, type: wifi, weight: 3, bandwidth_bps: 100000000, latency: 5ms, jitter: 2ms, loss_ppm: 0, mtu_bytes: 1500, queue_bytes: 1048576}
+    - {name: tor, type: tor, weight: 1, bandwidth_bps: 5000000, latency: 120ms, jitter: 30ms, loss_ppm: 0, mtu_bytes: 1500, queue_bytes: 262144}
+links:
+  latency: 1ms
+  jitter: 1ms
+  bandwidth_bps: 1000000000
+  loss_ppm: 0
+  duplication_ppm: 0
+  ordering: datagram
+  mtu_bytes: 1500
+  queue_bytes: 1048576
+resources:
+  assignment: heterogeneous
+  node_profiles:
+    - {name: baseline, cpu_units: 100, memory_bytes: 1073741824, queue_bytes: 1048576, table_entries: 1000}
+events:
+  - {id: rekey-wave, action: synchronized-session-rekey, at: 2s}
+  - {id: concurrent-cut, action: partition-network, at: 2s, parameters: {nodes: [0]}}
+protocol:
+  variant: fips-80c956a-baseline
+  parameters: {lookup_ttl: 64, lookup_attempts: 3}
+traffic:
+  model: uniform-random
+  rate_bps: 1000000
+  payload_bytes: 512
+  parameters: {flow_count: 8, start_ns: 500000000}
+fidelity:
+  protocol: semantic-exact
+  serialization: executable-codec
+  bloom: exact-bits
+  crypto: operation-count
+  billion_node_representation: not-requested
+accounting: {causal_lineage: true, reconcile_serialized_frames: true}
+instrumentation:
+  transition_stages: true
+  quiescence_markers: [root, tree, lookup, data-plane]
+assertions: []
+objectives: {maximize: [session-table-pressure]}

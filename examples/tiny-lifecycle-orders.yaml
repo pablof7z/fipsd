@@ -1,0 +1,38 @@
+apiVersion: experiments.fips.network/v1alpha1
+kind: Campaign
+metadata:
+  name: tiny-lifecycle-orders
+  description: Exhaust every order of one disappearance and one recovery.
+seed: 77
+engine: {modes: compact-discrete-event, deterministic: true}
+scale: {nodes: 4}
+topology: {generator: chain}
+identities: {initial: {distribution: uniform-128}}
+transports: {assignment: all-udp}
+links:
+  latency: 1ms
+  bandwidth_bps: 100000000
+  loss_ppm: 0
+  ordering: stream
+  mtu_bytes: 9000
+  queue_bytes: 1048576
+events:
+  - {id: disappear-one, action: disappear-node, target: 1, at: 1s}
+  - {id: reappear-one, action: reappear-node, target: 1, at: 2s}
+protocol:
+  variant: fips-80c956a-baseline
+  parameters: {tree_announce_debounce: 1ms}
+traffic: {model: idle}
+fidelity:
+  protocol: semantic-exact
+  serialization: executable-codec
+  bloom: exact-bits
+  crypto: operation-count
+  billion_node_representation: not-requested
+instrumentation: {transition_stages: true}
+assertions:
+  - eventually:
+      condition: all_connected_nodes_agree_on_minimum_root
+      after_input_quiescence: 1s
+  - always: {condition: no_forwarding_loops}
+objectives: {maximize: [control-bytes]}

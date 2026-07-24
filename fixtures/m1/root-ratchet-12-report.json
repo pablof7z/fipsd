@@ -1,12 +1,16 @@
 {
   "kind": "root-ratchet-report/v1alpha1",
-  "run_id": "run-b52b4a78dc1ec89fd733e9bb",
+  "run_id": "run-7ea2f69dc506554c2736acd9",
   "seed": 424242,
   "upstream_fips_commit": "80c956a6fdb85dde1450969a21891c1158e43267",
   "fidelity_statement": "Wire evidence uses executable production codec; protocol fidelity is individually modeled semantic state; compute fidelity is operation-counted compute; scale uses individual nodes across 12 represented nodes; Bloom fidelity uses exact Bloom bits. No approximation metadata applies.",
-  "graph_sha256": "959248967c9f072bd91c7fc447a64f3324b11cbb0177c4465e95fb14263fa283",
+  "graph_sha256": "ad2e7e6a64fa58e755e09ecd26e499ea5be7f08d254db625240c3153f7f0d747",
   "node_count": 12,
+  "transport_profiles": {
+    "udp": 12
+  },
   "arrivals": 4,
+  "authenticated_sybil_arrivals": 0,
   "identity_generation_trials": 4,
   "final_root": "7ffffffffffffffffffffffffffffffc",
   "root_generations": [
@@ -22,23 +26,23 @@
     "80000000000000000000000000000005",
     "80000000000000000000000000000006"
   ],
-  "maximum_depth": 5,
-  "parent_transitions": 24,
-  "quiescence_ns": 5002054400,
+  "maximum_depth": 8,
+  "parent_transitions": 14,
+  "quiescence_ns": 5501036160,
   "tree_announce": {
-    "requested": 173,
-    "superseded": 8,
-    "coalesced": 8,
+    "requested": 141,
+    "superseded": 2,
+    "coalesced": 2,
     "cancelled": 0,
-    "constructed": 165,
-    "signed": 165,
-    "serialized": 165,
-    "queued": 165,
+    "constructed": 139,
+    "signed": 139,
+    "serialized": 139,
+    "queued": 139,
     "rejected": 0,
-    "transmitted": 165,
-    "delivered": 165,
-    "transmitted_frame_bytes": 40296,
-    "delivered_frame_bytes": 40296
+    "transmitted": 139,
+    "delivered": 139,
+    "transmitted_frame_bytes": 36504,
+    "delivered_frame_bytes": 36504
   },
   "links": {
     "edge-0:0->1": {
@@ -61,26 +65,6 @@
       "useful_payload_bytes": 0,
       "peak_queue_bytes": 260
     },
-    "edge-10:10->11": {
-      "accepted_frames": 1,
-      "rejected_frames": 0,
-      "transmitted_bytes": 228,
-      "lost_bytes": 0,
-      "delivered_bytes": 228,
-      "rejected_bytes": 0,
-      "useful_payload_bytes": 0,
-      "peak_queue_bytes": 228
-    },
-    "edge-10:11->10": {
-      "accepted_frames": 1,
-      "rejected_frames": 0,
-      "transmitted_bytes": 196,
-      "lost_bytes": 0,
-      "delivered_bytes": 196,
-      "rejected_bytes": 0,
-      "useful_payload_bytes": 0,
-      "peak_queue_bytes": 196
-    },
     "edge-11:0->8": {
       "accepted_frames": 4,
       "rejected_frames": 0,
@@ -92,14 +76,14 @@
       "peak_queue_bytes": 228
     },
     "edge-11:8->0": {
-      "accepted_frames": 5,
+      "accepted_frames": 3,
       "rejected_frames": 0,
-      "transmitted_bytes": 1236,
+      "transmitted_bytes": 716,
       "lost_bytes": 0,
-      "delivered_bytes": 1236,
+      "delivered_bytes": 716,
       "rejected_bytes": 0,
       "useful_payload_bytes": 0,
-      "peak_queue_bytes": 292
+      "peak_queue_bytes": 260
     },
     "edge-12:0->9": {
       "accepted_frames": 3,
@@ -112,11 +96,11 @@
       "peak_queue_bytes": 228
     },
     "edge-12:9->0": {
-      "accepted_frames": 3,
+      "accepted_frames": 2,
       "rejected_frames": 0,
-      "transmitted_bytes": 684,
+      "transmitted_bytes": 456,
       "lost_bytes": 0,
-      "delivered_bytes": 684,
+      "delivered_bytes": 456,
       "rejected_bytes": 0,
       "useful_payload_bytes": 0,
       "peak_queue_bytes": 260
@@ -134,12 +118,12 @@
     "edge-13:10->0": {
       "accepted_frames": 2,
       "rejected_frames": 0,
-      "transmitted_bytes": 424,
+      "transmitted_bytes": 456,
       "lost_bytes": 0,
-      "delivered_bytes": 424,
+      "delivered_bytes": 456,
       "rejected_bytes": 0,
       "useful_payload_bytes": 0,
-      "peak_queue_bytes": 228
+      "peak_queue_bytes": 260
     },
     "edge-14:0->11": {
       "accepted_frames": 2,
@@ -232,21 +216,21 @@
       "peak_queue_bytes": 356
     },
     "edge-4:5->4": {
-      "accepted_frames": 11,
+      "accepted_frames": 10,
       "rejected_frames": 0,
-      "transmitted_bytes": 3564,
+      "transmitted_bytes": 3208,
       "lost_bytes": 0,
-      "delivered_bytes": 3564,
+      "delivered_bytes": 3208,
       "rejected_bytes": 0,
       "useful_payload_bytes": 0,
       "peak_queue_bytes": 388
     },
     "edge-5:5->6": {
-      "accepted_frames": 11,
+      "accepted_frames": 10,
       "rejected_frames": 0,
-      "transmitted_bytes": 3564,
+      "transmitted_bytes": 3208,
       "lost_bytes": 0,
-      "delivered_bytes": 3564,
+      "delivered_bytes": 3208,
       "rejected_bytes": 0,
       "useful_payload_bytes": 0,
       "peak_queue_bytes": 388
@@ -254,105 +238,45 @@
     "edge-5:6->5": {
       "accepted_frames": 11,
       "rejected_frames": 0,
-      "transmitted_bytes": 3212,
+      "transmitted_bytes": 3724,
       "lost_bytes": 0,
-      "delivered_bytes": 3212,
+      "delivered_bytes": 3724,
       "rejected_bytes": 0,
       "useful_payload_bytes": 0,
-      "peak_queue_bytes": 356
+      "peak_queue_bytes": 420
     },
     "edge-6:6->7": {
       "accepted_frames": 11,
       "rejected_frames": 0,
-      "transmitted_bytes": 3212,
+      "transmitted_bytes": 3724,
       "lost_bytes": 0,
-      "delivered_bytes": 3212,
+      "delivered_bytes": 3724,
       "rejected_bytes": 0,
       "useful_payload_bytes": 0,
-      "peak_queue_bytes": 356
+      "peak_queue_bytes": 420
     },
     "edge-6:7->6": {
-      "accepted_frames": 10,
+      "accepted_frames": 12,
       "rejected_frames": 0,
-      "transmitted_bytes": 2696,
+      "transmitted_bytes": 4272,
       "lost_bytes": 0,
-      "delivered_bytes": 2696,
+      "delivered_bytes": 4272,
       "rejected_bytes": 0,
       "useful_payload_bytes": 0,
-      "peak_queue_bytes": 324
-    },
-    "edge-7:7->8": {
-      "accepted_frames": 5,
-      "rejected_frames": 0,
-      "transmitted_bytes": 1396,
-      "lost_bytes": 0,
-      "delivered_bytes": 1396,
-      "rejected_bytes": 0,
-      "useful_payload_bytes": 0,
-      "peak_queue_bytes": 324
-    },
-    "edge-7:8->7": {
-      "accepted_frames": 5,
-      "rejected_frames": 0,
-      "transmitted_bytes": 1236,
-      "lost_bytes": 0,
-      "delivered_bytes": 1236,
-      "rejected_bytes": 0,
-      "useful_payload_bytes": 0,
-      "peak_queue_bytes": 292
-    },
-    "edge-8:8->9": {
-      "accepted_frames": 4,
-      "rejected_frames": 0,
-      "transmitted_bytes": 1040,
-      "lost_bytes": 0,
-      "delivered_bytes": 1040,
-      "rejected_bytes": 0,
-      "useful_payload_bytes": 0,
-      "peak_queue_bytes": 292
-    },
-    "edge-8:9->8": {
-      "accepted_frames": 3,
-      "rejected_frames": 0,
-      "transmitted_bytes": 684,
-      "lost_bytes": 0,
-      "delivered_bytes": 684,
-      "rejected_bytes": 0,
-      "useful_payload_bytes": 0,
-      "peak_queue_bytes": 260
-    },
-    "edge-9:10->9": {
-      "accepted_frames": 2,
-      "rejected_frames": 0,
-      "transmitted_bytes": 424,
-      "lost_bytes": 0,
-      "delivered_bytes": 424,
-      "rejected_bytes": 0,
-      "useful_payload_bytes": 0,
-      "peak_queue_bytes": 228
-    },
-    "edge-9:9->10": {
-      "accepted_frames": 2,
-      "rejected_frames": 0,
-      "transmitted_bytes": 488,
-      "lost_bytes": 0,
-      "delivered_bytes": 488,
-      "rejected_bytes": 0,
-      "useful_payload_bytes": 0,
-      "peak_queue_bytes": 260
+      "peak_queue_bytes": 452
     }
   },
   "scheduler": {
-    "scheduled": 343,
-    "cancelled": 8,
-    "superseded": 8,
-    "executed": 335,
+    "scheduled": 285,
+    "cancelled": 2,
+    "superseded": 2,
+    "executed": 283,
     "peak_pending": 19
   },
   "graph_memory": {
     "fixed_bytes_per_node": 39,
-    "fixed_bytes_per_edge": 8,
-    "allocated_bytes": 772
+    "fixed_bytes_per_edge": 9,
+    "allocated_bytes": 828
   },
   "assertions": [
     {

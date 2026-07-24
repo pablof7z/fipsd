@@ -288,6 +288,19 @@ impl RecoveryReport {
 pub struct RecoveryEngine;
 
 impl RecoveryEngine {
+    /// Whether the Campaign asks for lookup recovery that still uses the
+    /// coupled M2 model rather than the graph-native primary scheduler.
+    pub fn protocol_requested(plan: &NormalizedPlan) -> bool {
+        plan.campaign
+            .pointer("/instrumentation/quiescence_markers")
+            .and_then(Value::as_array)
+            .is_some_and(|markers| {
+                markers
+                    .iter()
+                    .any(|marker| marker.as_str() == Some("lookup"))
+            })
+    }
+
     /// Whether a normalized plan asks for the M2 recovery surface.
     pub fn requested(plan: &NormalizedPlan) -> bool {
         let markers = plan

@@ -16,9 +16,33 @@ impl RunConfig {
             )));
         }
         let arrivals = optional_u64(campaign, "/identities/arrivals/count")?.unwrap_or(0);
-        if arrivals >= nodes {
+        let interventions = intervention_config::parse_interventions(campaign, nodes)?;
+        if (!interventions.rekeys.is_empty()
+            || !interventions.cache_expiries.is_empty()
+            || !interventions.lookup_waves.is_empty())
+            && !GraphRecoveryRuntime::requested(plan)
+        {
+            return Err(RunError::Unsupported(
+                "rekey and lookup interventions require random-mixed transports and lookup in instrumentation.quiescence_markers"
+                    .to_owned(),
+            ));
+        }
+        if !interventions.lookup_waves.is_empty()
+            && campaign.pointer("/traffic/model").and_then(Value::as_str) == Some("idle")
+        {
+            return Err(RunError::Unsupported(
+                "simultaneous-lookups requires non-idle traffic endpoints".to_owned(),
+            ));
+        }
+        let lower_root_arrivals = arrivals
+            .checked_add(interventions.manual_arrivals.len() as u64)
+            .ok_or(RunError::Arithmetic)?;
+        let reserved_arrivals = lower_root_arrivals
+            .checked_add(interventions.sybils.len() as u64)
+            .ok_or(RunError::Arithmetic)?;
+        if reserved_arrivals >= nodes {
             return Err(RunError::Unsupported(format!(
-                "arrival count {arrivals} must be less than node count {nodes}"
+                "total scheduled arrival count {reserved_arrivals} must be less than node count {nodes}"
             )));
         }
         let topology = TopologyKind::parse(scalar_str(campaign, "/topology/generator")?)?;
@@ -81,9 +105,11 @@ impl RunConfig {
             })
             .transpose()?
             .unwrap_or_default();
-        if address_policy == "precomputed-ladder" && precomputed_ladder.len() < arrivals as usize {
+        if address_policy == "precomputed-ladder"
+            && precomputed_ladder.len() < lower_root_arrivals as usize
+        {
             return Err(RunError::Unsupported(format!(
-                "precomputed ladder has {} addresses for {arrivals} arrivals",
+                "precomputed ladder has {} addresses for {reserved_arrivals} arrivals",
                 precomputed_ladder.len()
             )));
         }
@@ -125,14 +151,17 @@ impl RunConfig {
             "all-udp" => 28,
             "all-tcp" => 40,
             "all-ethernet" => 18,
+            "random-mixed" => 0,
             other => {
                 return Err(RunError::Unsupported(format!(
-                    "M1 individual engine requires a homogeneous transport, got {other}"
+                    "unsupported individual-engine transport assignment {other}"
                 )));
             }
         };
+        let latency_ns = optional_duration(campaign, "/links/latency")?.unwrap_or(1_000_000);
         let link = LinkConfig {
-            latency_ns: optional_duration(campaign, "/links/latency")?.unwrap_or(1_000_000),
+            latency_ns,
+            jitter_ns: optional_duration(campaign, "/links/jitter")?.unwrap_or(latency_ns / 2),
             bandwidth_bps: optional_u64(campaign, "/links/bandwidth_bps")?.unwrap_or(1_000_000_000),
             loss_ppm: optional_u64(campaign, "/links/loss_ppm")?.unwrap_or(0) as u32,
             duplication_ppm: optional_u64(campaign, "/links/duplication_ppm")?.unwrap_or(0) as u32,
@@ -202,6 +231,7 @@ impl RunConfig {
         Ok(Self {
             nodes: nodes as u32,
             arrivals: arrivals as u32,
+            reserved_arrivals: reserved_arrivals as u32,
             topology,
             average_degree: average_degree as u32,
             explicit_edges,
@@ -218,6 +248,15 @@ impl RunConfig {
             link,
             inject_parent_loop_at_ns,
             lifecycle,
+            manual_arrivals: interventions.manual_arrivals,
+            cuts: interventions.cuts,
+            link_updates: interventions.link_updates,
+            rekeys: interventions.rekeys,
+            cache_expiries: interventions.cache_expiries,
+            lookup_waves: interventions.lookup_waves,
+            transport_classes: interventions.transport_classes,
+            parent_costs: interventions.parent_costs,
+            sybils: interventions.sybils,
         })
     }
 }

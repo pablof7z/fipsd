@@ -12,6 +12,7 @@ fips-adapter = { path = "../fips-adapter", version = "0.1.0" }
 fips-artifact = { path = "../fips-artifact", version = "0.1.0" }
 fips-engine-api = { path = "../fips-engine-api", version = "0.1.0" }
 fips-model = { path = "../fips-model", version = "0.1.0" }
+fips-transport = { path = "../fips-transport", version = "0.1.0" }
 hex.workspace = true
 serde.workspace = true
 serde_json.workspace = true

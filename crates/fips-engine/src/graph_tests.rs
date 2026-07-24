@@ -72,6 +72,21 @@ fn compact_footprint_is_published_by_formula() {
     let graph = GraphStore::generate(TopologyKind::Chain, 100, 2, 1, &[]).unwrap();
     let footprint = graph.memory_footprint();
     assert!(footprint.fixed_bytes_per_node <= 48);
-    assert_eq!(footprint.fixed_bytes_per_edge, 8);
+    assert_eq!(footprint.fixed_bytes_per_edge, 9);
     assert!(footprint.allocated_bytes < 16_000);
+}
+
+#[test]
+fn edge_availability_changes_active_connectivity_without_changing_identity() {
+    let mut graph = GraphStore::generate(TopologyKind::Chain, 4, 2, 1, &[]).unwrap();
+    let edge = graph.edge_between(1, 2).unwrap();
+
+    graph.set_edge_active(edge, false).unwrap();
+    assert!(!graph.is_edge_active(edge));
+    assert!(!graph.active_neighbors(1).into_iter().any(|node| node == 2));
+    assert!(!graph.is_connected_active());
+    assert_eq!(graph.edge_between(1, 2), Some(edge));
+
+    graph.set_edge_active(edge, true).unwrap();
+    assert!(graph.is_connected_active());
 }

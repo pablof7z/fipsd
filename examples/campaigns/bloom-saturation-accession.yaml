@@ -4,13 +4,13 @@ metadata: {name: bloom-saturation-accession}
 seed: 1003
 engine: {modes: compact-discrete-event, deterministic: true}
 scale: {nodes: {values: [1000, 100000]}}
-topology: {generator: {values: [scale-free, clustered]}, average_degree: 6}
+topology: {generator: {values: [scale-free, random-regular]}, average_degree: 6}
 identities: {initial: {distribution: uniform-128}}
 transports: {assignment: all-udp}
-events: [{action: attach-destination-population, parameters: {count: {values: [800, 1200, 1600]}}}]
+events: []
 traffic: {model: uniform-random, rate_bps: 10000000}
 protocol: {variant: fips-80c956a-baseline, parameters: {bloom_entries: {values: [800, 1200, 1600]}}}
 fidelity: {protocol: semantic-exact, serialization: executable-codec, bloom: {values: [exact-bits, occupancy]}, billion_node_representation: not-requested}
-instrumentation: {transition_stages: true, state_tables: true}
+instrumentation: {transition_stages: true, state_tables: true, quiescence_markers: [root, tree, bloom]}
 assertions: [{always: {condition: bloom-false-positive-rate-is-labeled}}]
 objectives: {maximize: [false-positive-rate, lookup-amplification]}

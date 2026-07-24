@@ -48,7 +48,7 @@ fn property_generators_honor_constraints_and_compose_with_shrinking() {
 #[test]
 fn media_profiles_label_provenance_and_failover_lineage() {
     let profiles = builtin_profiles();
-    assert_eq!(profiles.len(), 6);
+    assert_eq!(profiles.len(), 7);
     let udp = profiles
         .iter()
         .find(|profile| profile.kind == MediaKind::Udp)

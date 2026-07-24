@@ -27,7 +27,7 @@ pub enum BloomMode {
 }
 
 /// A mode-specific Bloom filter with stable behavior.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BloomModel {
     /// Packed exact bits.
     Exact {

@@ -16,7 +16,10 @@ mod traffic;
 
 pub use bloom::*;
 pub use cache::*;
-pub use engine::{IndividualEngine, IndividualRun, RootRatchetReport, TreeAnnounceCounters};
+pub use engine::{
+    GraphRecoveryCounters, IndividualEngine, IndividualRun, RootRatchetReport,
+    RoutedTrafficCounters, StreamedBloomCounters, TreeAnnounceCounters,
+};
 pub use graph::{
     AttachmentSelector, EdgeId, GraphError, GraphMemoryFootprint, GraphStore, NodeAddress, NodeId,
     TopologyKind,
@@ -24,7 +27,7 @@ pub use graph::{
 pub use lookup::*;
 pub use network::{
     Delivery, EnqueueRequest, LinkClass, LinkConfig, LinkCounters, LinkError, LinkOrdering,
-    LinkService,
+    LinkService, StreamEnqueueRequest, StreamEnqueueResult,
 };
 pub use recovery::*;
 pub use resources::*;

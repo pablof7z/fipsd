@@ -7,11 +7,15 @@ scale: {nodes: {values: [1000, 100000]}}
 topology: {generator: scale-free, average_degree: 6}
 identities: {initial: {distribution: uniform-128}}
 transports: {assignment: random-mixed}
-events: [{action: attach-authenticated-sybils}]
+events:
+  - id: authenticated-sybil-wave
+    action: attach-authenticated-sybils
+    at: 2s
+    parameters: {interval: 10ms, attachment: hub, address_policy: uniform-valid, operations_per_identity: 1}
 traffic: {model: session-churn}
 adversaries:
   mode: authenticated-protocol-valid
-  actions: [bounded-root-grinding, selective-visibility, valid-lookup-pressure, withheld-forwarding]
+  actions: [identity-grinding, sybil-concentration, eclipse-visibility, absent-target-lookup, withheld-forwarding]
   budgets: {operations: {values: [1000, 1000000]}, identities: {values: [10, 1000]}, bytes: 1000000000, compute_units: 1000000, wall_time: 60s}
 fidelity: {protocol: semantic-exact, serialization: executable-codec, bloom: {values: [exact-bits, occupancy]}, billion_node_representation: not-requested}
 instrumentation: {transition_stages: true, causal_cost_ledger: true, state_tables: true}

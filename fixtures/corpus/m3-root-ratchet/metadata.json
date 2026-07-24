@@ -2,7 +2,7 @@
   "corpus_version": "1",
   "semantic_version_range": ">=0.1.0,<0.2.0",
   "first_seen": "M3 root-ratchet campaign search",
-  "minimized_from": "bundle-31c4515d471b029e80c6c1c0d06d0f44",
+  "minimized_from": "bundle-447999dcc52e7ee0843f0c4976739441",
   "daemon_confirmation": "model-only",
   "expected_assertions": [
     "root-agreement",

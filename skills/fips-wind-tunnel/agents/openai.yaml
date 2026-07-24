@@ -1,0 +1,4 @@
+interface:
+  display_name: "FIPS Wind Tunnel Expert"
+  short_description: "Design, run, inspect, and explain FIPS experiments"
+  default_prompt: "Use $fips-wind-tunnel to inspect the current experiment and explain what is happening."

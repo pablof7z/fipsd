@@ -6,12 +6,22 @@ engine: {modes: compact-discrete-event, deterministic: true}
 scale: {nodes: {values: [1000, 100000]}}
 topology: {generator: random-regular, average_degree: 4}
 identities: {initial: {distribution: uniform-128}}
-transports: {assignment: random-mixed}
+transports:
+  assignment: random-mixed
+  profiles:
+    - {name: wifi, type: wifi, weight: 4, bandwidth_bps: 100000000, latency: 5ms, jitter: 2ms, loss_ppm: 0, mtu_bytes: 1500, queue_bytes: 1048576}
+    - {name: tor, type: tor, weight: 1, bandwidth_bps: 5000000, latency: 120ms, jitter: 30ms, loss_ppm: 1000, mtu_bytes: 1500, queue_bytes: 262144}
 resources: {assignment: uniform, node_profiles: [{name: constrained, cpu_units: 100, memory_bytes: 268435456, queue_bytes: 65536, table_entries: 10000}]}
-events: [{action: synchronized-session-rekey, at: 10s}, {action: topology-change, at: 10s}]
-traffic: {model: session-churn, rate_bps: 100000000}
+events:
+  - {id: rekey-wave, action: synchronized-session-rekey, at: 10s}
+  - {id: concurrent-cut, action: partition-network, at: 10s, parameters: {nodes: [0]}}
+traffic:
+  model: uniform-random
+  rate_bps: 1000000
+  payload_bytes: 512
+  parameters: {flow_count: 1000, start_ns: 500000000}
 protocol: {variant: fips-80c956a-baseline, parameters: {crypto_mode: {values: [operation-count, calibrated-cost]}}}
 fidelity: {protocol: operation-counted, serialization: executable-codec, crypto: {values: [operation-count, calibrated-cost]}, billion_node_representation: not-requested}
-instrumentation: {transition_stages: true, session_metrics: true, queue_wait: true}
+instrumentation: {transition_stages: true, session_metrics: true, queue_wait: true, quiescence_markers: [root, tree, lookup, data-plane]}
 assertions: [{reconcile: {condition: rekey-causal-trees-remain-distinct}}]
 objectives: {maximize: [rekey-setup-latency, session-table-pressure]}

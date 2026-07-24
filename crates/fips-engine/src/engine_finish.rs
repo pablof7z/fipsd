@@ -2,27 +2,58 @@ use super::*;
 
 impl Simulation {
     pub(super) fn finish(mut self) -> Result<IndividualRun, RunError> {
-        if !self.pending.is_empty() || !self.scheduler.is_empty() {
+        if !self.pending.is_empty()
+            || self
+                .bloom
+                .as_ref()
+                .is_some_and(|runtime| runtime.pending() > 0)
+            || !self.scheduler.is_empty()
+        {
             return Err(RunError::Invariant(
                 "quiescence reached with pending events".to_owned(),
             ));
         }
         self.links.reconcile()?;
         let assertions = self.evaluate_invariants()?;
-        if let Some(failed) = assertions.iter().find(|result| result.outcome != "pass") {
-            return Err(RunError::Invariant(format!(
-                "{}: {}",
-                failed.id, failed.message
-            )));
-        }
+        let routed_traffic = self
+            .traffic
+            .as_ref()
+            .map(|runtime| runtime.counters.clone());
+        let bloom_propagation = self.bloom.as_ref().map(|runtime| runtime.counters.clone());
+        let graph_recovery = self
+            .recovery
+            .as_ref()
+            .map(GraphRecoveryRuntime::snapshot_counters);
+        let root_tree_quiescence_ns = self
+            .trace
+            .iter()
+            .filter(|event| {
+                !event.kind.starts_with("data.")
+                    && !event.kind.starts_with("bloom.")
+                    && !event.kind.starts_with("lookup.")
+                    && !event.kind.starts_with("session.")
+            })
+            .map(|event| event.virtual_time_ns)
+            .max()
+            .unwrap_or(0);
+        let approximations =
+            self.fidelity_approximations(routed_traffic.is_some(), graph_recovery.is_some());
         let fidelity = FidelityContract {
-            wire: WireFidelity::ExecutableCodec,
+            wire: if routed_traffic.is_some() {
+                WireFidelity::Modeled
+            } else {
+                WireFidelity::ExecutableCodec
+            },
             protocol: ProtocolFidelity::SemanticExact,
             compute: ComputeFidelity::OperationCounted,
             scale: ScaleFidelity::Individual,
-            bloom: BloomFidelity::ExactBits,
+            bloom: match self.bloom.as_ref().map(|runtime| runtime.mode()) {
+                Some(crate::BloomMode::SparseBits) => BloomFidelity::SparseBits,
+                Some(crate::BloomMode::Occupancy) => BloomFidelity::Occupancy,
+                _ => BloomFidelity::ExactBits,
+            },
             represented_nodes: self.config.nodes.into(),
-            approximations: Vec::new(),
+            approximations,
             sampled_regions: Vec::new(),
         };
         let normalized_bytes = self.plan.to_canonical_json()?;
@@ -82,7 +113,12 @@ impl Simulation {
             fidelity_statement: fidelity.plain_language_statement(),
             graph_sha256: self.graph.graph_sha256(),
             node_count: self.config.nodes.into(),
+            transport_profiles: self.transports.profile_counts(),
+            routed_traffic: routed_traffic.clone(),
+            bloom_propagation: bloom_propagation.clone(),
+            graph_recovery: graph_recovery.clone(),
             arrivals: self.accepted_arrivals,
+            authenticated_sybil_arrivals: self.authenticated_sybil_arrivals,
             identity_generation_trials: self.identity_trials,
             final_root,
             root_generations: self
@@ -93,45 +129,81 @@ impl Simulation {
                 .collect(),
             maximum_depth,
             parent_transitions: self.parent_transitions,
-            quiescence_ns: self.scheduler.now_ns(),
+            quiescence_ns: root_tree_quiescence_ns,
             tree_announce: self.tree.clone(),
             links: self.links.all_counters(),
             scheduler: self.scheduler.diagnostics().clone(),
             graph_memory: self.graph.memory_footprint(),
             assertions: assertions.clone(),
         };
-        let metric_series = vec![
+        let mut metric_series = vec![
             metric(
                 "root.generations",
                 "count",
-                self.scheduler.now_ns(),
+                root_tree_quiescence_ns,
                 report.root_generations.len() as u64,
             ),
             metric(
                 "tree.maximum-depth",
                 "edges",
-                self.scheduler.now_ns(),
+                root_tree_quiescence_ns,
                 maximum_depth,
             ),
             metric(
                 "tree.parent-transitions",
                 "count",
-                self.scheduler.now_ns(),
+                root_tree_quiescence_ns,
                 self.parent_transitions,
+            ),
+            metric(
+                "adversary.authenticated-sybil-arrivals",
+                "count",
+                root_tree_quiescence_ns,
+                self.authenticated_sybil_arrivals,
             ),
             metric(
                 "tree-announce.transmitted-bytes",
                 "bytes",
-                self.scheduler.now_ns(),
+                root_tree_quiescence_ns,
                 self.tree.transmitted_frame_bytes,
             ),
             metric(
                 "quiescence",
                 "nanoseconds",
-                self.scheduler.now_ns(),
-                self.scheduler.now_ns(),
+                root_tree_quiescence_ns,
+                root_tree_quiescence_ns,
             ),
         ];
+        if let Some(traffic) = &routed_traffic {
+            metric_series.push(metric(
+                "traffic.useful-bytes-delivered",
+                "bytes",
+                traffic.quiescence_ns,
+                traffic.delivered_useful_bytes,
+            ));
+        }
+        if let Some(bloom) = &bloom_propagation {
+            metric_series.push(metric(
+                "bloom.filter-announce-delivered",
+                "count",
+                bloom.quiescence_ns,
+                bloom.delivered_frames,
+            ));
+        }
+        if let Some(recovery) = &graph_recovery {
+            metric_series.push(metric(
+                "lookup.successes",
+                "count",
+                recovery.quiescence_ns,
+                recovery.successes,
+            ));
+            metric_series.push(metric(
+                "session.setups",
+                "count",
+                recovery.quiescence_ns,
+                recovery.session_setups,
+            ));
+        }
         let artifact = RunArtifact {
             manifest: RunManifest {
                 api_version: RUN_ARTIFACT_VERSION.to_owned(),
@@ -172,111 +244,5 @@ impl Simulation {
             report,
             recovery_report: None,
         })
-    }
-
-    pub(super) fn evaluate_invariants(&self) -> Result<Vec<AssertionResult>, RunError> {
-        let active = self
-            .graph
-            .node_ids()
-            .filter(|id| self.graph.is_active(*id))
-            .collect::<Vec<_>>();
-        let minimum = self.minimum_active_address()?;
-        let root_agreement = active.iter().all(|node| {
-            self.graph
-                .address(self.graph.root(*node))
-                .is_ok_and(|address| address == minimum)
-        });
-        let loop_free = active.iter().all(|node| {
-            let path = self.graph.ancestry(*node);
-            path.iter().copied().collect::<BTreeSet<_>>().len() == path.len()
-        });
-        let coordinate_consistent = active.iter().all(|node| {
-            let path = self.graph.ancestry(*node);
-            path.first() == Some(node)
-                && path.last() == Some(&self.graph.root(*node))
-                && self.graph.parent(*node) == path.get(1).copied()
-        });
-        let debounce = self.sent_times.values().all(|times| {
-            times
-                .windows(2)
-                .all(|pair| pair[1].saturating_sub(pair[0]) >= self.config.debounce_ns)
-        });
-        let queues = self.links.all_counters().values().all(|counters| {
-            counters.transmitted_bytes == counters.delivered_bytes + counters.lost_bytes
-        });
-        let lifecycle = self.tree.requested
-            == self.tree.constructed + self.tree.superseded + self.tree.cancelled
-            && self.tree.superseded == self.tree.coalesced
-            && self.tree.constructed == self.tree.serialized
-            && self.tree.constructed == self.tree.queued + self.tree.rejected;
-        let checks = [
-            (
-                "root-agreement",
-                root_agreement,
-                "all active nodes advertise the minimum active address",
-            ),
-            (
-                "loop-freedom",
-                loop_free,
-                "every ancestry contains unique stable node IDs",
-            ),
-            (
-                "no-obsolete-root-retention",
-                root_agreement,
-                "no active node retains a superseded root at quiescence",
-            ),
-            (
-                "per-peer-debounce",
-                debounce,
-                "every transmitted per-peer announcement obeys the configured boundary",
-            ),
-            (
-                "coordinate-consistency",
-                coordinate_consistent,
-                "parent, root, and ancestry columns agree",
-            ),
-            (
-                "control-queues-return-to-baseline",
-                queues,
-                "all transmitted bytes are delivered or deterministically lost",
-            ),
-            (
-                "tree-lifecycle-reconciliation",
-                lifecycle,
-                "requested, coalesced, cancelled, constructed, serialized, queued, and rejected totals reconcile",
-            ),
-            (
-                "byte-reconciliation",
-                queues,
-                "per-edge transmitted bytes equal delivered plus lost bytes",
-            ),
-            (
-                "deterministic-total-order",
-                self.trace.windows(2).all(|pair| {
-                    (pair[0].virtual_time_ns, pair[0].ordinal, &pair[0].event_id)
-                        <= (pair[1].virtual_time_ns, pair[1].ordinal, &pair[1].event_id)
-                }),
-                "event order is a stable virtual-time and ordinal total order",
-            ),
-        ];
-        Ok(checks
-            .into_iter()
-            .map(|(id, passed, message)| AssertionResult {
-                id: id.to_owned(),
-                outcome: if passed { "pass" } else { "fail" }.to_owned(),
-                message: message.to_owned(),
-            })
-            .collect())
-    }
-
-    pub(super) fn minimum_active_address(&self) -> Result<NodeAddress, RunError> {
-        self.graph
-            .node_ids()
-            .filter(|id| self.graph.is_active(*id))
-            .map(|id| self.graph.address(id))
-            .collect::<Result<Vec<_>, _>>()?
-            .into_iter()
-            .min()
-            .ok_or_else(|| RunError::Invariant("no active nodes".to_owned()))
     }
 }

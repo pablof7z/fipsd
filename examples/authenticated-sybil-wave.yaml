@@ -1,0 +1,64 @@
+apiVersion: experiments.fips.network/v1alpha1
+kind: Campaign
+metadata:
+  name: authenticated-sybil-wave
+  description: Ten authenticated protocol-valid identities concentrate on one hub.
+seed: 1010
+engine: {modes: compact-discrete-event, deterministic: true}
+scale: {nodes: 30}
+topology: {generator: random-regular, average_degree: 4}
+identities: {initial: {distribution: uniform-128}}
+transports:
+  assignment: random-mixed
+  profiles:
+    - {name: wifi, type: wifi, mtu_bytes: 1500, latency: 8ms, bandwidth_bps: 100000000, weight: 50}
+    - {name: bluetooth, type: ble, mtu_bytes: 244, latency: 20ms, bandwidth_bps: 1000000, weight: 15}
+    - {name: tor, type: tor, mtu_bytes: 1280, latency: 200ms, bandwidth_bps: 10000000, weight: 15}
+    - {name: ethernet, type: ethernet, mtu_bytes: 1500, latency: 1ms, bandwidth_bps: 1000000000, weight: 20}
+links:
+  latency: 5ms
+  jitter: 2ms
+  bandwidth_bps: 1000000000
+  loss_ppm: 0
+  ordering: datagram
+  mtu_bytes: 1500
+  queue_bytes: 1048576
+resources: {assignment: uniform}
+events:
+  - id: sybil-wave
+    action: attach-authenticated-sybils
+    at: 2s
+    parameters:
+      count: 10
+      interval: 100ms
+      attachment: hub
+      address_policy: uniform-valid
+      operations_per_identity: 1
+adversaries:
+  mode: authenticated-protocol-valid
+  actions: [sybil-concentration]
+  budgets:
+    operations: 10
+    identities: 10
+    bytes: 40960
+    compute_units: 40
+    wall_time: 60s
+protocol:
+  variant: fips-80c956a-baseline
+  parameters:
+    tree_announce_debounce: 500ms
+    bloom_update_debounce: 500ms
+traffic: {model: idle}
+fidelity:
+  protocol: semantic-exact
+  serialization: executable-codec
+  bloom: exact-bits
+  crypto: operation-count
+  billion_node_representation: not-requested
+accounting: {causal_lineage: true, reconcile_serialized_frames: true}
+instrumentation:
+  transition_stages: true
+  causal_cost_ledger: true
+  quiescence_markers: [root, tree, bloom]
+assertions: []
+objectives: {maximize: [sybil-concentration, control-bytes]}

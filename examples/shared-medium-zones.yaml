@@ -1,0 +1,57 @@
+apiVersion: experiments.fips.network/v1alpha1
+kind: Campaign
+metadata:
+  name: shared-medium-zones
+seed: 77
+engine:
+  modes: compact-discrete-event
+  deterministic: true
+scale:
+  nodes: 8
+topology:
+  generator: chain
+  average_degree: 2
+  media_zones:
+    - id: lab-wifi
+      nodes: [0, 1, 2, 3, 4, 5]
+      bandwidth_bps: 2000000
+      latency: 40ms
+      loss_ppm: 10000
+      mtu_bytes: 1200
+      queue_bytes: 4096
+identities:
+  initial: {distribution: uniform-128}
+  arrivals:
+    count: 2
+    schedule: {start: 1s, interval: 500ms}
+    address_policy: strictly-lower-than-current-root
+    attachment: current-root
+    attacker_budget: {mode: bounded, operations: 2}
+transports: {assignment: all-udp}
+links:
+  latency: 1ms
+  bandwidth_bps: 1000000000
+  loss_ppm: 0
+  ordering: stream
+  mtu_bytes: 9000
+  queue_bytes: 1048576
+resources: {assignment: uniform}
+events: [{id: arrivals, action: introduce-lower-root-identities}]
+protocol:
+  variant: fips-80c956a-baseline
+  parameters: {tree_announce_debounce: 500ms}
+traffic:
+  model: uniform-random
+  payload_bytes: 256
+  rate_bps: 1000000
+  parameters: {flow_count: 8}
+fidelity:
+  protocol: semantic-exact
+  serialization: executable-codec
+  bloom: exact-bits
+  crypto: operation-count
+  billion_node_representation: not-requested
+accounting: {causal_lineage: true, reconcile_serialized_frames: true}
+instrumentation: {transition_stages: true}
+assertions: []
+objectives: {maximize: [peak_queue_bytes]}

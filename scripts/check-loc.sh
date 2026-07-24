@@ -20,10 +20,12 @@ while IFS= read -r -d '' path; do
     echo "LOC soft warning: $path has $lines lines (target $soft_limit)" >&2
   fi
 done < <(
-  find crates tools scripts web \
+  find crates tools scripts web FIPSD FIPSDPackage FIPSDUITests \
+    \( -name .build -o -name .swiftpm -o -name DerivedData \) -prune -o \
     -type f \
     \( -name '*.rs' -o -name '*.sh' -o -name '*.ts' -o -name '*.tsx' \
-       -o -name '*.js' -o -name '*.jsx' -o -name '*.css' -o -name '*.html' \) \
+       -o -name '*.js' -o -name '*.jsx' -o -name '*.css' -o -name '*.html' \
+       -o -name '*.swift' \) \
     -print0 2>/dev/null || true
 )
 

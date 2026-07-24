@@ -15,8 +15,9 @@ impl Simulation {
             .collect::<Vec<_>>();
         for node in &active {
             self.request_all(*node, cause, Some(event))?;
+            self.request_bloom_all(*node, cause, Some(event))?;
         }
-        Ok(json!({"active_nodes": active.len()}))
+        self.topology_snapshot()
     }
 
     pub(super) fn handle_activate(
@@ -25,6 +26,8 @@ impl Simulation {
         evidence: &str,
         node: NodeId,
         ordinal: u32,
+        lower_root: bool,
+        target_overrides: &[NodeId],
     ) -> Result<Value, RunError> {
         let cause = format!("input:arrival-{ordinal:04}");
         self.add_ledger(&cause, "requested", 1, evidence);
@@ -37,7 +40,9 @@ impl Simulation {
             .into_iter()
             .min()
             .ok_or_else(|| RunError::Invariant("arrival has no visible root".to_owned()))?;
-        let (address, trials) = if self.config.address_policy == "precomputed-ladder" {
+        let (address, trials) = if !lower_root {
+            (self.graph.address(node)?, 1_u64)
+        } else if self.config.address_policy == "precomputed-ladder" {
             (self.config.precomputed_ladder[ordinal as usize], 0_u64)
         } else {
             (
@@ -47,7 +52,7 @@ impl Simulation {
                 1_u64,
             )
         };
-        if address >= minimum {
+        if lower_root && address >= minimum {
             return Err(RunError::Invariant(format!(
                 "arrival {ordinal} address {} is not lower than visible root {}",
                 address.to_hex(),
@@ -66,34 +71,80 @@ impl Simulation {
             });
         }
         self.identity_trials += trials;
-        self.graph.set_address(node, address)?;
+        if lower_root {
+            self.graph.set_address(node, address)?;
+        }
+        self.reset_local_bloom(node)?;
         self.graph.reset_self_root(node)?;
-        let target = self.graph.select_attachment(
-            self.config.attachment,
-            self.plan.seed,
-            u64::from(ordinal),
-        )?;
-        self.graph.set_active(node, true)?;
-        let edge = if let Some(edge) = self.graph.edge_between(node, target) {
-            edge
+        let targets = if target_overrides.is_empty() {
+            vec![self.graph.select_attachment(
+                self.config.attachment,
+                self.plan.seed,
+                u64::from(ordinal),
+            )?]
         } else {
-            let edge = self.graph.add_edge(node, target)?;
-            self.links.set_config(edge, self.config.link.clone())?;
-            edge
+            target_overrides.to_vec()
         };
+        for target in &targets {
+            if !self.graph.is_active(*target) {
+                return Err(RunError::Invariant(format!(
+                    "arrival target {target} is not active"
+                )));
+            }
+        }
+        self.graph.set_active(node, true)?;
+        let mut edges = Vec::with_capacity(targets.len());
+        for target in &targets {
+            let edge = if let Some(edge) = self.graph.edge_between(node, *target) {
+                self.graph.set_edge_active(edge, true)?;
+                edge
+            } else {
+                let edge = self.graph.add_edge(node, *target)?;
+                self.partition_blocks.push(0);
+                self.parent_cost_ppm.push(1_000_000);
+                self.media_zones.configure_edge(
+                    edge,
+                    node,
+                    *target,
+                    &self.transports,
+                    &mut self.links,
+                )?;
+                edge
+            };
+            edges.push(edge);
+        }
         self.accepted_arrivals += 1;
-        self.root_generations.insert(address);
+        if lower_root {
+            self.root_generations.insert(address);
+        }
         self.add_ledger(&cause, "performed", 1, evidence);
         self.add_ledger(&cause, "identity-generation-operations", trials, evidence);
         self.request_all(node, &cause, Some(event))?;
-        self.request_announce(target, node, &cause, Some(event))?;
+        self.request_bloom_all(node, &cause, Some(event))?;
+        for target in &targets {
+            self.request_announce(*target, node, &cause, Some(event))?;
+            self.request_bloom_all(*target, &cause, Some(event))?;
+        }
+        let edge = edges[0];
         Ok(json!({
             "node": node,
             "address": address.to_hex(),
-            "address_policy": self.config.address_policy,
-            "attachment": format!("{:?}", self.config.attachment),
-            "target": target,
+            "address_policy": if lower_root {
+                self.config.address_policy.as_str()
+            } else {
+                "reserved-uniform-valid"
+            },
+            "attachment": if target_overrides.is_empty() {
+                format!("{:?}", self.config.attachment)
+            } else {
+                "ExplicitTargets".to_owned()
+            },
+            "target": targets[0],
+            "targets": targets,
             "edge": edge,
+            "edges": edges,
+            "media_zone": self.media_zones.zone_id(node),
+            "shared_medium_group": self.links.shared_group(edge),
             "identity_trials": trials
         }))
     }
@@ -122,6 +173,15 @@ impl Simulation {
             self.add_ledger(cause, "cancelled", 1, evidence);
             return Ok(json!({"from": from, "to": to, "skipped": "inactive"}));
         }
+        let edge = self
+            .graph
+            .edge_between(from, to)
+            .ok_or_else(|| RunError::Invariant(format!("no edge for announce {from}->{to}")))?;
+        if !self.graph.is_edge_active(edge) {
+            self.tree.cancelled += 1;
+            self.add_ledger(cause, "cancelled", 1, evidence);
+            return Ok(json!({"from": from, "to": to, "edge": edge, "skipped": "partitioned"}));
+        }
         let snapshot = self.snapshot(from)?;
         let depth = snapshot.ancestry.len().saturating_sub(1) as u32;
         let manifest = CodecManifest::load().map_err(|error| RunError::Codec(error.to_string()))?;
@@ -138,10 +198,7 @@ impl Simulation {
         self.add_ledger(cause, "constructed", 1, evidence);
         self.add_ledger(cause, "signed", 1, evidence);
         self.add_ledger(cause, "serialized", frame_bytes, evidence);
-        let edge = self
-            .graph
-            .edge_between(from, to)
-            .ok_or_else(|| RunError::Invariant(format!("no edge for announce {from}->{to}")))?;
+        let link_config = self.links.config(edge)?.clone();
         match self.links.enqueue(EnqueueRequest {
             edge_id: edge,
             from,
@@ -153,15 +210,25 @@ impl Simulation {
         }) {
             Ok(result) => {
                 self.tree.queued += 1;
-                self.tree.transmitted += result.transmitted_bytes
-                    / (frame_bytes + self.config.link.transport_overhead_bytes);
+                self.tree.transmitted +=
+                    result.transmitted_bytes / (frame_bytes + link_config.transport_overhead_bytes);
                 self.tree.transmitted_frame_bytes += result.transmitted_bytes.saturating_sub(
-                    self.config.link.transport_overhead_bytes
+                    link_config.transport_overhead_bytes
                         * (result.transmitted_bytes
-                            / (frame_bytes + self.config.link.transport_overhead_bytes)),
+                            / (frame_bytes + link_config.transport_overhead_bytes)),
                 );
                 self.add_ledger(cause, "queued", frame_bytes, evidence);
                 self.add_ledger(cause, "transmitted", result.transmitted_bytes, evidence);
+                let deliveries = result
+                    .deliveries
+                    .iter()
+                    .map(|delivery| {
+                        json!({
+                            "deliver_at_ns": delivery.deliver_at_ns,
+                            "copy": delivery.copy_ordinal
+                        })
+                    })
+                    .collect::<Vec<_>>();
                 for delivery in result.deliveries {
                     self.scheduler.schedule_at(
                         delivery.deliver_at_ns,
@@ -186,7 +253,13 @@ impl Simulation {
                     "frame_bytes": frame_bytes,
                     "transport_bytes": result.transmitted_bytes,
                     "lost_bytes": result.lost_bytes,
-                    "queue_occupancy_bytes": result.queue_occupancy_bytes
+                    "queue_occupancy_bytes": result.queue_occupancy_bytes,
+                    "bandwidth_bps": link_config.bandwidth_bps,
+                    "latency_ns": link_config.latency_ns,
+                    "mtu_bytes": link_config.mtu_bytes,
+                    "from_transport": self.transports.profile(from).name,
+                    "to_transport": self.transports.profile(to).name,
+                    "deliveries": deliveries
                 }))
             }
             Err(error @ (LinkError::MtuExceeded { .. } | LinkError::QueueFull { .. })) => {
@@ -197,6 +270,11 @@ impl Simulation {
                     "to": to,
                     "depth": depth,
                     "frame_bytes": frame_bytes,
+                    "bandwidth_bps": link_config.bandwidth_bps,
+                    "latency_ns": link_config.latency_ns,
+                    "mtu_bytes": link_config.mtu_bytes,
+                    "from_transport": self.transports.profile(from).name,
+                    "to_transport": self.transports.profile(to).name,
                     "rejected": error.to_string()
                 }))
             }
@@ -217,7 +295,16 @@ impl Simulation {
         }
         let cause = format!("input:disappear-{node}");
         let neighbors = self.graph.active_neighbors(node);
+        let address = self.graph.address(node)?;
         self.graph.set_active(node, false)?;
+        if let Some(runtime) = self.recovery.as_mut() {
+            let invalidated =
+                runtime.invalidate_node(address.0) + runtime.invalidate_path_node(node);
+            let disrupted = runtime.disrupt_sessions_for_node(node);
+            self.add_ledger(&cause, "cache-invalidated", invalidated, evidence);
+            self.add_ledger(&cause, "sessions-disrupted", disrupted, evidence);
+        }
+        self.remove_bloom_node(node);
         self.peer_views
             .retain(|(receiver, sender), _| *receiver != node && *sender != node);
         for neighbor in neighbors {
@@ -230,6 +317,7 @@ impl Simulation {
                     self.request_all(neighbor, &cause, Some(event))?;
                 }
             }
+            self.request_bloom_all(neighbor, &cause, Some(event))?;
         }
         self.add_ledger(&cause, "performed", 1, evidence);
         Ok(json!({"node": node, "active": false}))
@@ -249,9 +337,12 @@ impl Simulation {
         let cause = format!("input:reappear-{node}");
         self.graph.set_active(node, true)?;
         self.graph.reset_self_root(node)?;
+        self.reset_local_bloom(node)?;
         self.request_all(node, &cause, Some(event))?;
+        self.request_bloom_all(node, &cause, Some(event))?;
         for neighbor in self.graph.active_neighbors(node) {
             self.request_announce(neighbor, node, &cause, Some(event))?;
+            self.request_bloom_all(neighbor, &cause, Some(event))?;
         }
         self.add_ledger(&cause, "performed", 1, evidence);
         Ok(json!({"node": node, "active": true}))
@@ -307,8 +398,10 @@ impl Simulation {
             "frame_bytes": delivery.frame_bytes,
             "copy": delivery.copy_ordinal,
             "fresh": fresh,
+            "root_node": self.graph.root(receiver),
             "root": self.graph.address(self.graph.root(receiver))?.to_hex(),
-            "parent": self.graph.parent(receiver)
+            "parent": self.graph.parent(receiver),
+            "sequence": self.graph.sequence(receiver)
         }))
     }
 

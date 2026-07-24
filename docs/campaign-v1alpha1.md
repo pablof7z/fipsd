@@ -47,6 +47,85 @@ unlabeled representation. Run artifacts apply stricter cross-field checks for
 production codec pins, calibrated hardware profiles, approximation metadata,
 and sampled exact regions.
 
+## Per-node connectivity
+
+`transports.assignment: random-mixed` assigns profiles to stable node IDs with
+a seed-stable weighted draw. Profile `weight` values define the distribution;
+zero-weight profiles are retained in the campaign but never assigned. Each
+profile may override `bandwidth_bps`, `latency`, `jitter`, `loss_ppm`, `mtu_bytes`, and
+`queue_bytes` for its endpoint. Supported media families are `udp`, `tcp`,
+`ethernet`, `wifi`, `ble`, `tor`, and `nym`.
+
+The effective symmetric edge conditions are derived from the shared link and
+both endpoints. See [mixed-node-connectivity.md](mixed-node-connectivity.md)
+for the deterministic formulas and fidelity boundary.
+
+`topology.media_zones` optionally assigns non-overlapping node sets to authored
+shared media. Every intra-zone edge uses the zone's bandwidth, latency, loss,
+MTU, and queue bounds and contends on one deterministic half-duplex
+serialization queue. Cross-zone edges retain endpoint-derived link conditions.
+Cohort runs aggregate this contention and declare that approximation; only
+individual runs claim exact enqueue order.
+
+## Temporal traffic parameters
+
+`traffic.model: persistent-streams` uses `parameters.flow_count` as the stream
+count and requires a positive `parameters.segments_per_stream`. `payload_bytes`
+is the size of each segment. The individual engine caps the product of streams
+and segments at 100,000 routed offers.
+
+`traffic.model: bursty` requires positive `parameters.burst_size` and
+`parameters.burst_interval_ns`. Members of a burst are offered at the same
+virtual timestamp; consecutive bursts are separated by that explicit interval.
+All generated offers retain their process lineage in the durable event trace.
+
+`traffic.model: explicit-transfers` uses a `transfers` array instead of a
+generated endpoint matrix. Every entry declares `id`, `source`, `destination`,
+`total_bytes`, optional `visualization_chunk_bytes`, and optional `start`.
+Endpoints are stable numeric node IDs. The individual engine computes the
+active route and caps the total number of visible chunks at 100,000. Each chunk
+is packetized per traversed link MTU and retains its byte range in the event
+trace. See
+[explicit-application-transfers.md](explicit-application-transfers.md).
+
+## Interactive and authored interventions
+
+The compact discrete-event engine accepts these replayable event actions:
+
+- `introduce-lower-root-node` reserves one stable node slot and activates it at
+  `at` with an address below the then-visible minimum root.
+- `disappear-node` and `reappear-node` use an integer node `target`.
+- `partition-network` and `merge-network` use `parameters.nodes` to name one
+  side of a cut. All crossing edges change availability together.
+- `set-link-conditions` and `restore-link-conditions` use an integer edge
+  `target`. Overrides may include `bandwidth_bps`, `latency`, `jitter`, `loss_ppm`,
+  `mtu_bytes`, and `queue_bytes`.
+- `synchronized-session-rekey` snapshots all live sessions at `at`, charges
+  deterministic cryptographic work to each source, and preserves a causal
+  completion or supersession for every accepted operation.
+- `expire-coordinate-cache` invalidates every live coordinate cache entry at
+  `at`. A same-time `simultaneous-lookups` event runs afterward, using
+  `parameters.count` replayable endpoint probes from the configured traffic
+  population.
+- `fail-transport-class` and `restore-transport-class` target one authored
+  profile name. Every incident edge participates in the same deterministic
+  availability transition while overlapping partitions retain their own block.
+- `swap-parent-ancestry` changes one eligible same-root parent decision using
+  authored fixed-point MMP costs. `alternate-parent-quality` repeats that
+  re-evaluation with bounded `cycles` and an explicit `interval`; optional
+  `target` selects the node, otherwise stable node order chooses it.
+- `attach-authenticated-sybils` requires
+  `adversaries.mode: authenticated-protocol-valid`, an identity budget, and an
+  operation budget. Each reserved identity activates as an individual node at
+  the authored cadence and attachment policy; `address_policy` is
+  `uniform-valid` or `lower-than-current-root`.
+
+The native workbench authors the same campaign events used by CLI and CI. See
+[interactive-interventions.md](interactive-interventions.md) for runtime and
+in-flight delivery semantics and [session-rekey-waves.md](session-rekey-waves.md)
+for the rekey fidelity boundary. Unsupported or misspelled actions fail with
+their exact `/events/N` path instead of silently disappearing.
+
 ## Coverage
 
 The normative Root Ratchet document plus the nine files under

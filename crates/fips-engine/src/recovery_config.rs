@@ -45,8 +45,10 @@ impl RecoveryConfig {
             "stream" => LinkOrdering::Stream,
             other => return Err(RecoveryError::Unsupported(format!("link ordering {other}"))),
         };
+        let latency_ns = duration_at(campaign, "/links/latency").unwrap_or(1_000_000);
         let link = LinkConfig {
-            latency_ns: duration_at(campaign, "/links/latency").unwrap_or(1_000_000),
+            latency_ns,
+            jitter_ns: duration_at(campaign, "/links/jitter").unwrap_or(latency_ns / 2),
             bandwidth_bps: u64_at(campaign, "/links/bandwidth_bps").unwrap_or(10_000_000),
             loss_ppm: u32::try_from(u64_at(campaign, "/links/loss_ppm").unwrap_or(0))
                 .map_err(|_| RecoveryError::Unsupported("loss_ppm exceeds u32".to_owned()))?,
@@ -111,8 +113,22 @@ impl RecoveryConfig {
                 nodes,
                 flow_count: u64_at(campaign, "/traffic/parameters/flow_count").unwrap_or(128),
                 payload_bytes,
+                rate_bps,
                 interval_ns,
+                segments_per_stream: u32::try_from(
+                    u64_at(campaign, "/traffic/parameters/segments_per_stream").unwrap_or(32),
+                )
+                .map_err(|_| {
+                    RecoveryError::Unsupported("segments_per_stream exceeds u32".to_owned())
+                })?,
+                burst_size: u32::try_from(
+                    u64_at(campaign, "/traffic/parameters/burst_size").unwrap_or(16),
+                )
+                .map_err(|_| RecoveryError::Unsupported("burst_size exceeds u32".to_owned()))?,
+                burst_interval_ns: u64_at(campaign, "/traffic/parameters/burst_interval_ns")
+                    .unwrap_or(250_000_000),
                 seed: plan.seed,
+                transfers: Vec::new(),
             },
             link,
             resource_profile,

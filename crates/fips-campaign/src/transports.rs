@@ -1,56 +1,10 @@
-//! Versioned abstract media profiles, assignment policies, and causal failover.
+//! Abstract media assignment policies and causal failover.
 
 use crate::GeneratedTopology;
+pub use fips_transport::*;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
-/// Transport/media family.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
-#[serde(rename_all = "kebab-case")]
-pub enum MediaKind {
-    Udp,
-    Tcp,
-    Ethernet,
-    Ble,
-    Tor,
-    Nym,
-}
-
-/// Stream/datagram behavior visible to the model.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "kebab-case")]
-pub enum MediaOrdering {
-    Datagram,
-    Stream,
-}
-
-/// Whether values are measured or deliberately abstract.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "kebab-case")]
-pub enum ProfileProvenance {
-    Abstract,
-    Calibrated,
-}
-
-/// Versioned behavior profile with explicit effective MTU and overhead.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct MediaProfile {
-    pub id: String,
-    pub version: String,
-    pub kind: MediaKind,
-    pub provenance: ProfileProvenance,
-    pub effective_mtu_bytes: u64,
-    pub transport_overhead_bytes: u64,
-    pub ordering: MediaOrdering,
-    pub reliable: bool,
-    pub latency_ns: u64,
-    pub jitter_ns: u64,
-    pub bandwidth_bps: u64,
-    pub reconnect_ns: u64,
-    pub head_of_line_blocking: bool,
-}
-
-/// Supported deterministic assignment policies.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum TransportAssignmentPolicy {
@@ -62,7 +16,6 @@ pub enum TransportAssignmentPolicy {
     Failover,
 }
 
-/// Effective profile for each sampled edge.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct TransportAssignment {
     pub policy: TransportAssignmentPolicy,
@@ -70,7 +23,6 @@ pub struct TransportAssignment {
     pub edge_profiles: BTreeMap<String, String>,
 }
 
-/// Session outcome caused by a profile transition.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct FailoverOutcome {
     pub causal_id: String,
@@ -81,69 +33,6 @@ pub struct FailoverOutcome {
     pub reconnect_complete_ns: u64,
 }
 
-/// Built-in abstract profiles; values are not presented as measured wire truth.
-pub fn builtin_profiles() -> Vec<MediaProfile> {
-    [
-        profile(
-            MediaKind::Udp,
-            1472,
-            28,
-            MediaOrdering::Datagram,
-            false,
-            1,
-            false,
-        ),
-        profile(
-            MediaKind::Tcp,
-            1460,
-            40,
-            MediaOrdering::Stream,
-            true,
-            1,
-            true,
-        ),
-        profile(
-            MediaKind::Ethernet,
-            1500,
-            18,
-            MediaOrdering::Datagram,
-            false,
-            1,
-            false,
-        ),
-        profile(
-            MediaKind::Ble,
-            244,
-            12,
-            MediaOrdering::Stream,
-            true,
-            20,
-            true,
-        ),
-        profile(
-            MediaKind::Tor,
-            1280,
-            64,
-            MediaOrdering::Stream,
-            true,
-            200,
-            true,
-        ),
-        profile(
-            MediaKind::Nym,
-            1200,
-            96,
-            MediaOrdering::Stream,
-            true,
-            400,
-            true,
-        ),
-    ]
-    .into_iter()
-    .collect()
-}
-
-/// Assign profiles to topology edges with seed-stable provenance.
 pub fn assign_transports(
     topology: &GeneratedTopology,
     policy: TransportAssignmentPolicy,
@@ -165,7 +54,7 @@ pub fn assign_transports(
                 TransportAssignmentPolicy::DepthCorrelated => (a.max(b) as usize) % ids.len(),
                 TransportAssignmentPolicy::HighLatencySpine => {
                     if a == 0 || b == 0 {
-                        4
+                        ids.iter().position(|id| id.contains("tor")).unwrap_or(0)
                     } else {
                         0
                     }
@@ -185,7 +74,6 @@ pub fn assign_transports(
     }
 }
 
-/// Apply one causal failover without hiding the session consequence.
 pub fn failover(
     assignment: &mut TransportAssignment,
     edge: &str,
@@ -207,37 +95,6 @@ pub fn failover(
         session_preserved: from.ordering == to.ordering && from.reliable == to.reliable,
         reconnect_complete_ns: at_ns.saturating_add(to.reconnect_ns),
     })
-}
-
-fn profile(
-    kind: MediaKind,
-    mtu: u64,
-    overhead: u64,
-    ordering: MediaOrdering,
-    reliable: bool,
-    latency_ms: u64,
-    hol: bool,
-) -> MediaProfile {
-    let name = format!("{:?}", kind).to_lowercase();
-    MediaProfile {
-        id: format!("abstract-{name}-v1"),
-        version: "1".to_owned(),
-        kind,
-        provenance: ProfileProvenance::Abstract,
-        effective_mtu_bytes: mtu,
-        transport_overhead_bytes: overhead,
-        ordering,
-        reliable,
-        latency_ns: latency_ms * 1_000_000,
-        jitter_ns: latency_ms * 250_000,
-        bandwidth_bps: if matches!(kind, MediaKind::Ble) {
-            1_000_000
-        } else {
-            100_000_000
-        },
-        reconnect_ns: latency_ms * 5_000_000,
-        head_of_line_blocking: hol,
-    }
 }
 
 fn draw(seed: u64, ordinal: u64) -> usize {

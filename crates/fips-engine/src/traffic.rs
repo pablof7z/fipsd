@@ -29,6 +29,12 @@ pub enum TrafficModel {
     Outcast,
     /// Mixed large and small payloads.
     ElephantsAndMice,
+    /// Long-lived sessions emitted as ordered payload segments.
+    PersistentStreams,
+    /// Explicit application-object transfers between authored endpoints.
+    ExplicitTransfers,
+    /// Seeded flows emitted in synchronized bursts.
+    Bursty,
     /// Cross a deterministic bisection.
     CrossCut,
     /// Repeated session setup and teardown.
@@ -49,6 +55,9 @@ impl TrafficModel {
             "incast" => Ok(Self::Incast),
             "outcast" => Ok(Self::Outcast),
             "elephants-and-mice" => Ok(Self::ElephantsAndMice),
+            "persistent-streams" => Ok(Self::PersistentStreams),
+            "explicit-transfers" => Ok(Self::ExplicitTransfers),
+            "bursty" => Ok(Self::Bursty),
             "cross-min-cut" | "cross-cut" => Ok(Self::CrossCut),
             "session-churn" => Ok(Self::SessionChurn),
             "payload-sweep" => Ok(Self::PayloadSweep),
@@ -71,6 +80,47 @@ pub enum SessionAction {
     Teardown,
 }
 
+/// Position of one payload offer inside a larger traffic process.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(tag = "kind", rename_all = "kebab-case")]
+pub enum FlowShape {
+    /// Independent one-shot flow.
+    Single,
+    /// One segment of a persistent stream.
+    StreamSegment {
+        /// Stable stream identifier.
+        stream_id: String,
+        /// Zero-based segment index.
+        segment_index: u32,
+        /// Total segments in the stream.
+        segment_count: u32,
+    },
+    /// One visible byte range of an explicit application-object transfer.
+    ApplicationTransfer {
+        /// Stable transfer identifier.
+        transfer_id: String,
+        /// Zero-based visualization chunk index.
+        chunk_index: u32,
+        /// Total visualization chunks in the transfer.
+        chunk_count: u32,
+        /// Total application bytes in the transfer.
+        total_bytes: u64,
+        /// Inclusive byte offset of this chunk.
+        byte_start: u64,
+        /// Exclusive byte offset of this chunk.
+        byte_end: u64,
+    },
+    /// One member of a synchronized burst.
+    BurstMember {
+        /// Zero-based burst index.
+        burst_index: u64,
+        /// Zero-based member index.
+        member_index: u32,
+        /// Number of offers in this burst.
+        member_count: u32,
+    },
+}
+
 /// One offered useful-payload flow.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Flow {
@@ -86,6 +136,25 @@ pub struct Flow {
     pub useful_payload_bytes: u64,
     /// Session lifecycle action.
     pub session_action: SessionAction,
+    /// Stream/burst lineage.
+    pub shape: FlowShape,
+}
+
+/// One explicitly authored application-object transfer.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TransferSpec {
+    /// Stable transfer identifier.
+    pub id: String,
+    /// Source node.
+    pub source: u32,
+    /// Destination node.
+    pub destination: u32,
+    /// Complete useful application byte count.
+    pub total_bytes: u64,
+    /// Bytes represented by one visible progress chunk.
+    pub visualization_chunk_bytes: u64,
+    /// Virtual time at which the transfer begins.
+    pub start_ns: u64,
 }
 
 /// Generator inputs.
@@ -99,10 +168,20 @@ pub struct TrafficConfig {
     pub flow_count: u64,
     /// Base payload.
     pub payload_bytes: u64,
+    /// Aggregate useful-payload offer rate.
+    pub rate_bps: u64,
     /// Offer interval.
     pub interval_ns: u64,
+    /// Segments emitted by each persistent stream.
+    pub segments_per_stream: u32,
+    /// Simultaneous offers in each burst.
+    pub burst_size: u32,
+    /// Virtual-time gap between burst starts.
+    pub burst_interval_ns: u64,
     /// Seed.
     pub seed: u64,
+    /// Explicit application-object transfers.
+    pub transfers: Vec<TransferSpec>,
 }
 
 /// Generated session/traffic accounting.
@@ -125,83 +204,7 @@ pub struct TrafficPlan {
 impl TrafficPlan {
     /// Generate a deterministic traffic plan and validate offered load.
     pub fn generate(config: &TrafficConfig) -> Result<Self, TrafficError> {
-        if config.nodes < 2 && config.model != TrafficModel::Idle {
-            return Err(TrafficError::TooFewNodes(config.nodes));
-        }
-        if config.payload_bytes == 0 && config.model != TrafficModel::Idle {
-            return Err(TrafficError::ZeroPayload);
-        }
-        let count = match config.model {
-            TrafficModel::Idle => 0,
-            TrafficModel::AllToAll => {
-                u64::from(config.nodes) * u64::from(config.nodes.saturating_sub(1))
-            }
-            _ => config.flow_count,
-        };
-        let mut plan = Self::default();
-        for ordinal in 0..count {
-            let (source, destination) = endpoints(config, ordinal);
-            if source == destination {
-                return Err(TrafficError::SelfFlow {
-                    ordinal,
-                    node: source,
-                });
-            }
-            let session_action = match config.model {
-                TrafficModel::SessionChurn => {
-                    if ordinal % 2 == 0 {
-                        SessionAction::Setup
-                    } else {
-                        SessionAction::Teardown
-                    }
-                }
-                _ if ordinal % 17 == 0 => SessionAction::Setup,
-                _ if ordinal % 101 == 0 => SessionAction::Rekey,
-                _ => SessionAction::Reuse,
-            };
-            let useful_payload_bytes = match config.model {
-                TrafficModel::ElephantsAndMice if ordinal % 10 == 0 => {
-                    config.payload_bytes.saturating_mul(100)
-                }
-                TrafficModel::PayloadSweep => {
-                    const SIZES: [u64; 8] = [64, 256, 1024, 1200, 1279, 1280, 1500, 9000];
-                    SIZES[ordinal as usize % SIZES.len()]
-                }
-                _ => config.payload_bytes,
-            };
-            match session_action {
-                SessionAction::Setup => plan.session_setups += 1,
-                SessionAction::Teardown => plan.session_teardowns += 1,
-                SessionAction::Rekey => plan.rekeys += 1,
-                SessionAction::Reuse => {}
-            }
-            plan.offered_useful_bytes = plan
-                .offered_useful_bytes
-                .saturating_add(useful_payload_bytes);
-            plan.flows.push(Flow {
-                id: format!("flow-{ordinal:08}"),
-                source,
-                destination,
-                offered_at_ns: ordinal.saturating_mul(config.interval_ns),
-                useful_payload_bytes,
-                session_action,
-            });
-        }
-        plan.setup_message_bytes = plan
-            .session_setups
-            .saturating_mul(SESSION_SETUP_MESSAGE_BYTES + SESSION_ACK_MESSAGE_BYTES);
-        let projected = plan
-            .flows
-            .iter()
-            .map(|flow| flow.useful_payload_bytes)
-            .sum::<u64>();
-        if projected != plan.offered_useful_bytes {
-            return Err(TrafficError::OfferedLoadDrift {
-                recorded: plan.offered_useful_bytes,
-                projected,
-            });
-        }
-        Ok(plan)
+        generation::generate(config)
     }
 }
 
@@ -217,6 +220,28 @@ pub enum TrafficError {
     /// Useful payload cannot be zero.
     #[error("non-idle traffic requires a positive payload")]
     ZeroPayload,
+    /// An explicit transfer endpoint does not exist.
+    #[error("transfer {id} endpoint {node} is outside the {nodes}-node topology")]
+    InvalidTransferEndpoint {
+        /// Transfer.
+        id: String,
+        /// Invalid node.
+        node: u32,
+        /// Topology size.
+        nodes: u32,
+    },
+    /// Persistent streams require at least one segment.
+    #[error("persistent streams require segments_per_stream greater than zero")]
+    ZeroSegments,
+    /// Bursty traffic requires at least one member per burst.
+    #[error("bursty traffic requires burst_size greater than zero")]
+    ZeroBurstSize,
+    /// Bursty traffic requires time to advance between bursts.
+    #[error("bursty traffic requires burst_interval_ns greater than zero")]
+    ZeroBurstInterval,
+    /// The generated flow count overflowed.
+    #[error("traffic flow count overflow")]
+    FlowCountOverflow,
     /// Generator produced an invalid self-flow.
     #[error("traffic flow {ordinal} has identical source/destination {node}")]
     SelfFlow {
@@ -235,132 +260,9 @@ pub enum TrafficError {
     },
 }
 
-fn endpoints(config: &TrafficConfig, ordinal: u64) -> (u32, u32) {
-    let nodes = u64::from(config.nodes);
-    match config.model {
-        TrafficModel::Idle => (0, 0),
-        TrafficModel::UniformRandom => {
-            let source = draw(config.seed, ordinal, 0) % nodes;
-            let offset = 1 + draw(config.seed, ordinal, 1) % (nodes - 1);
-            (source as u32, ((source + offset) % nodes) as u32)
-        }
-        TrafficModel::Permutation => {
-            let source = ordinal % nodes;
-            (source as u32, ((source + 1) % nodes) as u32)
-        }
-        TrafficModel::AllToAll => {
-            let source = ordinal / (nodes - 1);
-            let mut destination = ordinal % (nodes - 1);
-            if destination >= source {
-                destination += 1;
-            }
-            (source as u32, destination as u32)
-        }
-        TrafficModel::Zipf => {
-            let source = ordinal % nodes;
-            let draw = draw(config.seed, ordinal, 2) as f64 / u64::MAX as f64;
-            let mut destination = (draw * draw * nodes as f64) as u64 % nodes;
-            if destination == source {
-                destination = (destination + 1) % nodes;
-            }
-            (source as u32, destination as u32)
-        }
-        TrafficModel::Incast => ((ordinal % (nodes - 1) + 1) as u32, 0),
-        TrafficModel::Outcast => (0, (ordinal % (nodes - 1) + 1) as u32),
-        TrafficModel::ElephantsAndMice | TrafficModel::PayloadSweep => {
-            let source = ordinal % nodes;
-            (
-                source as u32,
-                ((source + nodes / 2).max(source + 1) % nodes) as u32,
-            )
-        }
-        TrafficModel::CrossCut => {
-            let half = (nodes / 2).max(1);
-            let source = ordinal % half;
-            let destination = half + ordinal % (nodes - half);
-            (source as u32, destination as u32)
-        }
-        TrafficModel::SessionChurn => {
-            let pair = (ordinal / 2) % nodes;
-            (pair as u32, ((pair + 1) % nodes) as u32)
-        }
-    }
-}
-
-fn draw(seed: u64, ordinal: u64, lane: u64) -> u64 {
-    let mut hasher = Sha256::new();
-    hasher.update(seed.to_le_bytes());
-    hasher.update(ordinal.to_le_bytes());
-    hasher.update(lane.to_le_bytes());
-    let digest = hasher.finalize();
-    u64::from_le_bytes(digest[0..8].try_into().expect("slice length"))
-}
+#[path = "traffic_generation.rs"]
+mod generation;
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-
-    fn config(model: TrafficModel) -> TrafficConfig {
-        TrafficConfig {
-            model,
-            nodes: 16,
-            flow_count: 100,
-            payload_bytes: 1_000,
-            interval_ns: 1_000_000,
-            seed: 77,
-        }
-    }
-
-    #[test]
-    fn every_traffic_model_is_seed_stable_and_has_no_self_flows() {
-        let models = [
-            TrafficModel::Idle,
-            TrafficModel::UniformRandom,
-            TrafficModel::Permutation,
-            TrafficModel::AllToAll,
-            TrafficModel::Zipf,
-            TrafficModel::Incast,
-            TrafficModel::Outcast,
-            TrafficModel::ElephantsAndMice,
-            TrafficModel::CrossCut,
-            TrafficModel::SessionChurn,
-            TrafficModel::PayloadSweep,
-        ];
-        for model in models {
-            let first = TrafficPlan::generate(&config(model)).unwrap();
-            let second = TrafficPlan::generate(&config(model)).unwrap();
-            assert_eq!(first, second, "{model:?}");
-            assert!(
-                first
-                    .flows
-                    .iter()
-                    .all(|flow| flow.source != flow.destination),
-                "{model:?}"
-            );
-        }
-    }
-
-    #[test]
-    fn control_only_and_saturated_data_baselines_are_reproducible() {
-        let idle = TrafficPlan::generate(&config(TrafficModel::Idle)).unwrap();
-        assert_eq!(idle.offered_useful_bytes, 0);
-        let data = TrafficPlan::generate(&config(TrafficModel::AllToAll)).unwrap();
-        assert_eq!(data.flows.len(), 16 * 15);
-        assert_eq!(
-            data.offered_useful_bytes,
-            data.flows
-                .iter()
-                .map(|flow| flow.useful_payload_bytes)
-                .sum::<u64>()
-        );
-        assert_ne!(data.offered_useful_bytes, data.setup_message_bytes);
-    }
-
-    #[test]
-    fn session_churn_exposes_setup_and_teardown_separately() {
-        let plan = TrafficPlan::generate(&config(TrafficModel::SessionChurn)).unwrap();
-        assert_eq!(plan.session_setups, 50);
-        assert_eq!(plan.session_teardowns, 50);
-        assert_eq!(plan.setup_message_bytes, 50 * 176);
-    }
-}
+#[path = "traffic_tests.rs"]
+mod tests;

@@ -20,13 +20,20 @@ struct PromptAuthor: Sendable {
         provider requested: AuthoringProvider,
         template: Data
     ) async throws -> (Data, AuthoringProvider) {
+        if let intent = ExplicitTransferIntent.parse(prompt) {
+            return (try intent.applying(to: template), .automatic)
+        }
         let provider = try resolve(requested)
         let templateText = String(decoding: template, as: UTF8.self)
         let system = Self.systemPrompt + "\n\nValid baseline campaign:\n" + templateText
         let result: String
         switch provider {
-        case .claude:
-            result = try await runClaude(prompt: prompt, system: system)
+        case .claudeSonnet, .claudeHaiku, .claudeOpus:
+            result = try await runClaude(
+                prompt: prompt,
+                system: system,
+                model: provider.claudeModel!
+            )
         case .codex:
             result = try await runCodex(prompt: prompt, system: system)
         case .automatic:
@@ -48,7 +55,10 @@ struct PromptAuthor: Sendable {
         renderedState: LiveRunContext,
         at timeNS: UInt64
     ) async throws -> (Data, AuthoringProvider) {
-        let provider = try resolve(requested)
+        let bridgeIntent = BridgeReplacementIntent.parse(
+            prompt,
+            renderedState: renderedState.data
+        )
         let current = String(decoding: campaign, as: UTF8.self)
         let snapshot = String(decoding: renderedState.data, as: UTF8.self)
         let system = Self.interventionPrompt
@@ -56,47 +66,86 @@ struct PromptAuthor: Sendable {
             + "\n\nExact rendered state at the user's cursor:\n" + snapshot
             + "\n\nSchedule new events no earlier than \(timeNS)ns."
         do {
+            let provider = try resolve(requested)
             let result = switch provider {
-            case .claude: try await runClaude(prompt: prompt, system: system)
+            case .claudeSonnet, .claudeHaiku, .claudeOpus:
+                try await runClaude(
+                    prompt: prompt,
+                    system: system,
+                    model: provider.claudeModel!
+                )
             case .codex: try await runCodex(prompt: prompt, system: system)
             case .automatic: fatalError("automatic is resolved before invocation")
             }
             guard let data = extractJSONObject(from: result) else {
                 throw PromptAuthorError.emptyResult
             }
+            if let bridgeIntent {
+                return (
+                    try bridgeIntent.applying(
+                        to: campaign,
+                        at: timeNS,
+                        realizedArrivals: renderedState.realizedArrivals
+                    ),
+                    provider
+                )
+            }
             let amended = try CampaignAmendment.applying(
                 data,
                 to: campaign,
                 noEarlierThan: timeNS,
-                realizedArrivals: renderedState.realizedArrivals
+                realizedArrivals: renderedState.realizedArrivals,
+                attachmentNode: renderedState.currentRootID
             )
             return (amended, provider)
         } catch {
+            if let bridgeIntent {
+                return (
+                    try bridgeIntent.applying(
+                        to: campaign,
+                        at: timeNS,
+                        realizedArrivals: renderedState.realizedArrivals
+                    ),
+                    .automatic
+                )
+            }
             guard let fallback = LiveInterventionIntent.parse(prompt) else { throw error }
-            return (try fallback.applying(to: campaign, at: timeNS), .automatic)
+            return (
+                try fallback.applying(
+                    to: campaign,
+                    at: timeNS,
+                    attachmentNode: renderedState.currentRootID
+                ),
+                .automatic
+            )
         }
     }
 
     private func resolve(_ provider: AuthoringProvider) throws -> AuthoringProvider {
         if provider != .automatic {
-            guard executable(named: provider == .claude ? "claude" : "codex") != nil else {
+            guard let name = provider.executableName,
+                  executable(named: name) != nil else {
                 throw PromptAuthorError.providerUnavailable(provider.rawValue)
             }
             return provider
         }
-        if executable(named: "claude") != nil { return .claude }
+        if executable(named: "claude") != nil { return .claudeSonnet }
         if executable(named: "codex") != nil { return .codex }
         throw PromptAuthorError.providerUnavailable("Claude or Codex")
     }
 
-    private func runClaude(prompt: String, system: String) async throws -> String {
+    private func runClaude(
+        prompt: String,
+        system: String,
+        model: String
+    ) async throws -> String {
         guard let executable = executable(named: "claude") else {
             throw PromptAuthorError.providerUnavailable("Claude")
         }
         let output = try await run(
             executable: executable,
             arguments: [
-                "-p", "--model", "sonnet", "--tools", "", "--system-prompt", system,
+                "-p", "--model", model, "--tools", "", "--system-prompt", system,
                 "--output-format", "json", "--no-session-persistence"
             ],
             input: prompt
@@ -215,11 +264,13 @@ struct PromptAuthor: Sendable {
     rendered state are supplied below. Nodes include stable numeric IDs, human labels, active
     state, and joined_at_ns; edges include the exact numeric IDs required by link events.
     Express changes as new time-stamped events. Supported live changes include
-    set-link-conditions, restore-link-conditions, introduce-lower-root-node, disappear-node,
-    reappear-node, partition-network, merge-network, fail-transport-class,
+    set-link-conditions, restore-link-conditions, introduce-lower-root-node, introduce-node,
+    disappear-node, reappear-node, partition-network, merge-network, fail-transport-class,
     restore-transport-class, synchronized-session-rekey, expire-coordinate-cache, and
     simultaneous-lookups. A link event targets its numeric edge ID and can set bandwidth_bps,
     latency, jitter, loss_ppm, and mtu_bytes. A node lifecycle event targets its numeric node ID.
+    Use introduce-node with parameters.attachments containing every numeric neighbor when a
+    normal node joins; use introduce-lower-root-node only when it must become root.
     For repeated changes, emit a finite sequence at explicit virtual times. When asked to stop
     recurring joins, set stop_scheduled_arrivals true. To remove the oldest nodes until a target
     active count remains, use nodes_oldest_first and emit disappear-node events at the requested

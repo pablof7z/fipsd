@@ -24,9 +24,9 @@
       "topology": "chain",
       "seed": 44004,
       "metric": "control-bytes",
-      "individual": 24736,
+      "individual": 13016,
       "cohort": 44352,
-      "error_ppm": 793014
+      "error_ppm": 2407498
     },
     {
       "nodes": 8,
@@ -60,9 +60,9 @@
       "topology": "chain",
       "seed": 44004,
       "metric": "quiescence-ns",
-      "individual": 5504007552,
+      "individual": 5502003904,
       "cohort": 3507000000,
-      "error_ppm": -362827
+      "error_ppm": -362595
     },
     {
       "nodes": 8,
@@ -87,9 +87,9 @@
       "topology": "balanced-tree",
       "seed": 44004,
       "metric": "control-bytes",
-      "individual": 18312,
+      "individual": 13016,
       "cohort": 43456,
-      "error_ppm": 1373088
+      "error_ppm": 2338660
     },
     {
       "nodes": 8,
@@ -150,9 +150,9 @@
       "topology": "chain",
       "seed": 44004,
       "metric": "control-bytes",
-      "individual": 60000,
+      "individual": 29976,
       "cohort": 112992,
-      "error_ppm": 883200
+      "error_ppm": 2769415
     },
     {
       "nodes": 12,
@@ -186,9 +186,9 @@
       "topology": "chain",
       "seed": 44004,
       "metric": "quiescence-ns",
-      "individual": 7504007552,
+      "individual": 7502003904,
       "cohort": 5511000000,
-      "error_ppm": -265592
+      "error_ppm": -265396
     },
     {
       "nodes": 12,
@@ -213,9 +213,9 @@
       "topology": "balanced-tree",
       "seed": 44004,
       "metric": "control-bytes",
-      "individual": 47560,
+      "individual": 29976,
       "cohort": 112992,
-      "error_ppm": 1375777
+      "error_ppm": 2769415
     },
     {
       "nodes": 12,
@@ -276,9 +276,9 @@
       "topology": "chain",
       "seed": 44004,
       "metric": "control-bytes",
-      "individual": 451360,
+      "individual": 218456,
       "cohort": 1166592,
-      "error_ppm": 1584615
+      "error_ppm": 4340169
     },
     {
       "nodes": 32,
@@ -312,9 +312,9 @@
       "topology": "chain",
       "seed": 44004,
       "metric": "quiescence-ns",
-      "individual": 17504007552,
+      "individual": 17502003904,
       "cohort": 15531000000,
-      "error_ppm": -112717
+      "error_ppm": -112615
     },
     {
       "nodes": 32,
@@ -339,9 +339,9 @@
       "topology": "balanced-tree",
       "seed": 44004,
       "metric": "control-bytes",
-      "individual": 408840,
+      "individual": 218456,
       "cohort": 1180480,
-      "error_ppm": 1887388
+      "error_ppm": 4403742
     },
     {
       "nodes": 32,
@@ -393,18 +393,18 @@
       "topology": "chain",
       "seed": 44004,
       "metric": "maximum-depth",
-      "individual": 17,
+      "individual": 32,
       "cohort": 63,
-      "error_ppm": 2705882
+      "error_ppm": 968750
     },
     {
       "nodes": 64,
       "topology": "chain",
       "seed": 44004,
       "metric": "control-bytes",
-      "individual": 1694648,
+      "individual": 2118456,
       "cohort": 3457024,
-      "error_ppm": 1039965
+      "error_ppm": 631860
     },
     {
       "nodes": 64,
@@ -438,9 +438,9 @@
       "topology": "chain",
       "seed": 44004,
       "metric": "quiescence-ns",
-      "individual": 25002011584,
+      "individual": 31501009760,
       "cohort": 16063000000,
-      "error_ppm": -357531
+      "error_ppm": -490079
     },
     {
       "nodes": 64,
@@ -456,18 +456,18 @@
       "topology": "balanced-tree",
       "seed": 44004,
       "metric": "maximum-depth",
-      "individual": 4,
+      "individual": 6,
       "cohort": 63,
-      "error_ppm": 14750000
+      "error_ppm": 9500000
     },
     {
       "nodes": 64,
       "topology": "balanced-tree",
       "seed": 44004,
       "metric": "control-bytes",
-      "individual": 1092480,
+      "individual": 860104,
       "cohort": 3562496,
-      "error_ppm": 2260925
+      "error_ppm": 3141936
     },
     {
       "nodes": 64,
@@ -501,9 +501,9 @@
       "topology": "balanced-tree",
       "seed": 44004,
       "metric": "quiescence-ns",
-      "individual": 18005010400,
+      "individual": 18501003104,
       "cohort": 16063000000,
-      "error_ppm": -107859
+      "error_ppm": -131776
     }
   ],
   "distributions": {
@@ -528,18 +528,18 @@
     "control-bytes": {
       "metric": "control-bytes",
       "errors_ppm": [
-        793014,
-        1373088,
-        883200,
-        1375777,
-        1584615,
-        1887388,
-        1039965,
-        2260925
+        2407498,
+        2338660,
+        2769415,
+        2769415,
+        4340169,
+        4403742,
+        631860,
+        3141936
       ],
-      "median_absolute_ppm": 1375777,
-      "p95_absolute_ppm": 2260925,
-      "maximum_absolute_ppm": 2260925,
+      "median_absolute_ppm": 2769415,
+      "p95_absolute_ppm": 4403742,
+      "maximum_absolute_ppm": 4403742,
       "validated_range": "8..=64 nodes; chain and balanced-tree; matched seed",
       "warning": "outside calibrated 25% envelope"
     },
@@ -552,12 +552,12 @@
         4500000,
         14500000,
         14500000,
-        2705882,
-        14750000
+        968750,
+        9500000
       ],
       "median_absolute_ppm": 4500000,
-      "p95_absolute_ppm": 14750000,
-      "maximum_absolute_ppm": 14750000,
+      "p95_absolute_ppm": 14500000,
+      "maximum_absolute_ppm": 14500000,
       "validated_range": "8..=64 nodes; chain and balanced-tree; matched seed",
       "warning": "outside calibrated 25% envelope"
     },
@@ -582,18 +582,18 @@
     "quiescence-ns": {
       "metric": "quiescence-ns",
       "errors_ppm": [
-        -362827,
         -362595,
-        -265592,
+        -362595,
         -265396,
-        -112717,
+        -265396,
         -112615,
-        -357531,
-        -107859
+        -112615,
+        -490079,
+        -131776
       ],
-      "median_absolute_ppm": 265592,
-      "p95_absolute_ppm": 362827,
-      "maximum_absolute_ppm": 362827,
+      "median_absolute_ppm": 265396,
+      "p95_absolute_ppm": 490079,
+      "maximum_absolute_ppm": 490079,
       "validated_range": "8..=64 nodes; chain and balanced-tree; matched seed",
       "warning": "outside calibrated 25% envelope"
     },

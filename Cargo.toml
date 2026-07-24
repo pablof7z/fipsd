@@ -12,6 +12,7 @@ members = [
     "crates/fips-query",
     "crates/fips-audit",
     "crates/fips-scale",
+    "crates/fips-transport",
 ]
 exclude = ["pinned-fips"]
 resolver = "2"

@@ -191,32 +191,7 @@ fn evaluate(case: &ExperimentCase, request: &SearchRequest) -> Result<CaseEvalua
     }
     match IndividualEngine.run_plan(&case.plan) {
         Ok(run) => {
-            let mut metrics = BTreeMap::new();
-            metrics.insert("convergence-time-ns".to_owned(), run.report.quiescence_ns);
-            metrics.insert(
-                "control-bytes".to_owned(),
-                run.report.tree_announce.transmitted_frame_bytes,
-            );
-            metrics.insert(
-                "parent-transitions".to_owned(),
-                run.report.parent_transitions,
-            );
-            if let Some(recovery) = &run.recovery_report {
-                metrics.insert(
-                    "amplification-ppm".to_owned(),
-                    recovery.costs.amplification_ppm,
-                );
-                metrics.insert("peak-queue-bytes".to_owned(), recovery.peak_queue_bytes);
-                metrics.insert(
-                    "goodput-stall-ns".to_owned(),
-                    recovery.traffic.goodput_stall_ns,
-                );
-                metrics.insert("starved-flows".to_owned(), recovery.traffic.starved_flows);
-                metrics.insert(
-                    "cache-invalidations".to_owned(),
-                    recovery.cache.invalidations,
-                );
-            }
+            let metrics = crate::search_metrics::collect(&run);
             let bytes = run
                 .artifact
                 .to_canonical_json()

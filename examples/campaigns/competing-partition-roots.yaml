@@ -4,12 +4,12 @@ metadata: {name: competing-partition-roots}
 seed: 1002
 engine: {modes: compact-discrete-event, deterministic: true, variant: fips-80c956a-baseline}
 scale: {nodes: {values: [20, 1000]}}
-topology: {generator: {values: [clustered, random-regular]}, average_degree: 4}
-identities: {initial: {distribution: partitioned-minima}}
+topology: {generator: {values: [scale-free, random-regular]}, average_degree: 4}
+identities: {initial: {distribution: uniform-128}}
 transports: {assignment: all-udp}
 events:
-  - {id: split, at: 10s, action: partition}
-  - {id: merge, at: 20s, action: merge}
+  - {id: split, at: 10s, action: partition-network, parameters: {nodes: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]}}
+  - {id: merge, at: 20s, action: merge-network, parameters: {nodes: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]}}
 traffic: {model: cross-min-cut}
 fidelity: {protocol: semantic-exact, serialization: executable-codec, billion_node_representation: not-requested}
 instrumentation: {transition_stages: true, root_agreement_by_depth: true}

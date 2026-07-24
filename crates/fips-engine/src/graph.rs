@@ -4,7 +4,6 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::collections::{BTreeSet, VecDeque};
 use std::mem::size_of;
-use thiserror::Error;
 
 /// Stable node identifier used as an array index.
 pub type NodeId = u32;
@@ -137,6 +136,7 @@ pub struct GraphStore {
     resource_classes: Vec<u16>,
     edge_a: Vec<NodeId>,
     edge_b: Vec<NodeId>,
+    edge_active: Vec<bool>,
 }
 
 impl GraphStore {
@@ -161,6 +161,7 @@ impl GraphStore {
             resource_classes,
             edge_a: Vec::new(),
             edge_b: Vec::new(),
+            edge_active: Vec::new(),
         }
     }
 
@@ -289,7 +290,23 @@ impl GraphStore {
         let id = self.edge_count() as EdgeId;
         self.edge_a.push(a);
         self.edge_b.push(b);
+        self.edge_active.push(true);
         Ok(id)
+    }
+
+    /// Whether a stable edge currently participates in routing.
+    pub fn is_edge_active(&self, id: EdgeId) -> bool {
+        self.edge_active.get(id as usize).copied().unwrap_or(false)
+    }
+
+    /// Enable or disable a stable edge without changing its ID.
+    pub fn set_edge_active(&mut self, id: EdgeId, active: bool) -> Result<(), GraphError> {
+        let slot = self
+            .edge_active
+            .get_mut(id as usize)
+            .ok_or(GraphError::DanglingEdge(id))?;
+        *slot = active;
+        Ok(())
     }
 
     /// Edge endpoints by stable ID.
@@ -321,7 +338,11 @@ impl GraphStore {
             .edge_a
             .iter()
             .zip(&self.edge_b)
-            .filter_map(|(&a, &b)| {
+            .zip(&self.edge_active)
+            .filter_map(|((&a, &b), &edge_active)| {
+                if !edge_active {
+                    return None;
+                }
                 if a == id && self.is_active(b) {
                     Some(b)
                 } else if b == id && self.is_active(a) {
@@ -461,7 +482,7 @@ impl GraphStore {
         {
             return Err(GraphError::ColumnLength);
         }
-        if self.edge_a.len() != self.edge_b.len() {
+        if self.edge_a.len() != self.edge_b.len() || self.edge_a.len() != self.edge_active.len() {
             return Err(GraphError::ColumnLength);
         }
         let mut edges = BTreeSet::new();
@@ -490,7 +511,7 @@ impl GraphStore {
             + size_of::<Option<NodeId>>()
             + size_of::<u64>()
             + size_of::<u16>();
-        let fixed_bytes_per_edge = size_of::<NodeId>() * 2;
+        let fixed_bytes_per_edge = size_of::<NodeId>() * 2 + size_of::<bool>();
         let allocated_bytes = self.addresses.capacity() * size_of::<NodeAddress>()
             + self.active.capacity() * size_of::<bool>()
             + self.roots.capacity() * size_of::<NodeId>()
@@ -499,6 +520,7 @@ impl GraphStore {
             + self.resource_classes.capacity() * size_of::<u16>()
             + self.edge_a.capacity() * size_of::<NodeId>()
             + self.edge_b.capacity() * size_of::<NodeId>()
+            + self.edge_active.capacity() * size_of::<bool>()
             + self
                 .ancestries
                 .iter()
@@ -531,58 +553,6 @@ impl GraphStore {
     }
 }
 
-/// Compact graph failure.
-#[derive(Debug, Error, Clone, PartialEq, Eq)]
-pub enum GraphError {
-    /// Zero-node graph.
-    #[error("topology must contain at least one node")]
-    EmptyGraph,
-    /// Unknown topology spelling.
-    #[error("unsupported topology generator: {0}")]
-    UnsupportedTopology(String),
-    /// Unknown attachment selector.
-    #[error("unsupported attachment selector: {0}")]
-    UnsupportedSelector(String),
-    /// Node ID is outside the stable array.
-    #[error("dangling node id {0}")]
-    DanglingNode(NodeId),
-    /// Edge ID is outside the stable array.
-    #[error("dangling edge id {0}")]
-    DanglingEdge(EdgeId),
-    /// Self edges are invalid.
-    #[error("self edge for node {0}")]
-    SelfEdge(NodeId),
-    /// Duplicate undirected edge.
-    #[error("duplicate edge {0}-{1}")]
-    DuplicateEdge(NodeId, NodeId),
-    /// Structure-of-arrays columns drifted.
-    #[error("graph storage columns have inconsistent lengths")]
-    ColumnLength,
-    /// Active graph is not connected.
-    #[error("topology is disconnected")]
-    Disconnected,
-    /// Invalid regular degree request.
-    #[error("cannot construct a {degree}-regular graph with {nodes} nodes")]
-    RegularDegree {
-        /// Node count.
-        nodes: u32,
-        /// Requested degree.
-        degree: u32,
-    },
-    /// Arrival reservation would leave no initial node.
-    #[error("arrival count {0} leaves no initial node")]
-    ArrivalCount(u32),
-    /// Selected topology has no matching active attachment.
-    #[error("attachment selector {0:?} has no eligible active node")]
-    NoAttachment(AttachmentSelector),
-    /// Tree ancestry is malformed or cyclic.
-    #[error("invalid ancestry for node {0}")]
-    InvalidAncestry(NodeId),
-    /// Address is not exactly 128 bits of hexadecimal.
-    #[error("invalid 128-bit node address: {0}")]
-    Address(String),
-}
-
 fn deterministic_u64(seed: u64, ordinal: u64) -> u64 {
     let mut state = seed ^ ordinal.wrapping_mul(0x9E37_79B9_7F4A_7C15);
     state = state.wrapping_add(0x9E37_79B9_7F4A_7C15);
@@ -591,6 +561,10 @@ fn deterministic_u64(seed: u64, ordinal: u64) -> u64 {
     output = (output ^ (output >> 27)).wrapping_mul(0x94D0_49BB_1331_11EB);
     output ^ (output >> 31)
 }
+
+#[path = "graph_errors.rs"]
+mod errors;
+pub use errors::GraphError;
 
 #[path = "graph_generators.rs"]
 mod generators;

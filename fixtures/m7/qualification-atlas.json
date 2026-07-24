@@ -1,6 +1,6 @@
 {
   "api_version": "experiments.fips.network/qualification-atlas/v1alpha1",
-  "atlas_id": "9b8ab65ea994b4d52feda1b67161a64694d1504ac3edbe3d6ed96a8492882121",
+  "atlas_id": "c0440bd5dea5ee57aa5d3a031f880bdca3d6016d8931631802a882709819c9e5",
   "fips_commit": "80c956a6fdb85dde1450969a21891c1158e43267",
   "generated_by": "fips-atlas/0.1.0 deterministic qualification models",
   "families": [
@@ -814,7 +814,7 @@
         "id": "competing-partition-roots-boundary-min",
         "normalized_plan": {
           "api_version": "experiments.fips.network/normalized-plan/v1alpha1",
-          "campaign_sha256": "a80a2307fab641903b5f998493e5df1e5c755f55d444048203a8e0d1878344eb",
+          "campaign_sha256": "afa39f1c724f1827f1a6c10c173a59df51919a16ae72696569e977bf73bd70f6",
           "campaign": {
             "apiVersion": "experiments.fips.network/v1alpha1",
             "assertions": [
@@ -834,18 +834,46 @@
             },
             "events": [
               {
-                "action": "partition",
+                "action": "partition-network",
                 "at": {
                   "nanoseconds": 10000000000
                 },
-                "id": "split"
+                "id": "split",
+                "parameters": {
+                  "nodes": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9
+                  ]
+                }
               },
               {
-                "action": "merge",
+                "action": "merge-network",
                 "at": {
                   "nanoseconds": 20000000000
                 },
-                "id": "merge"
+                "id": "merge",
+                "parameters": {
+                  "nodes": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9
+                  ]
+                }
               }
             ],
             "fidelity": {
@@ -855,7 +883,7 @@
             },
             "identities": {
               "initial": {
-                "distribution": "partitioned-minima"
+                "distribution": "uniform-128"
               }
             },
             "instrumentation": {
@@ -886,8 +914,8 @@
               "connected": true,
               "generator": {
                 "values": [
-                  "clustered",
-                  "random-regular"
+                  "random-regular",
+                  "scale-free"
                 ]
               }
             },
@@ -909,8 +937,8 @@
             {
               "path": "/topology/generator",
               "values": [
-                "clustered",
-                "random-regular"
+                "random-regular",
+                "scale-free"
               ]
             }
           ],
@@ -1068,7 +1096,7 @@
         "id": "bloom-saturation-accession-boundary-min",
         "normalized_plan": {
           "api_version": "experiments.fips.network/normalized-plan/v1alpha1",
-          "campaign_sha256": "37cbbba06306450ae853ffb6075a04196cc044a529f85316f0ac070a501b329a",
+          "campaign_sha256": "7c08d68f66177fa45253e5207140d3a1ba23aeef94d5f604fcafbe60b3b0bc91",
           "campaign": {
             "apiVersion": "experiments.fips.network/v1alpha1",
             "assertions": [
@@ -1083,20 +1111,7 @@
               "modes": "compact-discrete-event",
               "variant": "fips-80c956a-baseline"
             },
-            "events": [
-              {
-                "action": "attach-destination-population",
-                "parameters": {
-                  "count": {
-                    "values": [
-                      1200,
-                      1600,
-                      800
-                    ]
-                  }
-                }
-              }
-            ],
+            "events": [],
             "fidelity": {
               "billion_node_representation": "not-requested",
               "bloom": {
@@ -1114,6 +1129,11 @@
               }
             },
             "instrumentation": {
+              "quiescence_markers": [
+                "root",
+                "tree",
+                "bloom"
+              ],
               "state_tables": true,
               "transition_stages": true
             },
@@ -1153,7 +1173,7 @@
               "connected": true,
               "generator": {
                 "values": [
-                  "clustered",
+                  "random-regular",
                   "scale-free"
                 ]
               }
@@ -1167,14 +1187,6 @@
             }
           },
           "axes": [
-            {
-              "path": "/events/0/parameters/count",
-              "values": [
-                1200,
-                1600,
-                800
-              ]
-            },
             {
               "path": "/fidelity/bloom",
               "values": [
@@ -1200,7 +1212,7 @@
             {
               "path": "/topology/generator",
               "values": [
-                "clustered",
+                "random-regular",
                 "scale-free"
               ]
             }
@@ -1595,7 +1607,7 @@
         "id": "deep-tree-mtu-ttl-cliff-boundary-min",
         "normalized_plan": {
           "api_version": "experiments.fips.network/normalized-plan/v1alpha1",
-          "campaign_sha256": "52e9b74caebdfc6f96a4fa42f7f64bbe1f33b194d18109613441bfa853b4927c",
+          "campaign_sha256": "7bf88c78bbf5c94e7091a4d69c95db676d836d9bc7d5aec803c71017daad820d",
           "campaign": {
             "apiVersion": "experiments.fips.network/v1alpha1",
             "assertions": [
@@ -1610,11 +1622,7 @@
               "modes": "compact-discrete-event",
               "variant": "fips-80c956a-baseline"
             },
-            "events": [
-              {
-                "action": "announce-deep-tree"
-              }
-            ],
+            "events": [],
             "fidelity": {
               "billion_node_representation": "not-requested",
               "protocol": "semantic-exact",
@@ -1622,7 +1630,7 @@
             },
             "identities": {
               "initial": {
-                "distribution": "descending-path"
+                "distribution": "uniform-128"
               }
             },
             "instrumentation": {
@@ -1683,7 +1691,7 @@
               "model": "idle"
             },
             "transports": {
-              "assignment": "descending-mtu-root-spine"
+              "assignment": "all-udp"
             }
           },
           "axes": [
@@ -1852,7 +1860,7 @@
         "id": "lookup-thundering-herd-boundary-min",
         "normalized_plan": {
           "api_version": "experiments.fips.network/normalized-plan/v1alpha1",
-          "campaign_sha256": "1874f8367531c59921434b5215d95607814467be709d6d573e7d5197dc40aa5c",
+          "campaign_sha256": "d960df061d3e2a0f653e1ef66adbf3cb075dd9565029d2908307fe9ffdbe52a0",
           "campaign": {
             "apiVersion": "experiments.fips.network/v1alpha1",
             "assertions": [
@@ -1872,12 +1880,20 @@
             },
             "events": [
               {
-                "action": "expire-coordinate-cache"
+                "action": "expire-coordinate-cache",
+                "at": {
+                  "nanoseconds": 10000000000
+                },
+                "id": "global-expiry"
               },
               {
                 "action": "simultaneous-lookups",
                 "at": {
-                  "nanoseconds": 1000000
+                  "nanoseconds": 10000000000
+                },
+                "id": "lookup-herd",
+                "parameters": {
+                  "count": 1000
                 }
               }
             ],
@@ -1894,6 +1910,12 @@
             },
             "instrumentation": {
               "queue_wait": true,
+              "quiescence_markers": [
+                "root",
+                "tree",
+                "lookup",
+                "data-plane"
+              ],
               "state_tables": true,
               "transition_stages": true
             },
@@ -1935,11 +1957,48 @@
               "generator": "scale-free"
             },
             "traffic": {
-              "model": "session-churn",
+              "model": "uniform-random",
+              "parameters": {
+                "flow_count": 1000,
+                "start_ns": 500000000
+              },
+              "payload_bytes": 512,
               "rate_bps": 100000000
             },
             "transports": {
-              "assignment": "random-mixed"
+              "assignment": "random-mixed",
+              "profiles": [
+                {
+                  "bandwidth_bps": 100000000,
+                  "jitter": {
+                    "nanoseconds": 2000000
+                  },
+                  "latency": {
+                    "nanoseconds": 5000000
+                  },
+                  "loss_ppm": 0,
+                  "mtu_bytes": 1500,
+                  "name": "wifi",
+                  "queue_bytes": 1048576,
+                  "type": "wifi",
+                  "weight": 4
+                },
+                {
+                  "bandwidth_bps": 5000000,
+                  "jitter": {
+                    "nanoseconds": 30000000
+                  },
+                  "latency": {
+                    "nanoseconds": 120000000
+                  },
+                  "loss_ppm": 1000,
+                  "mtu_bytes": 1500,
+                  "name": "tor",
+                  "queue_bytes": 262144,
+                  "type": "tor",
+                  "weight": 1
+                }
+              ]
             }
           },
           "axes": [
@@ -2089,7 +2148,7 @@
         "id": "parent-hysteresis-oscillator-boundary-min",
         "normalized_plan": {
           "api_version": "experiments.fips.network/normalized-plan/v1alpha1",
-          "campaign_sha256": "357c3afa53be4cc5c096ce0221f23bbe69efd025915985a7be6ca3125741fa3f",
+          "campaign_sha256": "de997c276b800390fa55105b657d10a501ef30017bc96244f424922bf8a40d38",
           "campaign": {
             "apiVersion": "experiments.fips.network/v1alpha1",
             "assertions": [
@@ -2110,15 +2169,23 @@
                 "at": {
                   "values": [
                     {
-                      "nanoseconds": 499000000
+                      "nanoseconds": 1999000000
                     },
                     {
-                      "nanoseconds": 500000000
+                      "nanoseconds": 2000000000
                     },
                     {
-                      "nanoseconds": 501000000
+                      "nanoseconds": 2001000000
                     }
                   ]
+                },
+                "parameters": {
+                  "cycles": 4,
+                  "degraded_cost_ppm": 6000000,
+                  "interval": {
+                    "nanoseconds": 250000000
+                  },
+                  "preferred_cost_ppm": 1000000
                 }
               }
             ],
@@ -2167,13 +2234,7 @@
             },
             "protocol": {
               "parameters": {
-                "flap_threshold": {
-                  "values": [
-                    2,
-                    4
-                  ]
-                },
-                "hold_down": {
+                "parent_hold_down": {
                   "values": [
                     {
                       "nanoseconds": 0
@@ -2181,6 +2242,12 @@
                     {
                       "nanoseconds": 1000000000
                     }
+                  ]
+                },
+                "parent_hysteresis_ppm": {
+                  "values": [
+                    0,
+                    100000
                   ]
                 }
               },
@@ -2191,26 +2258,9 @@
             },
             "seed": 1007,
             "topology": {
+              "average_degree": 4,
               "connected": true,
-              "explicit_edges": [
-                [
-                  0,
-                  1
-                ],
-                [
-                  0,
-                  2
-                ],
-                [
-                  1,
-                  3
-                ],
-                [
-                  2,
-                  3
-                ]
-              ],
-              "generator": "explicit"
+              "generator": "random-regular"
             },
             "traffic": {
               "model": "idle"
@@ -2224,13 +2274,13 @@
               "path": "/events/0/at",
               "values": [
                 {
-                  "nanoseconds": 499000000
+                  "nanoseconds": 1999000000
                 },
                 {
-                  "nanoseconds": 500000000
+                  "nanoseconds": 2000000000
                 },
                 {
-                  "nanoseconds": 501000000
+                  "nanoseconds": 2001000000
                 }
               ]
             },
@@ -2253,14 +2303,7 @@
               ]
             },
             {
-              "path": "/protocol/parameters/flap_threshold",
-              "values": [
-                2,
-                4
-              ]
-            },
-            {
-              "path": "/protocol/parameters/hold_down",
+              "path": "/protocol/parameters/parent_hold_down",
               "values": [
                 {
                   "nanoseconds": 0
@@ -2268,6 +2311,13 @@
                 {
                   "nanoseconds": 1000000000
                 }
+              ]
+            },
+            {
+              "path": "/protocol/parameters/parent_hysteresis_ppm",
+              "values": [
+                0,
+                100000
               ]
             }
           ],
@@ -2414,7 +2464,7 @@
         "id": "mixed-transport-failover-boundary-min",
         "normalized_plan": {
           "api_version": "experiments.fips.network/normalized-plan/v1alpha1",
-          "campaign_sha256": "76b9b58d6d080492ebf8ab0468b45a8732142694ecad1ad00a68ac3382f45b0e",
+          "campaign_sha256": "1895cdc1d4d411714d0c6c04231cfe78e12ec9ca3ad8748e2cbd3d9e41a5432e",
           "campaign": {
             "apiVersion": "experiments.fips.network/v1alpha1",
             "assertions": [
@@ -2480,27 +2530,47 @@
               "generator": "clustered"
             },
             "traffic": {
-              "model": "cross-min-cut",
-              "rate_bps": 10000000
+              "model": "persistent-streams",
+              "parameters": {
+                "flow_count": 100,
+                "segments_per_stream": 100,
+                "start_ns": 500000000
+              },
+              "payload_bytes": 512,
+              "rate_bps": 1000000
             },
             "transports": {
               "assignment": "random-mixed",
               "profiles": [
                 {
+                  "bandwidth_bps": 100000000,
+                  "jitter": {
+                    "nanoseconds": 250000
+                  },
                   "latency": {
                     "nanoseconds": 1000000
                   },
+                  "loss_ppm": 0,
                   "mtu_bytes": 1500,
                   "name": "udp-fast",
-                  "type": "udp"
+                  "queue_bytes": 1048576,
+                  "type": "udp",
+                  "weight": 3
                 },
                 {
+                  "bandwidth_bps": 5000000,
+                  "jitter": {
+                    "nanoseconds": 25000000
+                  },
                   "latency": {
                     "nanoseconds": 100000000
                   },
+                  "loss_ppm": 500,
                   "mtu_bytes": 1280,
                   "name": "tcp-slow",
-                  "type": "tcp"
+                  "queue_bytes": 262144,
+                  "type": "tcp",
+                  "weight": 1
                 }
               ]
             }
@@ -2653,7 +2723,7 @@
         "id": "synchronized-rekey-avalanche-boundary-min",
         "normalized_plan": {
           "api_version": "experiments.fips.network/normalized-plan/v1alpha1",
-          "campaign_sha256": "9dfac5d7c4e724416340b1ac27fdb967cfb22211077ea7f0769c8799294ae8b9",
+          "campaign_sha256": "71ede46163a8363ddab38e62eb11c7d48e5a49fd9c117668c756ce211f178413",
           "campaign": {
             "apiVersion": "experiments.fips.network/v1alpha1",
             "assertions": [
@@ -2673,12 +2743,19 @@
                 "action": "synchronized-session-rekey",
                 "at": {
                   "nanoseconds": 10000000000
-                }
+                },
+                "id": "rekey-wave"
               },
               {
-                "action": "topology-change",
+                "action": "partition-network",
                 "at": {
                   "nanoseconds": 10000000000
+                },
+                "id": "concurrent-cut",
+                "parameters": {
+                  "nodes": [
+                    0
+                  ]
                 }
               }
             ],
@@ -2700,6 +2777,12 @@
             },
             "instrumentation": {
               "queue_wait": true,
+              "quiescence_markers": [
+                "root",
+                "tree",
+                "lookup",
+                "data-plane"
+              ],
               "session_metrics": true,
               "transition_stages": true
             },
@@ -2751,11 +2834,48 @@
               "generator": "random-regular"
             },
             "traffic": {
-              "model": "session-churn",
-              "rate_bps": 100000000
+              "model": "uniform-random",
+              "parameters": {
+                "flow_count": 1000,
+                "start_ns": 500000000
+              },
+              "payload_bytes": 512,
+              "rate_bps": 1000000
             },
             "transports": {
-              "assignment": "random-mixed"
+              "assignment": "random-mixed",
+              "profiles": [
+                {
+                  "bandwidth_bps": 100000000,
+                  "jitter": {
+                    "nanoseconds": 2000000
+                  },
+                  "latency": {
+                    "nanoseconds": 5000000
+                  },
+                  "loss_ppm": 0,
+                  "mtu_bytes": 1500,
+                  "name": "wifi",
+                  "queue_bytes": 1048576,
+                  "type": "wifi",
+                  "weight": 4
+                },
+                {
+                  "bandwidth_bps": 5000000,
+                  "jitter": {
+                    "nanoseconds": 30000000
+                  },
+                  "latency": {
+                    "nanoseconds": 120000000
+                  },
+                  "loss_ppm": 1000,
+                  "mtu_bytes": 1500,
+                  "name": "tor",
+                  "queue_bytes": 262144,
+                  "type": "tor",
+                  "weight": 1
+                }
+              ]
             }
           },
           "axes": [
@@ -2921,13 +3041,14 @@
         "id": "authenticated-sybil-pressure-boundary-min",
         "normalized_plan": {
           "api_version": "experiments.fips.network/normalized-plan/v1alpha1",
-          "campaign_sha256": "cd3a86e50d7de193bb286344d9b4db6eeb6677ce48bd946c332c2a51f69eeef7",
+          "campaign_sha256": "227ba10d70d47dec1f2bd639755c91ca6b35104afeb99e0f469bb810f3235b90",
           "campaign": {
             "adversaries": {
               "actions": [
-                "bounded-root-grinding",
-                "selective-visibility",
-                "valid-lookup-pressure",
+                "identity-grinding",
+                "sybil-concentration",
+                "eclipse-visibility",
+                "absent-target-lookup",
                 "withheld-forwarding"
               ],
               "budgets": {
@@ -2966,7 +3087,19 @@
             },
             "events": [
               {
-                "action": "attach-authenticated-sybils"
+                "action": "attach-authenticated-sybils",
+                "at": {
+                  "nanoseconds": 2000000000
+                },
+                "id": "authenticated-sybil-wave",
+                "parameters": {
+                  "address_policy": "uniform-valid",
+                  "attachment": "hub",
+                  "interval": {
+                    "nanoseconds": 10000000
+                  },
+                  "operations_per_identity": 1
+                }
               }
             ],
             "fidelity": {

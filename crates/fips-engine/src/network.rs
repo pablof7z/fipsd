@@ -7,6 +7,10 @@ use thiserror::Error;
 
 const NANOS_PER_SECOND: u64 = 1_000_000_000;
 
+#[path = "network_stream.rs"]
+mod stream;
+pub use stream::{StreamEnqueueRequest, StreamEnqueueResult};
+
 /// Stream or datagram delivery semantics.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -32,6 +36,8 @@ pub enum LinkClass {
 pub struct LinkConfig {
     /// One-way propagation latency.
     pub latency_ns: u64,
+    /// Maximum deterministic datagram jitter, exclusive.
+    pub jitter_ns: u64,
     /// Shared serialization bandwidth.
     pub bandwidth_bps: u64,
     /// Independent deterministic loss probability in parts per million.
@@ -52,6 +58,7 @@ impl Default for LinkConfig {
     fn default() -> Self {
         Self {
             latency_ns: 1_000_000,
+            jitter_ns: 500_000,
             bandwidth_bps: 1_000_000_000,
             loss_ppm: 0,
             duplication_ppm: 0,
@@ -139,11 +146,15 @@ pub struct LinkCounters {
 
 #[derive(Debug, Clone, Default)]
 struct DirectionState {
-    next_serialization_ns: u64,
     last_stream_delivery_ns: u64,
     frame_sequence: u64,
-    queued: VecDeque<(u64, u64)>,
     counters: LinkCounters,
+}
+
+#[derive(Debug, Clone, Default)]
+struct CapacityState {
+    next_serialization_ns: u64,
+    queued: VecDeque<(u64, u64)>,
 }
 
 /// Stable link service for every directed edge.
@@ -151,7 +162,9 @@ struct DirectionState {
 pub struct LinkService {
     seed: u64,
     configs: Vec<LinkConfig>,
+    shared_groups: Vec<Option<u32>>,
     directions: BTreeMap<(EdgeId, NodeId, NodeId), DirectionState>,
+    capacities: BTreeMap<(u64, NodeId, NodeId), CapacityState>,
 }
 
 impl LinkService {
@@ -160,7 +173,9 @@ impl LinkService {
         Self {
             seed,
             configs: vec![config; edge_count],
+            shared_groups: vec![None; edge_count],
             directions: BTreeMap::new(),
+            capacities: BTreeMap::new(),
         }
     }
 
@@ -169,6 +184,7 @@ impl LinkService {
         let index = edge as usize;
         if index == self.configs.len() {
             self.configs.push(config);
+            self.shared_groups.push(None);
             return Ok(());
         }
         let slot = self
@@ -179,11 +195,26 @@ impl LinkService {
         Ok(())
     }
 
+    /// Put an edge on one half-duplex shared serialization and queue domain.
+    pub fn set_shared_group(&mut self, edge: EdgeId, group: u32) -> Result<(), LinkError> {
+        let slot = self
+            .shared_groups
+            .get_mut(edge as usize)
+            .ok_or(LinkError::UnknownEdge(edge))?;
+        *slot = Some(group);
+        Ok(())
+    }
+
     /// Read a particular edge's configuration.
     pub fn config(&self, edge: EdgeId) -> Result<&LinkConfig, LinkError> {
         self.configs
             .get(edge as usize)
             .ok_or(LinkError::UnknownEdge(edge))
+    }
+
+    /// Shared-medium group for an edge, if its two endpoints occupy one zone.
+    pub fn shared_group(&self, edge: EdgeId) -> Option<u32> {
+        self.shared_groups.get(edge as usize).copied().flatten()
     }
 
     /// Enqueue one logical frame and deterministically decide copies and loss.
@@ -204,15 +235,19 @@ impl LinkService {
         let wire_bytes = frame_bytes
             .checked_add(config.transport_overhead_bytes)
             .ok_or(LinkError::Arithmetic)?;
-        let key = (edge_id, from, to);
-        let state = self.directions.entry(key).or_default();
-        while state
+        let capacity_key = match self.shared_groups[edge_id as usize] {
+            Some(group) => (u64::from(group) | (1_u64 << 63), NodeId::MAX, NodeId::MAX),
+            None => (u64::from(edge_id), from, to),
+        };
+        let capacity = self.capacities.entry(capacity_key).or_default();
+        while capacity
             .queued
             .front()
             .is_some_and(|(complete, _)| *complete <= now_ns)
         {
-            state.queued.pop_front();
+            capacity.queued.pop_front();
         }
+        let state = self.directions.entry((edge_id, from, to)).or_default();
 
         if wire_bytes > config.mtu_bytes {
             state.counters.rejected_frames += 1;
@@ -230,7 +265,7 @@ impl LinkService {
         let accepted_bytes = wire_bytes
             .checked_mul(copies)
             .ok_or(LinkError::Arithmetic)?;
-        let queued_bytes = state.queued.iter().map(|(_, bytes)| bytes).sum::<u64>();
+        let queued_bytes = capacity.queued.iter().map(|(_, bytes)| bytes).sum::<u64>();
         if queued_bytes.saturating_add(accepted_bytes) > config.queue_bytes {
             state.counters.rejected_frames += 1;
             state.counters.rejected_bytes += accepted_bytes;
@@ -248,12 +283,12 @@ impl LinkService {
         let mut lost_bytes = 0_u64;
         for copy in 0..copies {
             let serialization_ns = serialization_delay_ns(wire_bytes, config.bandwidth_bps)?;
-            let start_ns = state.next_serialization_ns.max(now_ns);
+            let start_ns = capacity.next_serialization_ns.max(now_ns);
             let complete_ns = start_ns
                 .checked_add(serialization_ns)
                 .ok_or(LinkError::Arithmetic)?;
-            state.next_serialization_ns = complete_ns;
-            state.queued.push_back((complete_ns, wire_bytes));
+            capacity.next_serialization_ns = complete_ns;
+            capacity.queued.push_back((complete_ns, wire_bytes));
             transmitted_bytes = transmitted_bytes
                 .checked_add(wire_bytes)
                 .ok_or(LinkError::Arithmetic)?;
@@ -269,11 +304,11 @@ impl LinkService {
                 lost_bytes += wire_bytes;
                 continue;
             }
-            let jitter_ns = if config.ordering == LinkOrdering::Datagram && config.latency_ns > 1 {
+            let jitter_ns = if config.ordering == LinkOrdering::Datagram && config.jitter_ns > 0 {
                 deterministic_u64(
                     self.seed ^ u64::from(edge_id),
                     state.frame_sequence ^ (copy << 32),
-                ) % (config.latency_ns / 2).max(1)
+                ) % config.jitter_ns
             } else {
                 0
             };
