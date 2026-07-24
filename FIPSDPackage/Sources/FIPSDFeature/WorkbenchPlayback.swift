@@ -12,12 +12,17 @@ extension WorkbenchModel {
         let event = events[cursor]
         let priorTime = virtualTimeNS
         apply(event)
-        displayProjectionBatch = DisplayProjectionBatch(
+        state.expireTransmissions(at: virtualTimeNS)
+        publishRenderFrame(DisplayProjectionBatch(
             events: [event],
             fromNS: priorTime,
-            throughNS: virtualTimeNS
-        )
+            throughNS: virtualTimeNS,
+            mode: .orderedEvent
+        ))
         cursor += 1
+        if streamComplete, cursor == events.count {
+            finalizeRendererEvidence()
+        }
     }
 
     func stepBackward() {
@@ -37,11 +42,16 @@ extension WorkbenchModel {
             cursor += 1
         }
         state.expireTransmissions(at: timeNS)
-        displayProjectionBatch = DisplayProjectionBatch(
+        publishRenderFrame(DisplayProjectionBatch(
             events: applied,
             fromNS: 0,
-            throughNS: timeNS
-        )
+            throughNS: timeNS,
+            mode: .seekReplay,
+            compressionReason: applied.count > 1 ? .explicitSeek : nil
+        ))
+        if streamComplete, cursor == events.count {
+            finalizeRendererEvidence()
+        }
     }
 
     var durationNS: UInt64 { events.last?.timeNS ?? 0 }
@@ -61,26 +71,38 @@ extension WorkbenchModel {
         }
     }
 
-    private func advance(byWallNanoseconds delta: UInt64) {
+    func advance(byWallNanoseconds delta: UInt64) {
         let priorTime = virtualTimeNS
-        let availableEnd = max(events.last?.timeNS ?? 0, virtualTimeNS)
-        let advance = UInt64(Double(delta) * speed)
-        virtualTimeNS = min(virtualTimeNS.saturatingAdd(advance), availableEnd)
-        var applied: [SimulationEvent] = []
-        while cursor < events.count, events[cursor].timeNS <= virtualTimeNS {
-            let event = events[cursor]
+        let update = EventAwarePlaybackScheduler().nextUpdate(
+            events: events,
+            cursor: cursor,
+            virtualTimeNS: virtualTimeNS,
+            wallDeltaNS: delta,
+            speed: speed
+        )
+        let applied = Array(events[update.eventRange])
+        for event in applied {
             apply(event)
-            applied.append(event)
-            cursor += 1
         }
+        cursor = update.eventRange.upperBound
+        virtualTimeNS = max(virtualTimeNS, update.throughNS)
         state.expireTransmissions(at: virtualTimeNS)
-        displayProjectionBatch = DisplayProjectionBatch(
+        let batch = DisplayProjectionBatch(
             events: applied,
             fromNS: priorTime,
-            throughNS: virtualTimeNS
+            throughNS: virtualTimeNS,
+            mode: update.mode,
+            compressionReason: update.compressionReason
         )
+        if update.mode == .idle {
+            displayProjectionBatch = batch
+        } else {
+            publishRenderFrame(batch)
+        }
+        let availableEnd = max(events.last?.timeNS ?? 0, virtualTimeNS)
         if streamComplete, cursor == events.count, virtualTimeNS >= availableEnd {
             isPlaying = false
+            finalizeRendererEvidence()
         }
     }
 }

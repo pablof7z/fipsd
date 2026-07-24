@@ -212,6 +212,17 @@ struct ControlPanel: View {
             Text(model.summary.fidelity)
                 .font(.caption)
                 .foregroundStyle(.secondary)
+            if let url = model.rendererEvidenceURL {
+                Text("Renderer evidence: \(url.lastPathComponent)")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .help(url.path)
+            }
+            if let error = model.rendererEvidenceError {
+                Text("Renderer evidence write failed: \(error)")
+                    .font(.caption2)
+                    .foregroundStyle(.red)
+            }
             Text("Changing controls starts a new deterministic run. It never mutates history behind the timeline.")
                 .font(.caption)
                 .foregroundStyle(.secondary)

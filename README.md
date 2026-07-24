@@ -27,7 +27,8 @@ open FIPSD.xcworkspace
 Select the `FIPSD` scheme and run it. The workbench supports direct experiment
 controls, local Claude/Codex campaign authoring, deterministic event playback,
 forward-only natural-language changes to the currently rendered run,
-saved-artifact animated replay, pause/step/scrub/speed controls, node inspection,
+saved-artifact event-aware replay with exact dense-window summaries,
+pause/step/scrub/speed controls, node inspection,
 scheduled node failures and recoveries, manual lower-root injection, partitions
 and merges, editable link conditions, parent/ancestry swaps, cost-driven parent
 oscillation with hysteresis and hold-down, authenticated Sybil waves,
@@ -36,7 +37,7 @@ Wi‑Fi/BLE/Tor/Ethernet profiles, authored network zones with real shared-mediu
 queue contention, configurable CPU/memory/cache/table/queue
 limits and deterministic slow-node heterogeneity, exact
 control-message propagation, graph-native split-horizon Bloom waves, routed
-synthetic payload animation including persistent segmented streams and
+synthetic payload projection including persistent segmented streams and
 synchronized burst processes, explicit source/destination object transfers
 with automatic MTU packetization and delivered-byte progress, graph-native
 lookup/cache/session recovery, and
@@ -91,6 +92,8 @@ cargo run -p fips-cli --bin fips-wind-tunnel -- \
 The stream is JSON Lines using
 [`event-stream-v1alpha1`](schemas/event-stream-v1alpha1.schema.json). Its event
 records are identical to the ordered trace written into `artifact.json`.
+The native renderer separately records its source-mapped projection as
+[`render-frame-v1alpha1`](schemas/render-frame-v1alpha1.schema.json) JSON Lines.
 
 Other campaign, scale, oracle, analysis, atlas, and release commands remain
 available through `fips-wind-tunnel --help`. Their verified scope and fidelity

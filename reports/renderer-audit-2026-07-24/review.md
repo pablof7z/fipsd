@@ -19,6 +19,32 @@ lines and are easy to misread as topology changes.
 The product should currently describe these views as debug projections, not as
 precise protocol animation.
 
+## Post-audit remediation status
+
+The findings below describe the renderer that produced the committed audit
+artifacts. The subsequent renderer-truth work changes the claim and the
+evidence boundary:
+
+- stable synthetic world coordinates now survive node-set changes, filtering,
+  and viewport resizing;
+- physical links, parent relations, application routes, and in-flight
+  transmissions are separate typed primitives, and transmissions use short
+  moving trails rather than complete bright endpoint lines;
+- sparse sub-16 ms events are presented one ordered event per display update;
+  dense timestamp or playback-window bursts are explicitly and exactly
+  summarized with all event IDs, virtual times, ordinals, causal parents, and
+  causal entry events;
+- individual and cohort views derive from the same deterministic `RenderFrame`;
+  cohort identity is anchored to root/depth/transport rather than current rank,
+  and aggregate progress uses every matching transmission;
+- native `render-frames.v1.jsonl` evidence records source mappings, visible
+  primitives, frame deltas, fidelity labels, and reconciliation violations.
+
+The remediation does not claim topology-derived distance, continuously tweened
+root or parent transitions, or individual animation for every member of a dense
+summary. Those remain explicit presentation boundaries. The original audit
+artifacts are retained and replayed as regression inputs.
+
 ## Audit inputs
 
 ### Observed 1,000-node run
@@ -206,7 +232,7 @@ stable or sufficiently labeled to be interpretable.
 | Cohort screen position | Rank-derived | Can move hundreds at once | Misleading |
 | Cohort representative dot | Arbitrary sampled member | Dictionary-order dependent | Not reproducible enough |
 
-## Required renderer changes
+## Required renderer changes at audit time
 
 1. Give every node and cohort a stable visual identity and stable world
    coordinate across the run.

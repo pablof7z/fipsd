@@ -1,0 +1,60 @@
+{
+  "delta": {
+    "added_node_ids": [],
+    "advanced_transmission_ids": [],
+    "changed_cohorts": [],
+    "changed_node_ids": [],
+    "changed_parent_node_ids": [],
+    "changed_physical_link_ids": [],
+    "changed_route_ids": [],
+    "ended_transmission_ids": [],
+    "layout_only_node_ids": [],
+    "removed_node_ids": [],
+    "started_transmission_ids": []
+  },
+  "fidelity": {
+    "cohorts": "deterministic root-depth-transport aggregation",
+    "layout": "stable synthetic world coordinates; distance is not a protocol metric",
+    "source_fidelity": "fixture",
+    "temporal": "ordered-event or virtual-time interpolation frame",
+    "visible_state": "exact projection of retained SimulationState fields"
+  },
+  "frame_index": 0,
+  "presentation": {
+    "causal_parents": [],
+    "event_ids": [],
+    "event_kinds": [],
+    "event_ordinals": [],
+    "event_times_ns": [],
+    "from_ns": 0,
+    "initiating_event_ids": [],
+    "mode": "idle",
+    "through_ns": 0
+  },
+  "primitives": {
+    "cohort_transmissions": [],
+    "cohorts": [],
+    "nodes": [],
+    "parent_relations": [],
+    "physical_links": [],
+    "routes": [],
+    "transmissions": []
+  },
+  "reconciliation": {
+    "intentionally_omitted": 0,
+    "source_nodes": 0,
+    "source_parent_relations": 0,
+    "source_physical_links": 0,
+    "source_routes": 0,
+    "source_transmissions": 0,
+    "violations": [],
+    "visible_nodes": 0,
+    "visible_parent_relations": 0,
+    "visible_physical_links": 0,
+    "visible_routes": 0,
+    "visible_transmissions": 0
+  },
+  "schema": "experiments.fips.network/render-frame/v1alpha1",
+  "violations": [],
+  "virtual_time_ns": 0
+}

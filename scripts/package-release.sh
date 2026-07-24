@@ -23,14 +23,20 @@ if ! command -v jq >/dev/null; then
   exit 2
 fi
 
+target_directory="$(
+  cargo metadata --format-version 1 --locked --no-deps |
+    jq -r '.target_directory'
+)"
+binary="$target_directory/release/fips-wind-tunnel"
 cargo build --locked --release -p fips-cli --bin fips-wind-tunnel
 mkdir -p "$output/bin" "$output/web" "$output/schemas" "$output/docs" "$output/evidence"
-cp target/release/fips-wind-tunnel "$output/bin/"
+cp "$binary" "$output/bin/"
 cp web/index.html web/app.js web/worker.js web/styles.css web/data.js "$output/web/"
 cp schemas/*.json "$output/schemas/"
 cp README.md SECURITY.md LICENSE "$output/"
 cp docs/quickstart.md docs/artifact-format.md docs/fidelity-and-provenance.md \
-  docs/threat-model.md docs/support-matrix.md docs/performance.md "$output/docs/"
+  docs/renderer-evidence.md docs/threat-model.md docs/support-matrix.md \
+  docs/performance.md "$output/docs/"
 cp fixtures/m7/qualification-atlas.json fixtures/m8/release-audit.json "$output/evidence/"
 
 cargo metadata --format-version 1 --locked | jq '{
@@ -47,9 +53,9 @@ cargo metadata --format-version 1 --locked | jq '{
   }]
 }' > "$output/sbom.spdx.json"
 
-target/release/fips-wind-tunnel release manifest "$output" \
+"$binary" release manifest "$output" \
   --output "$output/release-manifest.json"
-target/release/fips-wind-tunnel release verify-package "$output" \
+"$binary" release verify-package "$output" \
   "$output/release-manifest.json"
 
 if [[ -n "${FIPSD_COSIGN_KEY:-}" ]]; then

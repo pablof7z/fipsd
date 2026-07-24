@@ -63,6 +63,16 @@ import Testing
         id: "flight", from: 0, to: 1, startNS: 100, endNS: 300,
         frameBytes: 128, copy: 0, plane: "bloom"
     )
+    state.applicationTransfers["download"] = ApplicationTransferState(
+        id: "download",
+        source: 0,
+        destination: 2,
+        path: [0, 1, 2],
+        totalBytes: 1_000,
+        offeredBytes: 1_000,
+        deliveredBytes: 100,
+        startedAtNS: 100
+    )
 
     let frame = RenderFrame(state: state, virtualTimeNS: 200)
 
@@ -70,10 +80,12 @@ import Testing
     #expect(frame.reconciliation.visibleNodes == 3)
     #expect(frame.reconciliation.visiblePhysicalLinks == 2)
     #expect(frame.reconciliation.visibleParentRelations == 2)
+    #expect(frame.reconciliation.visibleRoutes == 1)
     #expect(frame.reconciliation.visibleTransmissions == 1)
     #expect(frame.reconciliation.intentionallyOmitted == 0)
     #expect(frame.physicalLinks.allSatisfy { $0.kind == .physicalLink })
     #expect(frame.parentRelations.allSatisfy { $0.kind == .parentRelation })
+    #expect(frame.routes.allSatisfy { $0.kind == .route })
     #expect(frame.transmissions.allSatisfy { $0.kind == .transmission })
     #expect(frame.transmissions.first?.progress == 0.5)
 }
@@ -94,6 +106,18 @@ import Testing
     #expect(frame.transmissions.isEmpty)
 }
 
+@Test func missingParentEndpointIsAReconciliationViolation() {
+    var state = makeRenderState(nodeIDs: [0])
+    state.nodes[0]?.parent = 404
+
+    let frame = RenderFrame(state: state, virtualTimeNS: 0)
+
+    #expect(!frame.reconciliation.isExact)
+    #expect(frame.reconciliation.violations == [
+        "1 parent relations lack endpoints"
+    ])
+}
+
 @Test func cohortPositionsDoNotMoveWhenRootRankingsChange() throws {
     var state = makeRenderState(nodeIDs: [0, 1, 2, 3, 4])
     state.nodes[0]?.root = 10
@@ -102,14 +126,26 @@ import Testing
     state.nodes[3]?.root = 20
     state.nodes[4]?.root = 20
     let size = CGSize(width: 900, height: 700)
-    let before = try #require(CohortLayout(state: state, size: size).position(of: 0))
+    let beforeFrame = RenderFrame(state: state, virtualTimeNS: 0)
+    let before = try #require(CohortLayout(frame: beforeFrame, size: size).position(of: 0))
+    let beforeWorld = try #require(
+        CohortLayout(frame: beforeFrame, size: size).worldPoint(of: 0)
+    )
 
     for id in 5..<20 {
         state.nodes[id] = renderNode(id, root: 20)
     }
-    let after = try #require(CohortLayout(state: state, size: size).position(of: 0))
+    let afterFrame = RenderFrame(state: state, virtualTimeNS: 0)
+    let after = try #require(CohortLayout(frame: afterFrame, size: size).position(of: 0))
+    let resizedWorld = try #require(
+        CohortLayout(
+            frame: afterFrame,
+            size: CGSize(width: 1_200, height: 500)
+        ).worldPoint(of: 0)
+    )
 
     #expect(before == after)
+    #expect(beforeWorld == resizedWorld)
 }
 
 @Test func cohortFlightAggregationIsDeterministicAndUsesEveryFlight() {
@@ -122,8 +158,9 @@ import Testing
         id: "early", from: 0, to: 1, startNS: 0, endNS: 100,
         frameBytes: 1, copy: 0, plane: "data"
     )
-    let layout = CohortLayout(state: state, size: CGSize(width: 800, height: 600))
-    let aggregates = layout.flightAggregates(state: state, virtualTimeNS: 50)
+    let frame = RenderFrame(state: state, virtualTimeNS: 50)
+    let layout = CohortLayout(frame: frame, size: CGSize(width: 800, height: 600))
+    let aggregates = layout.flightAggregates
 
     #expect(aggregates.count == 1)
     #expect(aggregates.first?.count == 2)
@@ -133,21 +170,29 @@ import Testing
     reordered.transmissions = [:]
     reordered.transmissions["early"] = state.transmissions["early"]
     reordered.transmissions["late"] = state.transmissions["late"]
-    #expect(
-        aggregates
-            == layout.flightAggregates(state: reordered, virtualTimeNS: 50)
+    let reorderedFrame = RenderFrame(state: reordered, virtualTimeNS: 50)
+    let reorderedLayout = CohortLayout(
+        frame: reorderedFrame,
+        size: CGSize(width: 800, height: 600)
     )
+    #expect(aggregates == reorderedLayout.flightAggregates)
 }
 
 @Test func compressedDisplayBatchIsExplicit() throws {
     let events = try (0..<3).map { index in
         try #require(renderEvent(id: index))
     }
-    let batch = DisplayProjectionBatch(events: events, fromNS: 0, throughNS: 16)
+    let batch = DisplayProjectionBatch(
+        events: events,
+        fromNS: 0,
+        throughNS: 16,
+        mode: .exactSummary,
+        compressionReason: .playbackWindowDensity
+    )
 
     #expect(batch.count == 3)
     #expect(batch.isCompressed)
-    #expect(batch.label.contains("3 ordered events compressed"))
+    #expect(batch.label.contains("3 ordered events exactly summarized"))
 }
 
 private func makeRenderState(nodeIDs: [Int]) -> SimulationState {

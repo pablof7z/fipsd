@@ -13,6 +13,9 @@ final class WorkbenchModel {
     var cursor = 0
     var virtualTimeNS: UInt64 = 0
     var displayProjectionBatch = DisplayProjectionBatch.empty
+    var renderFrame = RenderFrame(state: SimulationState(), virtualTimeNS: 0)
+    var rendererEvidenceURL: URL?
+    var rendererEvidenceError: String?
     var isPlaying = false
     var isRunning = false
     var speed = 1.0
@@ -51,6 +54,9 @@ final class WorkbenchModel {
     var comparisonTask: Task<Void, Never>?
     var streamComplete = false
     @ObservationIgnored var controlServer: AppControlServer?
+    @ObservationIgnored var renderFrameWriter: RenderFrameLogWriter?
+    @ObservationIgnored var renderFrameIndex = 0
+    @ObservationIgnored var recordedRenderFrame: RenderFrame?
     @ObservationIgnored let experimentStore: ExperimentStore
 
     init(experimentStore: ExperimentStore = ExperimentStore()) {
@@ -120,6 +126,9 @@ final class WorkbenchModel {
         runTask?.cancel()
         playbackTask?.cancel()
         reset()
+        if let declared = declaredRendererFidelity(from: campaign) {
+            summary.fidelity = declared
+        }
         activeCampaign = campaign
         if let resumeAtNS { virtualTimeNS = resumeAtNS }
         do {
@@ -134,6 +143,7 @@ final class WorkbenchModel {
                 at: evidenceURL!,
                 withIntermediateDirectories: true
             )
+            try configureRendererEvidence(in: evidenceURL!)
             var authoring: [String: Any] = [
                 "provider": author,
                 "campaign": try JSONSerialization.jsonObject(with: campaign)
@@ -205,6 +215,12 @@ final class WorkbenchModel {
         cursor = 0
         virtualTimeNS = 0
         displayProjectionBatch = .empty
+        renderFrame = RenderFrame(state: state, virtualTimeNS: 0)
+        renderFrameWriter = nil
+        renderFrameIndex = 0
+        recordedRenderFrame = nil
+        rendererEvidenceURL = nil
+        rendererEvidenceError = nil
         streamComplete = false
         summary = RunSummary()
         analysis = ArtifactAnalysis()

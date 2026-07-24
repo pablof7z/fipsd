@@ -24,6 +24,7 @@ extension WorkbenchModel {
         streamComplete = true
         isRunning = false
         evidenceURL = sourceURL?.deletingLastPathComponent()
+        try configureImportedRendererEvidence()
         populateSummary(root)
         analysis = ArtifactAnalysis.parse(root)
         cohortState = CohortArtifactState.parse(root)

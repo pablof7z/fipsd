@@ -4,6 +4,7 @@ import Foundation
 enum RenderPrimitiveKind: String, Equatable, Sendable {
     case physicalLink = "physical-link"
     case parentRelation = "parent-relation"
+    case route = "application-route"
     case transmission = "in-flight-transmission"
 }
 
@@ -37,6 +38,12 @@ struct RenderParentRelation: Equatable, Sendable {
     let parent: Int
 }
 
+struct RenderRoute: Equatable, Sendable {
+    let kind = RenderPrimitiveKind.route
+    let transferID: String
+    let nodeIDs: [Int]
+}
+
 struct RenderTransmission: Equatable, Sendable {
     let kind = RenderPrimitiveKind.transmission
     let transmission: Transmission
@@ -50,6 +57,8 @@ struct RenderReconciliation: Equatable, Sendable {
     let visiblePhysicalLinks: Int
     let sourceParentRelations: Int
     let visibleParentRelations: Int
+    let sourceRoutes: Int
+    let visibleRoutes: Int
     let sourceTransmissions: Int
     let visibleTransmissions: Int
     let intentionallyOmitted: Int
@@ -63,7 +72,10 @@ struct RenderFrame: Equatable, Sendable {
     let nodes: [RenderNode]
     let physicalLinks: [RenderPhysicalLink]
     let parentRelations: [RenderParentRelation]
+    let routes: [RenderRoute]
     let transmissions: [RenderTransmission]
+    let cohorts: [RenderCohort]
+    let cohortTransmissions: [CohortFlightAggregate]
     let reconciliation: RenderReconciliation
 
     init(
@@ -88,6 +100,14 @@ struct RenderFrame: Equatable, Sendable {
                 return RenderParentRelation(child: node.id, parent: parent)
             }
             .sorted { ($0.child, $0.parent) < ($1.child, $1.parent) }
+        routes = state.applicationTransfers.values
+            .filter {
+                !$0.path.isEmpty && $0.path.allSatisfy(included.contains)
+            }
+            .sorted { $0.id < $1.id }
+            .map {
+                RenderRoute(transferID: $0.id, nodeIDs: $0.path)
+            }
         transmissions = state.transmissions.values
             .filter { included.contains($0.from) && included.contains($0.to) }
             .sorted { $0.id < $1.id }
@@ -99,6 +119,12 @@ struct RenderFrame: Equatable, Sendable {
                     progress: min(1, Double(elapsed) / Double(span))
                 )
             }
+        let cohortProjection = CohortProjection(
+            nodes: nodes,
+            transmissions: transmissions
+        )
+        cohorts = cohortProjection.cohorts
+        cohortTransmissions = cohortProjection.transmissions
         var violations: [String] = []
         let missingEdges = state.edges.values.filter {
             state.nodes[$0.from] == nil || state.nodes[$0.to] == nil
@@ -106,14 +132,28 @@ struct RenderFrame: Equatable, Sendable {
         let missingFlights = state.transmissions.values.filter {
             state.nodes[$0.from] == nil || state.nodes[$0.to] == nil
         }.count
+        let missingParents = state.nodes.values.filter {
+            guard let parent = $0.parent else { return false }
+            return state.nodes[parent] == nil
+        }.count
+        let missingRoutes = state.applicationTransfers.values.filter { transfer in
+            transfer.path.contains { state.nodes[$0] == nil }
+        }.count
         if missingEdges > 0 { violations.append("\(missingEdges) links lack endpoints") }
         if missingFlights > 0 {
             violations.append("\(missingFlights) transmissions lack endpoints")
+        }
+        if missingParents > 0 {
+            violations.append("\(missingParents) parent relations lack endpoints")
+        }
+        if missingRoutes > 0 {
+            violations.append("\(missingRoutes) application routes lack nodes")
         }
         let sourceParents = state.nodes.values.filter { $0.parent != nil }.count
         let omitted = state.transmissions.count - transmissions.count
             + state.edges.count - physicalLinks.count
             + sourceParents - parentRelations.count
+            + state.applicationTransfers.count - routes.count
             + state.nodes.count - nodes.count
         reconciliation = RenderReconciliation(
             sourceNodes: state.nodes.count,
@@ -122,6 +162,8 @@ struct RenderFrame: Equatable, Sendable {
             visiblePhysicalLinks: physicalLinks.count,
             sourceParentRelations: sourceParents,
             visibleParentRelations: parentRelations.count,
+            sourceRoutes: state.applicationTransfers.count,
+            visibleRoutes: routes.count,
             sourceTransmissions: state.transmissions.count,
             visibleTransmissions: transmissions.count,
             intentionallyOmitted: omitted,

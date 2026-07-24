@@ -76,6 +76,10 @@ fn checked_in_documents_satisfy_json_schemas() {
             "schemas/reproduction-bundle-v1alpha1.schema.json",
             "fixtures/artifacts/root-ratchet-reproduction.json",
         ),
+        (
+            "schemas/render-frame-v1alpha1.schema.json",
+            "fixtures/renderer/render-frame-minimal.json",
+        ),
     ];
     for (schema_path, fixture_path) in cases {
         let schema: Value =

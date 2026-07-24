@@ -3,8 +3,10 @@
 The individual-node engine schedules synthetic payload flows in the same
 injected-time event queue as root changes and TreeAnnounce traffic. Each flow
 resolves a stable shortest active path, then traverses that path one edge at a
-time. The native workbench animates those persisted events; it does not invent
-motion between aggregate counters.
+time. The native workbench projects retained in-flight transmissions with
+linear due-to-delivery progress. Sparse events are presented individually and
+dense windows are explicitly summarized; no aggregate counter is presented as
+an executed frame.
 
 ## Traffic processes
 

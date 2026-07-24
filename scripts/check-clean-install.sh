@@ -9,7 +9,7 @@ trap 'rm -rf "$scratch"' EXIT
 package="$scratch/fips-wind-tunnel-0.1.0"
 prefix="$scratch/prefix"
 
-scripts/package-release.sh "$package"
+CARGO_TARGET_DIR="$scratch/cargo-target" scripts/package-release.sh "$package"
 mkdir -p "$prefix/bin"
 cp "$package/bin/fips-wind-tunnel" "$prefix/bin/"
 
