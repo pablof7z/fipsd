@@ -197,10 +197,23 @@ impl Simulation {
     }
 
     fn bloom_snapshot(&mut self, from: NodeId, to: NodeId) -> Result<BloomSnapshot, RunError> {
-        let neighbors = self.graph.active_neighbors(from);
+        // FIPS tree-only merge rule (fips-bloom-filters.md §"Filter Computation",
+        // lines 133-144): only the filters of TREE peers (spanning-tree parent and
+        // children) are folded into an outgoing filter. Non-tree mesh peers still
+        // receive/store filters for routing but MUST NOT be merged transitively,
+        // otherwise mesh shortcuts saturate every node's filter toward the full
+        // network and destroy the upward=subtree / downward=complement asymmetry.
+        // Split-horizon (fips-bloom-filters.md §"Split-Horizon Exclusion", lines
+        // 147-154) still excludes the destination peer `to`.
+        let tree_peers = self
+            .graph
+            .active_neighbors(from)
+            .into_iter()
+            .filter(|&peer| peer != to && self.bloom_is_tree_peer(from, peer))
+            .collect::<Vec<_>>();
         let runtime = self.bloom.as_mut().unwrap();
         let mut model = runtime.local[from as usize].clone();
-        for peer in neighbors.into_iter().filter(|peer| *peer != to) {
+        for peer in tree_peers {
             if let Some(view) = runtime.peer_views.get(&(from, peer)) {
                 runtime.counters.wave.bitwise_operations += model
                     .union_assign(view)
@@ -228,6 +241,14 @@ impl Simulation {
         } else {
             PeerRole::Mesh
         }
+    }
+
+    /// A peer is a spanning-tree neighbor when it is `node`'s parent or one of
+    /// `node`'s children — i.e. exactly the non-`Mesh` roles classified by
+    /// [`Self::bloom_peer_role`]. This is the tree-only-merge membership test
+    /// mandated by FIPS (fips-bloom-filters.md lines 133-144).
+    fn bloom_is_tree_peer(&self, node: NodeId, peer: NodeId) -> bool {
+        !matches!(self.bloom_peer_role(node, peer), PeerRole::Mesh)
     }
 
     fn reject_bloom(&mut self, cause: &str, bytes: u64, reason: &str, evidence: &str) {
