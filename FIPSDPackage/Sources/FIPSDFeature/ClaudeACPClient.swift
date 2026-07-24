@@ -21,6 +21,7 @@ final class ClaudeACPClient {
 
     func connect(
         cwd: URL,
+        model: String? = nil,
         eventHandler: @escaping (ClaudeACPEvent) -> Void
     ) async throws {
         guard process == nil else { return }
@@ -28,7 +29,7 @@ final class ClaudeACPClient {
         let npx = try Self.npxExecutable()
         let mcp = try Self.mcpExecutable()
         let skill = try Self.windTunnelSkill()
-        try launch(npx: npx)
+        try launch(npx: npx, model: model)
         do {
             let initialized = try await request(
                 "initialize",
@@ -83,6 +84,18 @@ final class ClaudeACPClient {
         return reason
     }
 
+    /// Injects `text` into the turn currently running via the ACP steering
+    /// extension (`_session/steering`), rather than queuing it as a separate
+    /// `session/prompt`. Its output streams through the existing `session/update`
+    /// event handler, not this call's return value.
+    func steer(_ text: String) async throws {
+        guard let sessionID else { throw ClaudeACPError.notConnected }
+        _ = try await request(
+            "_session/steering",
+            params: ClaudeACPProtocol.promptParams(sessionID: sessionID, text: text)
+        )
+    }
+
     func cancel() {
         guard let sessionID else { return }
         notify(
@@ -106,7 +119,7 @@ final class ClaudeACPClient {
         diagnostics = ""
     }
 
-    private func launch(npx: URL) throws {
+    private func launch(npx: URL, model: String?) throws {
         let process = Process()
         let stdin = Pipe()
         let stdout = Pipe()
@@ -124,6 +137,11 @@ final class ClaudeACPClient {
         environment.removeValue(forKey: "CLAUDECODE")
         environment.removeValue(forKey: "FORCE_COLOR")
         environment["NO_COLOR"] = "1"
+        if let model {
+            environment["ANTHROPIC_MODEL"] = model
+        } else {
+            environment.removeValue(forKey: "ANTHROPIC_MODEL")
+        }
         environment["PATH"] = Self.executablePath(npx: npx, environment: environment)
         process.environment = environment
         intentionalShutdown = false
@@ -140,9 +158,9 @@ final class ClaudeACPClient {
             let data = handle.availableData
             Task { @MainActor [weak self] in self?.receiveDiagnostic(data) }
         }
-        process.terminationHandler = { [weak self] process in
+        process.terminationHandler = { [weak self] terminated in
             Task { @MainActor [weak self] in
-                self?.processDidExit(status: process.terminationStatus)
+                self?.processDidExit(terminated, status: terminated.terminationStatus)
             }
         }
         do {
@@ -285,8 +303,12 @@ final class ClaudeACPClient {
         }
     }
 
-    private func processDidExit(status: Int32) {
-        guard process != nil else { return }
+    /// A `restart()` can launch a replacement process before the previous
+    /// one's asynchronous termination callback arrives; comparing identity
+    /// against the current `process` discards that stale callback instead of
+    /// tearing down the session that has already replaced it.
+    private func processDidExit(_ terminated: Process, status: Int32) {
+        guard process === terminated else { return }
         output?.readabilityHandler = nil
         errorOutput?.readabilityHandler = nil
         let detail = diagnostics.trimmingCharacters(in: .whitespacesAndNewlines)

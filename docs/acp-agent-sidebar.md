@@ -53,6 +53,11 @@ renderer, including headings, lists, links, emphasis, tables, and fenced code
 blocks. Tool calls remain compact status rows rather than being folded into
 the model's prose.
 
+The composer stays open while Claude is responding. A message sent mid-turn is
+injected into the running turn through the ACP steering extension
+(`_session/steering`) instead of being queued as a separate prompt, so Claude
+adapts immediately rather than waiting for the current turn to finish.
+
 ## Requirements
 
 1. Claude Code must already be authenticated on the Mac.
@@ -74,3 +79,12 @@ The sidebar reports an actionable error and offers Retry when either executable
 is unavailable or ACP negotiation fails. Starting a new conversation terminates
 the current adapter, creates a fresh ACP session, reattaches the MCP server, and
 reapplies bypass mode.
+
+## Model selection
+
+A menu in the sidebar header lets you choose Automatic, Sonnet, Haiku, or Opus.
+The choice persists across launches and is applied by setting `ANTHROPIC_MODEL`
+in the adapter process's environment before launch; Automatic leaves it unset
+so the adapter uses its own default. Because the model is only read at process
+start, changing the selection while a conversation is active starts a new
+conversation (equivalent to pressing the new-conversation button) to apply it.
