@@ -39,11 +39,20 @@ evidence boundary:
   and aggregate progress uses every matching transmission;
 - native `render-frames.v1.jsonl` evidence records source mappings, visible
   primitives, frame deltas, fidelity labels, and reconciliation violations.
+- every canvas and overlay now consumes only that `RenderFrame`; node pulses,
+  analytical cohorts, shared-medium metadata, selection rings, and mode
+  filtering no longer read parallel model state;
+- an independent raw-JSON oracle, which does not use the production event,
+  state, frame, source-projection, or cohort-projection types, replays both
+  committed audit inputs and compares every semantic mark in every
+  visualization mode at each scheduled update.
 
 The remediation does not claim topology-derived distance, continuously tweened
 root or parent transitions, or individual animation for every member of a dense
-summary. Those remain explicit presentation boundaries. The original audit
-artifacts are retained and replayed as regression inputs.
+summary. Nor does it claim pixel-raster equivalence or proof beyond the
+committed and synthetic test inputs. Those remain explicit presentation
+boundaries. The original audit artifacts are retained and replayed as
+regression inputs.
 
 ## Audit inputs
 

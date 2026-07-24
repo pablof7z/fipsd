@@ -29,6 +29,7 @@ extension WorkbenchModel {
         analysis = ArtifactAnalysis.parse(root)
         cohortState = CohortArtifactState.parse(root)
         if cohortState != nil { visualizationMode = .cohorts }
+        refreshRendererProjection()
         status = "Loaded saved artifact. Playback, scrubbing, and inspection are ready."
         isPlaying = true
         startPlaybackLoop()

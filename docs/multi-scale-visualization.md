@@ -28,6 +28,10 @@ the timeline and causal inspector remain event-addressable. Sparse events inside
 a wall-clock frame are presented individually; dense windows are exactly
 summarized with their full ordered event list. Native renderer JSONL records the
 cohort membership, aggregate progress, source mapping, and fidelity boundary.
+The canvas consumes only that `RenderFrame`, and an independent raw-artifact
+oracle compares cohort membership and aggregate flights across every scheduled
+frame in both committed renderer-audit artifacts. Imported analytical cohort
+marks are separately compared with their raw artifact JSON.
 Analytical or cohort-engine results must continue to declare their own
 non-individual scale fidelity rather than borrowing this view label.
 

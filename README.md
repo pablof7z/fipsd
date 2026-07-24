@@ -94,6 +94,9 @@ The stream is JSON Lines using
 records are identical to the ordered trace written into `artifact.json`.
 The native renderer separately records its source-mapped projection as
 [`render-frame-v1alpha1`](schemas/render-frame-v1alpha1.schema.json) JSON Lines.
+Its canvas consumes only those frame primitives; an independent raw-artifact
+oracle regression-checks every visualization mode while keeping synthetic
+layout and compressed-event boundaries explicit.
 
 Other campaign, scale, oracle, analysis, atlas, and release commands remain
 available through `fips-wind-tunnel --help`. Their verified scope and fidelity

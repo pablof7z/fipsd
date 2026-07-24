@@ -18,13 +18,10 @@ public struct ContentView: View {
             VStack(spacing: 0) {
                 NetworkCanvas(
                     frame: model.renderFrame,
-                    state: model.state,
-                    selection: $model.selectedNodeID,
-                    mode: $model.visualizationMode,
-                    cohortState: model.cohortState,
-                    anomalyNodeIDs: model.analysis.anomalyNodeIDs,
-                    displayBatch: model.displayProjectionBatch,
-                    sourceFidelity: model.summary.fidelity
+                    onSelectionChange: {
+                        model.selectRenderedNode($0)
+                    },
+                    onModeChange: { model.selectVisualizationMode($0) },
                 )
                 TimelineBar(model: model)
             }

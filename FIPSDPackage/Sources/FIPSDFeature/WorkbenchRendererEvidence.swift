@@ -39,16 +39,21 @@ extension WorkbenchModel {
         displayProjectionBatch = batch
         let nextFrame = RenderFrame(
             state: state,
-            virtualTimeNS: virtualTimeNS
+            virtualTimeNS: virtualTimeNS,
+            visualizationMode: visualizationMode,
+            anomalyNodeIDs: analysis.anomalyNodeIDs,
+            cohortState: cohortState,
+            selectedNodeID: selectedNodeID,
+            displayBatch: batch,
+            sourceFidelity: summary.fidelity
         )
+        selectedNodeID = nextFrame.selectedNodeID
         renderFrame = nextFrame
         guard let renderFrameWriter else { return }
         let evidence = RenderFrameEvidence(
             frameIndex: renderFrameIndex,
             frame: nextFrame,
-            previous: recordedRenderFrame,
-            batch: batch,
-            sourceFidelity: summary.fidelity
+            previous: recordedRenderFrame
         )
         do {
             try renderFrameWriter.append(evidence)
@@ -57,6 +62,22 @@ extension WorkbenchModel {
         } catch {
             rendererEvidenceError = error.localizedDescription
         }
+    }
+
+    func selectVisualizationMode(_ mode: VisualizationMode) {
+        guard visualizationMode != mode else { return }
+        visualizationMode = mode
+        publishRenderFrame(.viewChange(at: virtualTimeNS))
+    }
+
+    func selectRenderedNode(_ nodeID: Int?) {
+        guard selectedNodeID != nodeID else { return }
+        selectedNodeID = nodeID
+        publishRenderFrame(.viewChange(at: virtualTimeNS))
+    }
+
+    func refreshRendererProjection() {
+        publishRenderFrame(.viewChange(at: virtualTimeNS))
     }
 
     func flushRendererEvidence() async throws {

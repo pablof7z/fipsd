@@ -115,7 +115,7 @@ enum AuthoringProvider: String, CaseIterable, Identifiable, Sendable {
     }
 }
 
-enum VisualizationMode: String, CaseIterable, Identifiable, Sendable {
+enum VisualizationMode: String, Codable, CaseIterable, Identifiable, Sendable {
     case cohorts = "Cohorts"
     case rootAdoption = "Root adoption"
     case connectivity = "Connectivity"

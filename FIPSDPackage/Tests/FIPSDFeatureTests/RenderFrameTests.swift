@@ -15,7 +15,8 @@ import Testing
     let filtered = RenderFrame(
         state: state,
         virtualTimeNS: 0,
-        visibleNodeIDs: [1, 99]
+        visualizationMode: .anomalies,
+        anomalyNodeIDs: [1, 99]
     )
     let filteredPoint = try #require(filtered.nodes.first { $0.state.id == 1 }?.worldPoint)
 
@@ -126,7 +127,11 @@ import Testing
     state.nodes[3]?.root = 20
     state.nodes[4]?.root = 20
     let size = CGSize(width: 900, height: 700)
-    let beforeFrame = RenderFrame(state: state, virtualTimeNS: 0)
+    let beforeFrame = RenderFrame(
+        state: state,
+        virtualTimeNS: 0,
+        visualizationMode: .cohorts
+    )
     let before = try #require(CohortLayout(frame: beforeFrame, size: size).position(of: 0))
     let beforeWorld = try #require(
         CohortLayout(frame: beforeFrame, size: size).worldPoint(of: 0)
@@ -135,7 +140,11 @@ import Testing
     for id in 5..<20 {
         state.nodes[id] = renderNode(id, root: 20)
     }
-    let afterFrame = RenderFrame(state: state, virtualTimeNS: 0)
+    let afterFrame = RenderFrame(
+        state: state,
+        virtualTimeNS: 0,
+        visualizationMode: .cohorts
+    )
     let after = try #require(CohortLayout(frame: afterFrame, size: size).position(of: 0))
     let resizedWorld = try #require(
         CohortLayout(
@@ -158,7 +167,11 @@ import Testing
         id: "early", from: 0, to: 1, startNS: 0, endNS: 100,
         frameBytes: 1, copy: 0, plane: "data"
     )
-    let frame = RenderFrame(state: state, virtualTimeNS: 50)
+    let frame = RenderFrame(
+        state: state,
+        virtualTimeNS: 50,
+        visualizationMode: .cohorts
+    )
     let layout = CohortLayout(frame: frame, size: CGSize(width: 800, height: 600))
     let aggregates = layout.flightAggregates
 
@@ -170,7 +183,11 @@ import Testing
     reordered.transmissions = [:]
     reordered.transmissions["early"] = state.transmissions["early"]
     reordered.transmissions["late"] = state.transmissions["late"]
-    let reorderedFrame = RenderFrame(state: reordered, virtualTimeNS: 50)
+    let reorderedFrame = RenderFrame(
+        state: reordered,
+        virtualTimeNS: 50,
+        visualizationMode: .cohorts
+    )
     let reorderedLayout = CohortLayout(
         frame: reorderedFrame,
         size: CGSize(width: 800, height: 600)

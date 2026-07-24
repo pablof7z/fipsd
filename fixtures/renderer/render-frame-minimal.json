@@ -1,26 +1,34 @@
 {
   "delta": {
     "added_node_ids": [],
+    "anomaly_filter_changed": false,
+    "advanced_pulse_keys": [],
     "advanced_transmission_ids": [],
+    "changed_artifact_cohort_ids": [],
     "changed_cohorts": [],
     "changed_node_ids": [],
     "changed_parent_node_ids": [],
     "changed_physical_link_ids": [],
     "changed_route_ids": [],
     "ended_transmission_ids": [],
+    "ended_pulse_keys": [],
     "layout_only_node_ids": [],
     "removed_node_ids": [],
-    "started_transmission_ids": []
+    "selection_changed": false,
+    "started_pulse_keys": [],
+    "started_transmission_ids": [],
+    "view_mode_changed": false
   },
   "fidelity": {
     "cohorts": "deterministic root-depth-transport aggregation",
     "layout": "stable synthetic world coordinates; distance is not a protocol metric",
     "source_fidelity": "fixture",
     "temporal": "ordered-event or virtual-time interpolation frame",
-    "visible_state": "exact projection of retained SimulationState fields"
+    "visible_state": "RenderFrame-only projection; canvas has no raw simulation or artifact state"
   },
   "frame_index": 0,
   "presentation": {
+    "anomaly_node_ids": [],
     "causal_parents": [],
     "event_ids": [],
     "event_kinds": [],
@@ -29,28 +37,35 @@
     "from_ns": 0,
     "initiating_event_ids": [],
     "mode": "idle",
-    "through_ns": 0
+    "through_ns": 0,
+    "visualization_mode": "Root adoption"
   },
   "primitives": {
+    "artifact_cohorts": [],
     "cohort_transmissions": [],
     "cohorts": [],
     "nodes": [],
     "parent_relations": [],
     "physical_links": [],
+    "pulses": [],
     "routes": [],
     "transmissions": []
   },
   "reconciliation": {
     "intentionally_omitted": 0,
     "source_nodes": 0,
+    "source_artifact_cohorts": 0,
     "source_parent_relations": 0,
     "source_physical_links": 0,
+    "source_pulses": 0,
     "source_routes": 0,
     "source_transmissions": 0,
     "violations": [],
     "visible_nodes": 0,
+    "visible_artifact_cohorts": 0,
     "visible_parent_relations": 0,
     "visible_physical_links": 0,
+    "visible_pulses": 0,
     "visible_routes": 0,
     "visible_transmissions": 0
   },

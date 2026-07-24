@@ -112,7 +112,7 @@ final class WorkbenchModel {
         configuration.averageDegree = 4
         configuration.attachment = "random"
         configuration.latencyMilliseconds = 20
-        visualizationMode = .cohorts
+        selectVisualizationMode(.cohorts)
         status = "Loaded the 10K descending-root wave preset."
     }
 
@@ -214,8 +214,13 @@ final class WorkbenchModel {
         events = []
         cursor = 0
         virtualTimeNS = 0
+        selectedNodeID = nil
         displayProjectionBatch = .empty
-        renderFrame = RenderFrame(state: state, virtualTimeNS: 0)
+        renderFrame = RenderFrame(
+            state: state,
+            virtualTimeNS: 0,
+            visualizationMode: visualizationMode
+        )
         renderFrameWriter = nil
         renderFrameIndex = 0
         recordedRenderFrame = nil

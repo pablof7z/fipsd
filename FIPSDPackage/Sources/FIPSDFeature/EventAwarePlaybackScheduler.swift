@@ -6,6 +6,7 @@ enum DisplayProjectionMode: String, Codable, Equatable, Sendable {
     case orderedEvent = "ordered-event"
     case exactSummary = "exact-event-summary"
     case seekReplay = "seek-replay"
+    case viewChange = "view-change"
 }
 
 enum DisplayCompressionReason: String, Codable, Equatable, Sendable {

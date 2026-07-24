@@ -12,7 +12,10 @@ Each line conforms to
 - the declared or completed source fidelity plus the renderer's temporal, layout, visible-state,
   and cohort projection boundaries;
 - visible nodes, physical links, parent relations, application routes,
-  individual transmissions, cohorts, and deterministic aggregate transmissions;
+  individual transmissions, source-timed node pulses, imported analytical
+  cohorts, deterministic in-memory cohorts, and aggregate transmissions;
+- the selected visualization mode and node selection used by presentation-only
+  rings, plus the exact independently checked anomaly-node filter;
 - a source-state path for every primitive;
 - reconciliation counts and intentionally omitted mass;
 - frame-to-frame state, relation, transmission, cohort, and layout-only deltas;
@@ -25,17 +28,35 @@ them in source order and emits one exact-summary frame containing every event.
 That frame claims the final retained state and the complete event list, not
 unobserved intermediate visual states.
 
+`NetworkCanvas` and its drawing helpers accept only `RenderFrame`. They do not
+accept `SimulationState`, `CohortArtifactState`, or analysis data, and a source
+boundary test rejects reintroduction of those inputs. View and selection changes
+publish a distinct `view-change` evidence frame with no simulation events.
+
 The layout is stable and deterministic but synthetic. Pixel distance is never a
 protocol metric. Cohorts are a declared root × depth-band × transport
 aggregation, and their flight progress is the deterministic mean over every
 matching retained transmission.
 
-Regression coverage replays both committed renderer-audit artifacts:
+The independent renderer oracle reads raw artifact JSON and intentionally does
+not use `SimulationEvent`, `SimulationState`, `RenderFrame`,
+`RenderSourceProjection`, or `CohortProjection`. It replays both committed
+renderer-audit artifacts and compares the semantic marks emitted in all five
+visualization modes at every scheduled display update. Separate cases cover
+rekey, parent-switch, authenticated-Sybil, shared-medium, selection, and
+billion-node analytical-cohort marks.
+
+Run the focused proof with:
 
 ```sh
 xcodebuildmcp swift-package test \
   --package-path FIPSDPackage \
-  --filter RenderFrameEvidenceTests
+  --filter Independent
 ```
+
+This proves the source-to-semantic-mark boundary for the committed inputs. It
+does not claim that synthetic coordinates are network geometry, that compressed
+bursts had unrendered intermediate frames, or that a pixel raster is a formal
+proof of the engine.
 
 The schema is `schemas/render-frame-v1alpha1.schema.json`.

@@ -36,7 +36,7 @@ extension NetworkCanvas {
                 node: node,
                 rect: rect
             )
-            if selection == node.id {
+            if frame.selectedNodeID == node.id {
                 context.stroke(
                     Path(ellipseIn: rect.insetBy(dx: -4, dy: -4)),
                     with: .color(.white),
@@ -95,17 +95,15 @@ extension NetworkCanvas {
         node: NodeState,
         rect: CGRect
     ) {
-        let pulses: [(UInt64?, UInt64, CGFloat, Color)] = [
-            (state.lastRekeyAtNS[node.id], 250_000_000, 5, .mint),
-            (state.lastParentSwitchAtNS[node.id], 350_000_000, 7, .orange),
-            (state.lastSybilArrivalAtNS[node.id], 500_000_000, 9, .purple)
-        ]
-        for (time, duration, inset, color) in pulses {
-            guard let time, frame.virtualTimeNS >= time,
-                  frame.virtualTimeNS - time <= duration else { continue }
+        for pulse in frame.pulses where pulse.nodeID == node.id {
+            let (inset, color): (CGFloat, Color) = switch pulse.kind {
+            case .rekey: (5, .mint)
+            case .parentSwitch: (7, .orange)
+            case .authenticatedSybilArrival: (9, .purple)
+            }
             context.stroke(
                 Path(ellipseIn: rect.insetBy(dx: -inset, dy: -inset)),
-                with: .color(color.opacity(0.92)),
+                with: .color(color.opacity(0.92 * (1 - pulse.progress * 0.4))),
                 lineWidth: 2.5
             )
         }

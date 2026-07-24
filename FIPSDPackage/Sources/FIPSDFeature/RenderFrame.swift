@@ -40,8 +40,10 @@ struct RenderParentRelation: Equatable, Sendable {
 
 struct RenderRoute: Equatable, Sendable {
     let kind = RenderPrimitiveKind.route
-    let transferID: String
-    let nodeIDs: [Int]
+    let transfer: ApplicationTransferState
+
+    var transferID: String { transfer.id }
+    var nodeIDs: [Int] { transfer.path }
 }
 
 struct RenderTransmission: Equatable, Sendable {
@@ -61,6 +63,10 @@ struct RenderReconciliation: Equatable, Sendable {
     let visibleRoutes: Int
     let sourceTransmissions: Int
     let visibleTransmissions: Int
+    let sourcePulses: Int
+    let visiblePulses: Int
+    let sourceArtifactCohorts: Int
+    let visibleArtifactCohorts: Int
     let intentionallyOmitted: Int
     let violations: [String]
 
@@ -69,92 +75,99 @@ struct RenderReconciliation: Equatable, Sendable {
 
 struct RenderFrame: Equatable, Sendable {
     let virtualTimeNS: UInt64
+    let visualizationMode: VisualizationMode
+    let anomalyNodeIDs: [Int]
+    let selectedNodeID: Int?
+    let displayBatch: DisplayProjectionBatch
+    let sourceFidelity: String
+    let representedNodes: UInt64
+    let sourceActiveNodes: Int
     let nodes: [RenderNode]
     let physicalLinks: [RenderPhysicalLink]
     let parentRelations: [RenderParentRelation]
     let routes: [RenderRoute]
     let transmissions: [RenderTransmission]
+    let pulses: [RenderPulse]
     let cohorts: [RenderCohort]
     let cohortTransmissions: [CohortFlightAggregate]
+    let artifactCohorts: [RenderArtifactCohort]
+    let artifactCohortFidelity: String?
     let reconciliation: RenderReconciliation
 
     init(
         state: SimulationState,
         virtualTimeNS: UInt64,
-        visibleNodeIDs: Set<Int>? = nil
+        visualizationMode: VisualizationMode = .rootAdoption,
+        anomalyNodeIDs: Set<Int> = [],
+        cohortState: CohortArtifactState? = nil,
+        selectedNodeID: Int? = nil,
+        displayBatch: DisplayProjectionBatch = .empty,
+        sourceFidelity: String = "unspecified renderer source fidelity"
     ) {
         self.virtualTimeNS = virtualTimeNS
-        let included = visibleNodeIDs ?? Set(state.nodes.keys)
-        nodes = state.nodes.values
-            .filter { included.contains($0.id) }
-            .sorted { $0.id < $1.id }
-            .map { RenderNode(state: $0, worldPoint: Self.stablePoint(for: $0.id)) }
-        physicalLinks = state.edges.values
-            .filter { included.contains($0.from) && included.contains($0.to) }
-            .sorted { $0.id < $1.id }
-            .map(RenderPhysicalLink.init)
-        parentRelations = state.nodes.values
-            .compactMap { node -> RenderParentRelation? in
-                guard included.contains(node.id), let parent = node.parent,
-                      included.contains(parent), state.nodes[parent] != nil else { return nil }
-                return RenderParentRelation(child: node.id, parent: parent)
-            }
-            .sorted { ($0.child, $0.parent) < ($1.child, $1.parent) }
-        routes = state.applicationTransfers.values
-            .filter {
-                !$0.path.isEmpty && $0.path.allSatisfy(included.contains)
-            }
-            .sorted { $0.id < $1.id }
-            .map {
-                RenderRoute(transferID: $0.id, nodeIDs: $0.path)
-            }
-        transmissions = state.transmissions.values
-            .filter { included.contains($0.from) && included.contains($0.to) }
-            .sorted { $0.id < $1.id }
-            .map {
-                let span = max(1, $0.endNS - $0.startNS)
-                let elapsed = virtualTimeNS > $0.startNS ? virtualTimeNS - $0.startNS : 0
-                return RenderTransmission(
-                    transmission: $0,
-                    progress: min(1, Double(elapsed) / Double(span))
-                )
-            }
-        let cohortProjection = CohortProjection(
-            nodes: nodes,
-            transmissions: transmissions
+        self.visualizationMode = visualizationMode
+        self.displayBatch = displayBatch
+        self.sourceFidelity = sourceFidelity
+        let source = RenderSourceProjection(
+            state: state,
+            virtualTimeNS: virtualTimeNS,
+            cohortState: cohortState
         )
-        cohorts = cohortProjection.cohorts
-        cohortTransmissions = cohortProjection.transmissions
-        var violations: [String] = []
-        let missingEdges = state.edges.values.filter {
-            state.nodes[$0.from] == nil || state.nodes[$0.to] == nil
-        }.count
-        let missingFlights = state.transmissions.values.filter {
-            state.nodes[$0.from] == nil || state.nodes[$0.to] == nil
-        }.count
-        let missingParents = state.nodes.values.filter {
-            guard let parent = $0.parent else { return false }
-            return state.nodes[parent] == nil
-        }.count
-        let missingRoutes = state.applicationTransfers.values.filter { transfer in
-            transfer.path.contains { state.nodes[$0] == nil }
-        }.count
-        if missingEdges > 0 { violations.append("\(missingEdges) links lack endpoints") }
-        if missingFlights > 0 {
-            violations.append("\(missingFlights) transmissions lack endpoints")
+        representedNodes = source.representedNodes
+        sourceActiveNodes = source.sourceActiveNodes
+        let individualMode = visualizationMode != .cohorts
+        let anomalyIDs = visualizationMode == .anomalies
+            ? anomalyNodeIDs.sorted()
+            : []
+        self.anomalyNodeIDs = anomalyIDs
+        let included = visualizationMode == .anomalies
+            ? Set(anomalyIDs)
+            : Set(source.nodes.map(\.state.id))
+        nodes = individualMode
+            ? source.nodes.filter { included.contains($0.state.id) }
+            : []
+        self.selectedNodeID = selectedNodeID.flatMap { selected in
+            individualMode && included.contains(selected) ? selected : nil
         }
-        if missingParents > 0 {
-            violations.append("\(missingParents) parent relations lack endpoints")
-        }
-        if missingRoutes > 0 {
-            violations.append("\(missingRoutes) application routes lack nodes")
-        }
+        physicalLinks = individualMode ? source.physicalLinks.filter {
+            included.contains($0.edge.from) && included.contains($0.edge.to)
+        } : []
+        parentRelations = visualizationMode == .rootAdoption
+            ? source.parentRelations.filter {
+                included.contains($0.child) && included.contains($0.parent)
+            }
+            : []
+        routes = individualMode ? source.routes.filter {
+            $0.nodeIDs.allSatisfy(included.contains)
+        } : []
+        transmissions = individualMode ? source.transmissions.filter {
+            included.contains($0.transmission.from)
+                && included.contains($0.transmission.to)
+        } : []
+        pulses = individualMode ? source.pulses.filter {
+            included.contains($0.nodeID)
+        } : []
+        let usesArtifactCohorts = visualizationMode == .cohorts
+            && !source.artifactCohorts.isEmpty
+        cohorts = visualizationMode == .cohorts && !usesArtifactCohorts
+            ? source.cohorts
+            : []
+        cohortTransmissions = visualizationMode == .cohorts
+            && !usesArtifactCohorts
+            ? source.cohortTransmissions
+            : []
+        artifactCohorts = usesArtifactCohorts ? source.artifactCohorts : []
+        artifactCohortFidelity = usesArtifactCohorts
+            ? source.artifactCohortFidelity
+            : nil
         let sourceParents = state.nodes.values.filter { $0.parent != nil }.count
         let omitted = state.transmissions.count - transmissions.count
             + state.edges.count - physicalLinks.count
             + sourceParents - parentRelations.count
             + state.applicationTransfers.count - routes.count
             + state.nodes.count - nodes.count
+            + source.sourcePulseCount - pulses.count
+            + source.artifactCohorts.count - artifactCohorts.count
         reconciliation = RenderReconciliation(
             sourceNodes: state.nodes.count,
             visibleNodes: nodes.count,
@@ -166,8 +179,12 @@ struct RenderFrame: Equatable, Sendable {
             visibleRoutes: routes.count,
             sourceTransmissions: state.transmissions.count,
             visibleTransmissions: transmissions.count,
+            sourcePulses: source.sourcePulseCount,
+            visiblePulses: pulses.count,
+            sourceArtifactCohorts: source.artifactCohorts.count,
+            visibleArtifactCohorts: artifactCohorts.count,
             intentionallyOmitted: omitted,
-            violations: violations
+            violations: source.violations
         )
     }
 
@@ -177,14 +194,4 @@ struct RenderFrame: Equatable, Sendable {
         })
     }
 
-    private static func stablePoint(for id: Int) -> RenderWorldPoint {
-        var value = UInt64(bitPattern: Int64(id)) &+ 0x9E37_79B9_7F4A_7C15
-        value = (value ^ (value >> 30)) &* 0xBF58_476D_1CE4_E5B9
-        value = (value ^ (value >> 27)) &* 0x94D0_49BB_1331_11EB
-        value ^= value >> 31
-        let radius = 0.12 + 0.86 * Double(value & 0xFFFF) / 65_535
-        let angle = Double((value >> 16) & 0xFFFF_FFFF)
-            / Double(UInt32.max) * 2 * .pi
-        return RenderWorldPoint(x: cos(angle) * radius, y: sin(angle) * radius)
-    }
 }

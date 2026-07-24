@@ -30,6 +30,9 @@ extension WorkbenchModel {
                     candidateDebounceMS: candidateDebounce
                 )
                 analysis = candidate.analysis
+                if visualizationMode == .anomalies {
+                    refreshRendererProjection()
+                }
                 comparisonStatus = "Comparison complete. Open Analysis to inspect deltas."
                 isComparing = false
             } catch {

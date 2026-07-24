@@ -53,8 +53,8 @@ treated as executable evidence unless it actually invokes an engine.
 | Billion-node exploration | Modeled | Native sensitivity matrix uses cohorts and never claims one billion executed nodes |
 | Exhaustive tiny-state exploration | Exact within declared finite bounds | Every ordering of supported authored actions is executed by the individual engine; coverage counts and replayable counterexamples are retained |
 | Protocol variants | Supported versioned hooks | Baseline, cohort root dampening, cohort Bloom delta, and individual timer/parent-policy parameters compare under common seed/topology/traffic; unknown or mixed variant IDs are rejected |
-| Small-network visualization | Verified deterministic evidence projection | Visible node, physical-link, parent, application-route, and in-flight primitives map to retained state. Sparse sub-frame events render one ordered event at a time; dense windows are explicitly, exactly summarized. Geometry is stable but synthetic, and no physical-distance claim is made. Native `render-frame/v1alpha1` JSONL reconciles each frame. |
-| Large-network visualization | Modeled, explicitly aggregated projection | Root/depth/transport cohorts and aggregate flights are deterministic and carry adjacent fidelity labels. Dense event windows may be exactly summarized rather than individually animated; cohort geometry is explanatory, not physical. Analytical and sampled source limits remain visible. |
+| Small-network visualization | Independently verified deterministic evidence projection | The canvas consumes only `RenderFrame`. An independent raw-JSON oracle compares visible node, physical-link, parent, application-route, transmission, pulse, and filtering marks in every mode across the committed audit artifacts. Sparse sub-frame events render one ordered event at a time; dense windows are explicitly, exactly summarized. Geometry is stable but synthetic, and no physical-distance claim is made. |
+| Large-network visualization | Independently verified, explicitly aggregated projection | Root/depth/transport cohorts and aggregate flights are deterministic and compared against the raw-event oracle; analytical artifact cohorts are independently projected from committed JSON. Dense event windows may be exactly summarized rather than individually animated; cohort geometry is explanatory, not physical. Analytical and sampled source limits remain visible. |
 | Real-daemon validation | Supported by observable telemetry | Import/compiler/process/telemetry/differential/fuzz backends exist; unavailable daemon measurements remain unsupported, never zero |
 | Durable artifacts, provenance, and CLI/CI parity | Exact | Campaign, normalized plan, seed, fidelity, trace, ledger, metrics, assertions, failures, provenance, replay bundle, and release audit are persisted |
 
@@ -64,9 +64,10 @@ The product specification has an executable surface for every load-bearing
 workflow: author, validate, run, project or exactly summarize ordered events,
 intervene, inspect causality, search, shrink, replay, compare fidelity/variants,
 aggregate to massive scale, and validate against available daemon evidence.
-Renderer evidence proves retained-state projection and event attribution; it
-does not turn synthetic geometry or a compressed dense-event window into a
-physical or continuously animated protocol claim. Other boundaries that cannot
+Renderer evidence plus the independent raw-artifact oracle verifies the
+committed source-to-semantic-mark projection and event attribution; it does not
+turn synthetic geometry, a pixel raster, or a compressed dense-event window
+into a physical or continuously animated protocol claim. Other boundaries that cannot
 honestly be executed—real access-media behavior, full cryptography, selective
 visibility, withheld forwarding, calibrated wall-clock CPU, and unavailable
 daemon telemetry—remain explicit fidelity or policy assumptions.

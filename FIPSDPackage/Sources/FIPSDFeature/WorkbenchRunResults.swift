@@ -26,5 +26,8 @@ extension WorkbenchModel {
               let document = try? JSONDecoder().decode(JSONValue.self, from: data),
               let root = document.object else { return }
         analysis = ArtifactAnalysis.parse(root)
+        if visualizationMode == .anomalies {
+            refreshRendererProjection()
+        }
     }
 }

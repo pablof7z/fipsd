@@ -39,7 +39,12 @@ extension WorkbenchModel {
                 ])
                 let shrinkDocument = try decodeObject(shrink)
                 searchSummary = SearchSummary.parse(search: searchDocument, shrink: shrinkDocument)
-                if let artifact = best.artifact.object { analysis = ArtifactAnalysis.parse(artifact) }
+                if let artifact = best.artifact.object {
+                    analysis = ArtifactAnalysis.parse(artifact)
+                    if visualizationMode == .anomalies {
+                        refreshRendererProjection()
+                    }
+                }
                 evidenceURL = root
                 searchStatus = "Search and automatic minimization complete."
                 isRunning = false

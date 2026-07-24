@@ -13,6 +13,20 @@ struct DisplayProjectionBatch: Equatable, Sendable {
         compressionReason: nil
     )
 
+    static func viewChange(at virtualTimeNS: UInt64) -> DisplayProjectionBatch {
+        DisplayProjectionBatch(
+            fromNS: virtualTimeNS,
+            throughNS: virtualTimeNS,
+            eventIDs: [],
+            eventKinds: [],
+            eventTimesNS: [],
+            eventOrdinals: [],
+            causalParents: [],
+            mode: .viewChange,
+            compressionReason: nil
+        )
+    }
+
     let fromNS: UInt64
     let throughNS: UInt64
     let eventIDs: [String]
@@ -48,6 +62,8 @@ struct DisplayProjectionBatch: Equatable, Sendable {
             "\(count.formatted()) ordered events exactly summarized"
         case .seekReplay:
             "\(count.formatted()) ordered events replayed by explicit seek"
+        case .viewChange:
+            "Explicit visualization projection change · no simulation event"
         }
     }
 

@@ -37,6 +37,8 @@
       "additionalProperties": false,
       "required": [
         "mode",
+        "visualization_mode",
+        "anomaly_node_ids",
         "from_ns",
         "through_ns",
         "event_ids",
@@ -53,9 +55,21 @@
             "interpolation",
             "ordered-event",
             "exact-event-summary",
-            "seek-replay"
+            "seek-replay",
+            "view-change"
           ]
         },
+        "visualization_mode": {
+          "enum": [
+            "Cohorts",
+            "Root adoption",
+            "Connectivity",
+            "Shared media",
+            "Anomalies"
+          ]
+        },
+        "anomaly_node_ids": { "$ref": "#/$defs/integerArray" },
+        "selected_node_id": { "type": ["integer", "null"] },
         "from_ns": { "type": "integer", "minimum": 0 },
         "through_ns": { "type": "integer", "minimum": 0 },
         "event_ids": { "$ref": "#/$defs/stringArray" },
@@ -97,8 +111,10 @@
         "parent_relations",
         "routes",
         "transmissions",
+        "pulses",
         "cohorts",
-        "cohort_transmissions"
+        "cohort_transmissions",
+        "artifact_cohorts"
       ],
       "properties": {
         "nodes": { "type": "array", "items": { "$ref": "#/$defs/node" } },
@@ -118,6 +134,10 @@
           "type": "array",
           "items": { "$ref": "#/$defs/transmission" }
         },
+        "pulses": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/pulse" }
+        },
         "cohorts": {
           "type": "array",
           "items": { "$ref": "#/$defs/cohort" }
@@ -125,6 +145,10 @@
         "cohort_transmissions": {
           "type": "array",
           "items": { "$ref": "#/$defs/cohortTransmission" }
+        },
+        "artifact_cohorts": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/artifactCohort" }
         }
       }
     },
@@ -148,6 +172,7 @@
         "parent": { "type": ["integer", "null"] },
         "sequence": { "type": "integer" },
         "transport": { "type": "string" },
+        "media_zone": { "type": ["string", "null"] },
         "world_x": { "type": "number" },
         "world_y": { "type": "number" },
         "source": { "type": "string" }
@@ -162,6 +187,7 @@
         "from": { "type": "integer" },
         "to": { "type": "integer" },
         "active": { "type": "boolean" },
+        "shared_medium_group": { "type": ["integer", "null"] },
         "source": { "type": "string" }
       }
     },
@@ -202,13 +228,56 @@
     "route": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["transfer_id", "node_ids", "source"],
+      "required": [
+        "transfer_id",
+        "node_ids",
+        "source_node_id",
+        "destination_node_id",
+        "total_bytes",
+        "offered_bytes",
+        "delivered_bytes",
+        "progress",
+        "started_at_ns",
+        "source"
+      ],
       "properties": {
         "transfer_id": { "type": "string" },
         "node_ids": {
           "type": "array",
           "items": { "type": "integer" }
         },
+        "source_node_id": { "type": "integer" },
+        "destination_node_id": { "type": "integer" },
+        "total_bytes": { "type": "integer", "minimum": 0 },
+        "offered_bytes": { "type": "integer", "minimum": 0 },
+        "delivered_bytes": { "type": "integer", "minimum": 0 },
+        "progress": { "type": "number", "minimum": 0, "maximum": 1 },
+        "started_at_ns": { "type": "integer", "minimum": 0 },
+        "last_delivery_ns": { "type": ["integer", "null"], "minimum": 0 },
+        "source": { "type": "string" }
+      }
+    },
+    "pulse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "node_id",
+        "kind",
+        "occurred_at_ns",
+        "progress",
+        "source"
+      ],
+      "properties": {
+        "node_id": { "type": "integer" },
+        "kind": {
+          "enum": [
+            "rekey",
+            "parent-switch",
+            "authenticated-sybil-arrival"
+          ]
+        },
+        "occurred_at_ns": { "type": "integer", "minimum": 0 },
+        "progress": { "type": "number", "minimum": 0, "maximum": 1 },
         "source": { "type": "string" }
       }
     },
@@ -252,6 +321,36 @@
         "source": { "type": "string" }
       }
     },
+    "artifactCohort": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "population",
+        "depth_start",
+        "depth_end",
+        "region",
+        "transport",
+        "resource",
+        "protocol_state",
+        "world_x",
+        "world_y",
+        "source"
+      ],
+      "properties": {
+        "id": { "type": "string" },
+        "population": { "type": "integer", "minimum": 0 },
+        "depth_start": { "type": "integer", "minimum": 0 },
+        "depth_end": { "type": "integer", "minimum": 0 },
+        "region": { "type": "string" },
+        "transport": { "type": "string" },
+        "resource": { "type": "string" },
+        "protocol_state": { "type": "string" },
+        "world_x": { "type": "number" },
+        "world_y": { "type": "number" },
+        "source": { "type": "string" }
+      }
+    },
     "reconciliation": {
       "type": "object",
       "additionalProperties": false,
@@ -266,6 +365,10 @@
         "visible_routes",
         "source_transmissions",
         "visible_transmissions",
+        "source_pulses",
+        "visible_pulses",
+        "source_artifact_cohorts",
+        "visible_artifact_cohorts",
         "intentionally_omitted",
         "violations"
       ],
@@ -280,6 +383,10 @@
         "visible_routes": { "type": "integer", "minimum": 0 },
         "source_transmissions": { "type": "integer", "minimum": 0 },
         "visible_transmissions": { "type": "integer", "minimum": 0 },
+        "source_pulses": { "type": "integer", "minimum": 0 },
+        "visible_pulses": { "type": "integer", "minimum": 0 },
+        "source_artifact_cohorts": { "type": "integer", "minimum": 0 },
+        "visible_artifact_cohorts": { "type": "integer", "minimum": 0 },
         "intentionally_omitted": { "type": "integer", "minimum": 0 },
         "violations": { "$ref": "#/$defs/stringArray" }
       }
@@ -297,8 +404,15 @@
         "started_transmission_ids",
         "ended_transmission_ids",
         "advanced_transmission_ids",
+        "started_pulse_keys",
+        "ended_pulse_keys",
+        "advanced_pulse_keys",
         "changed_cohorts",
-        "layout_only_node_ids"
+        "changed_artifact_cohort_ids",
+        "layout_only_node_ids",
+        "view_mode_changed",
+        "anomaly_filter_changed",
+        "selection_changed"
       ],
       "properties": {
         "added_node_ids": { "$ref": "#/$defs/integerArray" },
@@ -310,8 +424,15 @@
         "started_transmission_ids": { "$ref": "#/$defs/stringArray" },
         "ended_transmission_ids": { "$ref": "#/$defs/stringArray" },
         "advanced_transmission_ids": { "$ref": "#/$defs/stringArray" },
+        "started_pulse_keys": { "$ref": "#/$defs/stringArray" },
+        "ended_pulse_keys": { "$ref": "#/$defs/stringArray" },
+        "advanced_pulse_keys": { "$ref": "#/$defs/stringArray" },
         "changed_cohorts": { "$ref": "#/$defs/stringArray" },
-        "layout_only_node_ids": { "$ref": "#/$defs/integerArray" }
+        "changed_artifact_cohort_ids": { "$ref": "#/$defs/stringArray" },
+        "layout_only_node_ids": { "$ref": "#/$defs/integerArray" },
+        "view_mode_changed": { "type": "boolean" },
+        "anomaly_filter_changed": { "type": "boolean" },
+        "selection_changed": { "type": "boolean" }
       }
     },
     "stringArray": {

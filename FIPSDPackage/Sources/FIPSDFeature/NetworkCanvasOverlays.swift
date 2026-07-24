@@ -3,10 +3,10 @@ import SwiftUI
 extension NetworkCanvas {
     @ViewBuilder
     var transferProgress: some View {
-        if !state.applicationTransfers.isEmpty {
+        if !frame.routes.isEmpty {
             VStack(alignment: .leading, spacing: 8) {
-                ForEach(state.applicationTransfers.values.sorted { $0.id < $1.id }.prefix(3)) {
-                    transfer in
+                ForEach(frame.routes.prefix(3), id: \.transferID) { route in
+                    let transfer = route.transfer
                     VStack(alignment: .leading, spacing: 4) {
                         HStack {
                             Label(transfer.id, systemImage: "arrow.down.doc.fill")

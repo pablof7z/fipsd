@@ -15,13 +15,16 @@ import Testing
         throughNS: 0,
         mode: .orderedEvent
     )
-    let before = RenderFrame(state: state, virtualTimeNS: 0)
+    let before = RenderFrame(
+        state: state,
+        virtualTimeNS: 0,
+        displayBatch: initialBatch,
+        sourceFidelity: "individual · semantic-exact · executable-codec"
+    )
     let initial = RenderFrameEvidence(
         frameIndex: 0,
         frame: before,
-        previous: nil,
-        batch: initialBatch,
-        sourceFidelity: "individual · semantic-exact · executable-codec"
+        previous: nil
     )
 
     state.nodes[1]?.root = 0
@@ -38,13 +41,16 @@ import Testing
         throughNS: 10,
         mode: .orderedEvent
     )
-    let after = RenderFrame(state: state, virtualTimeNS: 10)
+    let after = RenderFrame(
+        state: state,
+        virtualTimeNS: 10,
+        displayBatch: batch,
+        sourceFidelity: "individual · semantic-exact · executable-codec"
+    )
     let evidence = RenderFrameEvidence(
         frameIndex: 1,
         frame: after,
-        previous: before,
-        batch: batch,
-        sourceFidelity: "individual · semantic-exact · executable-codec"
+        previous: before
     )
 
     #expect(initial.violations.isEmpty)
@@ -60,7 +66,7 @@ import Testing
     )
     #expect(
         evidence.primitives.routes.first?.source
-            == "state.applicationTransfers[download].path"
+            == "state.applicationTransfers[download]"
     )
     #expect(evidence.presentation.eventIDs == ["delivery"])
     #expect(evidence.presentation.initiatingEventIDs == ["delivery"])
@@ -82,14 +88,17 @@ import Testing
         throughNS: 0,
         mode: .orderedEvent
     )
-    let frame = RenderFrame(state: evidenceState(), virtualTimeNS: 0)
+    let frame = RenderFrame(
+        state: evidenceState(),
+        virtualTimeNS: 0,
+        displayBatch: batch,
+        sourceFidelity: "semantic-exact"
+    )
     for index in 0..<2 {
         try writer.append(RenderFrameEvidence(
             frameIndex: index,
             frame: frame,
-            previous: index == 0 ? nil : frame,
-            batch: batch,
-            sourceFidelity: "semantic-exact"
+            previous: index == 0 ? nil : frame
         ))
     }
     try await writer.flush()
@@ -115,13 +124,15 @@ import Testing
 }
 
 @Test func minimalRendererEvidenceMatchesCommittedFixture() throws {
-    let frame = RenderFrame(state: SimulationState(), virtualTimeNS: 0)
+    let frame = RenderFrame(
+        state: SimulationState(),
+        virtualTimeNS: 0,
+        sourceFidelity: "fixture"
+    )
     let evidence = RenderFrameEvidence(
         frameIndex: 0,
         frame: frame,
-        previous: nil,
-        batch: .empty,
-        sourceFidelity: "fixture"
+        previous: nil
     )
     let encoder = JSONEncoder()
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -228,13 +239,16 @@ private func replayAuditArtifact(_ relativePath: String) throws -> AuditReplayRe
             mode: update.mode,
             compressionReason: update.compressionReason
         )
-        let frame = RenderFrame(state: state, virtualTimeNS: timeNS)
+        let frame = RenderFrame(
+            state: state,
+            virtualTimeNS: timeNS,
+            displayBatch: batch,
+            sourceFidelity: "committed audit artifact"
+        )
         let evidence = RenderFrameEvidence(
             frameIndex: frameIndex,
             frame: frame,
-            previous: previous,
-            batch: batch,
-            sourceFidelity: "committed audit artifact"
+            previous: previous
         )
         replayed.append(contentsOf: batch.eventIDs)
         if batch.isCompressed { compressed += 1 }

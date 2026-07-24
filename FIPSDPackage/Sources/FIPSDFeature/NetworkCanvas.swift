@@ -2,47 +2,35 @@ import SwiftUI
 
 struct NetworkCanvas: View {
     let frame: RenderFrame
-    let state: SimulationState
-    @Binding var selection: Int?
-    @Binding var mode: VisualizationMode
-    let cohortState: CohortArtifactState?
-    let anomalyNodeIDs: Set<Int>
-    let displayBatch: DisplayProjectionBatch
-    let sourceFidelity: String
+    let onSelectionChange: @MainActor @Sendable (Int?) -> Void
+    let onModeChange: @MainActor @Sendable (VisualizationMode) -> Void
+    var mode: VisualizationMode { frame.visualizationMode }
     var body: some View {
         GeometryReader { geometry in
-            let visibleNodeIDs = mode == .anomalies ? anomalyNodeIDs : nil
-            let displayedFrame = visibleNodeIDs.map {
-                RenderFrame(
-                state: state,
-                    virtualTimeNS: frame.virtualTimeNS,
-                    visibleNodeIDs: $0
-                )
-            } ?? frame
-            let positions = displayedFrame.positions(in: geometry.size)
-            let cohorts = CohortLayout(frame: displayedFrame, size: geometry.size)
+            let positions = frame.positions(in: geometry.size)
+            let cohorts = CohortLayout(frame: frame, size: geometry.size)
             InteractiveCanvasViewport { viewport, viewportSize in
                 Canvas { context, _ in
                     context.concatenate(viewport.drawingTransform(in: viewportSize))
                     if mode == .cohorts {
-                        if let cohortState {
+                        if !frame.artifactCohorts.isEmpty {
                             CohortArtifactCanvas(
-                                state: cohortState,
+                                frame: frame,
                                 size: geometry.size
                             ).draw(context: &context)
                         } else {
                             cohorts.draw(context: &context)
                         }
                     } else {
-                        drawEdges(context: &context, frame: displayedFrame, positions: positions)
+                        drawEdges(context: &context, frame: frame, positions: positions)
                         drawTransmissions(
                             context: &context,
-                            frame: displayedFrame,
+                            frame: frame,
                             positions: positions
                         )
                         drawNodes(
                             context: &context,
-                            frame: displayedFrame,
+                            frame: frame,
                             positions: positions
                         )
                     }
@@ -50,9 +38,9 @@ struct NetworkCanvas: View {
                 .contentShape(Rectangle())
                 .gesture(SpatialTapGesture().onEnded { value in
                     let point = viewport.contentPoint(at: value.location, in: viewportSize)
-                    selection = mode == .cohorts
+                    onSelectionChange(mode == .cohorts
                         ? cohorts.nearestRepresentative(to: point)
-                        : nearestNode(to: point, positions: positions)
+                        : nearestNode(to: point, positions: positions))
                 })
             }
             .overlay(alignment: .topLeading) { legend }
@@ -64,14 +52,23 @@ struct NetworkCanvas: View {
 
     private var legend: some View {
         HStack(spacing: 14) {
-            Picker("View", selection: $mode) {
+            Picker(
+                "View",
+                selection: Binding(
+                    get: { mode },
+                    set: { onModeChange($0) }
+                )
+            ) {
                 ForEach(VisualizationMode.allCases) { Text($0.rawValue).tag($0) }
             }
             .pickerStyle(.menu)
             .labelsHidden()
             .frame(width: 150).accessibilityIdentifier("visualizationModePicker")
             if mode == .cohorts {
-                Text(cohortState?.fidelity ?? "transport × root × depth cohorts")
+                Text(
+                    frame.artifactCohortFidelity
+                        ?? "transport × root × depth cohorts"
+                )
                     .foregroundStyle(.secondary)
             } else if mode == .connectivity {
                 transportLegend("Wi-Fi", color: .cyan)
@@ -96,7 +93,7 @@ struct NetworkCanvas: View {
                 Label("rekey", systemImage: "key.horizontal").foregroundStyle(.mint)
                 Label("payload", systemImage: "arrow.right").foregroundStyle(.yellow)
             }
-            Text((cohortState?.representedNodes ?? UInt64(state.nodes.values.filter(\.active).count)).formatted() + " nodes")
+            Text(frame.representedNodes.formatted() + " represented nodes")
                 .foregroundStyle(.secondary)
         }
         .font(.caption)
@@ -112,13 +109,13 @@ struct NetworkCanvas: View {
     private var projectionDisclosure: some View {
         VStack(alignment: .trailing, spacing: 3) {
             Text("Stable synthetic layout · distance is not a protocol metric")
-            Text(sourceFidelity)
+            Text(frame.sourceFidelity)
             Text("Renderer: exact retained state · deterministic cohort aggregation")
-            Text(displayBatch.label)
-                .foregroundStyle(displayBatch.isCompressed ? .orange : .secondary)
-            if displayBatch.isCompressed {
+            Text(frame.displayBatch.label)
+                .foregroundStyle(frame.displayBatch.isCompressed ? .orange : .secondary)
+            if frame.displayBatch.isCompressed {
                 Text(
-                    "\(displayBatch.initiatingEventIDs.count.formatted()) causal "
+                    "\(frame.displayBatch.initiatingEventIDs.count.formatted()) causal "
                         + "entry event(s) retained in renderer evidence"
                 )
                 .foregroundStyle(.orange)
@@ -169,7 +166,8 @@ struct NetworkCanvas: View {
             routePath.move(to: first)
             for point in points.dropFirst() { routePath.addLine(to: point) }
         }
-        let opacity = state.edges.count > 5_000 ? 0.055 : 0.13
+        let sourceLinks = frame.reconciliation.sourcePhysicalLinks
+        let opacity = sourceLinks > 5_000 ? 0.055 : 0.13
         context.stroke(activePath, with: .color(.secondary.opacity(opacity)), lineWidth: 0.5)
         context.stroke(sharedPath, with: .color(.cyan.opacity(0.55)), lineWidth: 1.4)
         context.stroke(parentPath, with: .color(.orange.opacity(0.72)), lineWidth: 1.4)
@@ -180,7 +178,7 @@ struct NetworkCanvas: View {
         )
         context.stroke(
             inactivePath,
-            with: .color(.red.opacity(state.edges.count > 5_000 ? 0.16 : 0.48)),
+            with: .color(.red.opacity(sourceLinks > 5_000 ? 0.16 : 0.48)),
             style: StrokeStyle(lineWidth: 1.2, dash: [4, 3])
         )
     }

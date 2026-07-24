@@ -1,23 +1,14 @@
 import SwiftUI
 
 struct CohortArtifactCanvas {
-    let state: CohortArtifactState
+    let frame: RenderFrame
     let size: CGSize
 
     func draw(context: inout GraphicsContext) {
-        let columns = 8
         let margin: CGFloat = 56
-        let width = max(1, size.width - margin * 2)
-        let height = max(1, size.height - margin * 2)
-        let rows = max(1, Int(ceil(Double(state.cohorts.count) / Double(columns))))
-        let largest = state.cohorts.map(\.population).max() ?? 1
-        for (index, cohort) in state.cohorts.enumerated() {
-            let column = index % columns
-            let row = index / columns
-            let point = CGPoint(
-                x: margin + width * (CGFloat(column) + 0.5) / CGFloat(columns),
-                y: margin + height * (CGFloat(row) + 0.5) / CGFloat(rows)
-            )
+        let largest = frame.artifactCohorts.map(\.population).max() ?? 1
+        for cohort in frame.artifactCohorts {
+            let point = cohort.worldPoint.projected(in: size, margin: margin)
             let ratio = sqrt(Double(cohort.population) / Double(max(1, largest)))
             let diameter = 18 + 36 * ratio
             let rect = CGRect(
