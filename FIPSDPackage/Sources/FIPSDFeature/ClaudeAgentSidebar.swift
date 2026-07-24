@@ -23,6 +23,7 @@ struct ClaudeAgentSidebar: View {
                 Text("Claude")
                     .font(.headline)
                 Spacer()
+                modelPicker
                 status
                 Button {
                     model.restart()
@@ -41,6 +42,20 @@ struct ClaudeAgentSidebar: View {
             .foregroundStyle(.secondary)
         }
         .padding(14)
+    }
+
+    private var modelPicker: some View {
+        Picker("Model", selection: $model.selectedModel) {
+            ForEach(ClaudeAgentModelOption.allCases) { option in
+                Text(option.label).tag(option)
+            }
+        }
+        .labelsHidden()
+        .pickerStyle(.menu)
+        .fixedSize()
+        .font(.caption)
+        .help("Claude model for this conversation")
+        .accessibilityIdentifier("claude-agent-model-picker")
     }
 
     private var status: some View {
@@ -75,7 +90,7 @@ struct ClaudeAgentSidebar: View {
                 }
                 .padding(14)
             }
-            .onChange(of: model.transcript.count) {
+            .onChange(of: model.transcript) {
                 guard let id = model.transcript.last?.id else { return }
                 withAnimation { proxy.scrollTo(id, anchor: .bottom) }
             }
@@ -146,7 +161,7 @@ struct ClaudeAgentSidebar: View {
                 .textFieldStyle(.plain)
                 .lineLimit(1...5)
                 .onSubmit { model.send() }
-                .disabled(!model.state.isConnected || model.state == .responding)
+                .disabled(!model.state.isConnected)
                 .accessibilityIdentifier("claude-agent-composer")
 
                 if model.state == .responding {
@@ -157,17 +172,16 @@ struct ClaudeAgentSidebar: View {
                     }
                     .buttonStyle(.bordered)
                     .help("Stop Claude")
-                } else {
-                    Button {
-                        model.send()
-                    } label: {
-                        Image(systemName: "arrow.up")
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .disabled(!model.canSend)
-                    .help("Send")
-                    .accessibilityIdentifier("claude-agent-send")
                 }
+                Button {
+                    model.send()
+                } label: {
+                    Image(systemName: "arrow.up")
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(!model.canSend)
+                .help(model.state == .responding ? "Steer Claude's running response" : "Send")
+                .accessibilityIdentifier("claude-agent-send")
             }
             if case let .failed(message) = model.state {
                 HStack {
