@@ -31,7 +31,7 @@ let package = Package(
             dependencies: [
                 .product(name: "MarkdownUI", package: "swift-markdown-ui")
             ],
-            resources: [.copy("Resources")]
+            resources: [.process("Resources")]
         ),
         .target(name: "FIPSDMCPProtocol"),
         .executableTarget(
@@ -42,7 +42,8 @@ let package = Package(
             name: "FIPSDFeatureTests",
             dependencies: [
                 "FIPSDFeature"
-            ]
+            ],
+            resources: [.copy("Resources")]
         ),
         .testTarget(
             name: "FIPSDMCPProtocolTests",

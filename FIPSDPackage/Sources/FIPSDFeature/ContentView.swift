@@ -22,7 +22,8 @@ public struct ContentView: View {
                     selection: $model.selectedNodeID,
                     mode: $model.visualizationMode,
                     cohortState: model.cohortState,
-                    anomalyNodeIDs: model.analysis.anomalyNodeIDs
+                    anomalyNodeIDs: model.analysis.anomalyNodeIDs,
+                    displayBatch: model.displayProjectionBatch
                 )
                 TimelineBar(model: model)
             }

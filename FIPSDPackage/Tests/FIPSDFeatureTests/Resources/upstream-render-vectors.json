@@ -1,0 +1,85 @@
+{
+  "fips_commit": "80c956a6fdb85dde1450969a21891c1158e43267",
+  "schema_version": "experiments.fips.network/render-vectors/v1alpha1",
+  "sources": [
+    {
+      "path": "src/node/tests/bloom.rs",
+      "sha256": "15570d5fe0c840eac2f260f963348f3e408334ef8cf0905ca5b3a8b13965f91e"
+    },
+    {
+      "path": "src/node/tests/forwarding.rs",
+      "sha256": "a90752a54567a254e9ae79dd737e47df202959cc9b27b5379e5f82918dd49942"
+    },
+    {
+      "path": "src/node/tests/spanning_tree.rs",
+      "sha256": "613d70ee6f00b1206fbd5b2ef00bf9b4c967e7e067c0ea5e4bbc8c2762c60d99"
+    }
+  ],
+  "vectors": [
+    {
+      "edges": [[0, 1], [1, 2], [2, 3], [3, 4], [4, 0]],
+      "expected_components": 1,
+      "fidelity": "semantic-topology copied from pinned executable test",
+      "id": "spanning-tree-ring-5",
+      "node_count": 5,
+      "source_path": "src/node/tests/spanning_tree.rs",
+      "source_test": "test_spanning_tree_ring"
+    },
+    {
+      "edges": [[0, 1], [0, 2], [0, 3], [0, 4]],
+      "expected_components": 1,
+      "fidelity": "semantic-topology copied from pinned executable test",
+      "id": "spanning-tree-star-5",
+      "node_count": 5,
+      "source_path": "src/node/tests/spanning_tree.rs",
+      "source_test": "test_spanning_tree_star"
+    },
+    {
+      "edges": [[0, 1], [1, 2], [2, 3], [3, 4]],
+      "expected_components": 1,
+      "fidelity": "semantic-topology copied from pinned executable test",
+      "id": "spanning-tree-chain-5",
+      "node_count": 5,
+      "source_path": "src/node/tests/spanning_tree.rs",
+      "source_test": "test_spanning_tree_chain"
+    },
+    {
+      "edges": [[0, 1], [1, 2], [3, 4], [4, 5]],
+      "expected_components": 2,
+      "fidelity": "semantic-topology copied from pinned executable test",
+      "id": "spanning-tree-disconnected-6",
+      "node_count": 6,
+      "source_path": "src/node/tests/spanning_tree.rs",
+      "source_test": "test_spanning_tree_disconnected"
+    },
+    {
+      "edges": [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7]],
+      "expected_components": 1,
+      "fidelity": "semantic-topology copied from pinned executable test",
+      "id": "bloom-full-propagation-chain-8",
+      "node_count": 8,
+      "source_path": "src/node/tests/bloom.rs",
+      "source_test": "test_bloom_filter_chain_propagation"
+    },
+    {
+      "edges": [[0, 1], [1, 2]],
+      "expected_components": 1,
+      "fidelity": "semantic-topology copied from pinned executable test",
+      "flow_path": [0, 1, 2],
+      "id": "forwarding-single-hop-chain-3",
+      "node_count": 3,
+      "source_path": "src/node/tests/forwarding.rs",
+      "source_test": "test_forwarding_single_hop"
+    },
+    {
+      "edges": [[0, 1], [1, 2], [2, 3], [3, 4]],
+      "expected_components": 1,
+      "fidelity": "semantic-topology copied from pinned executable test",
+      "flow_path": [0, 1, 2, 3, 4],
+      "id": "forwarding-multi-hop-chain-5",
+      "node_count": 5,
+      "source_path": "src/node/tests/forwarding.rs",
+      "source_test": "test_forwarding_multi_hop"
+    }
+  ]
+}

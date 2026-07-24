@@ -7,9 +7,16 @@ struct NetworkCanvas: View {
     @Binding var mode: VisualizationMode
     let cohortState: CohortArtifactState?
     let anomalyNodeIDs: Set<Int>
+    let displayBatch: DisplayProjectionBatch
     var body: some View {
         GeometryReader { geometry in
-            let positions = positions(in: geometry.size)
+            let visibleNodeIDs = mode == .anomalies ? anomalyNodeIDs : nil
+            let frame = RenderFrame(
+                state: state,
+                virtualTimeNS: virtualTimeNS,
+                visibleNodeIDs: visibleNodeIDs
+            )
+            let positions = frame.positions(in: geometry.size)
             let cohorts = CohortLayout(state: state, size: geometry.size)
             InteractiveCanvasViewport { viewport, viewportSize in
                 Canvas { context, _ in
@@ -28,8 +35,8 @@ struct NetworkCanvas: View {
                             )
                         }
                     } else {
-                        drawEdges(context: &context, positions: positions)
-                        drawTransmissions(context: &context, positions: positions)
+                        drawEdges(context: &context, frame: frame, positions: positions)
+                        drawTransmissions(context: &context, frame: frame, positions: positions)
                         drawNodes(context: &context, positions: positions)
                     }
                 }
@@ -42,42 +49,12 @@ struct NetworkCanvas: View {
                 })
             }
             .overlay(alignment: .topLeading) { legend }
+            .overlay(alignment: .topTrailing) { projectionDisclosure }
             .overlay(alignment: .bottomLeading) { transferProgress }
         }
         .background(Color(nsColor: .windowBackgroundColor))
     }
 
-    @ViewBuilder
-    private var transferProgress: some View {
-        if !state.applicationTransfers.isEmpty {
-            VStack(alignment: .leading, spacing: 8) {
-                ForEach(state.applicationTransfers.values.sorted { $0.id < $1.id }.prefix(3)) {
-                    transfer in
-                    VStack(alignment: .leading, spacing: 4) {
-                        HStack {
-                            Label(transfer.id, systemImage: "arrow.down.doc.fill")
-                            Spacer()
-                            Text(transfer.progress, format: .percent.precision(.fractionLength(1)))
-                        }
-                        ProgressView(value: transfer.progress)
-                            .tint(.yellow)
-                        Text("\(transfer.routeLabel) · "
-                            + "\(bytes(transfer.deliveredBytes)) / \(bytes(transfer.totalBytes))")
-                        .foregroundStyle(.secondary)
-                    }
-                }
-            }
-            .font(.caption)
-            .padding(10)
-            .frame(width: 310)
-            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
-            .padding(12)
-        }
-    }
-
-    private func bytes(_ value: Int) -> String {
-        ByteCountFormatter.string(fromByteCount: Int64(value), countStyle: .file)
-    }
     private var legend: some View {
         HStack(spacing: 14) {
             Picker("View", selection: $mode) {
@@ -121,33 +98,30 @@ struct NetworkCanvas: View {
         Label(label, systemImage: "circle.fill").foregroundStyle(color)
     }
 
-    private func positions(in size: CGSize) -> [Int: CGPoint] {
-        let active = state.nodes.values
-            .filter { mode != .anomalies || anomalyNodeIDs.contains($0.id) }
-            .sorted { $0.id < $1.id }
-        let count = max(1, active.count)
-        let radius = min(size.width, size.height) * 0.46
-        let center = CGPoint(x: size.width / 2, y: size.height / 2)
-        return Dictionary(uniqueKeysWithValues: active.enumerated().map { index, node in
-            let fraction = sqrt((Double(index) + 0.5) / Double(count))
-            let angle = Double(index) * 2.399_963_229_728_653
-            return (node.id, CGPoint(
-                x: center.x + cos(angle) * radius * fraction,
-                y: center.y + sin(angle) * radius * fraction
-            ))
-        })
+    private var projectionDisclosure: some View {
+        VStack(alignment: .trailing, spacing: 3) {
+            Text("Stable synthetic layout · distance is not a protocol metric")
+            Text(displayBatch.label)
+                .foregroundStyle(displayBatch.isCompressed ? .orange : .secondary)
+        }
+        .font(.caption2)
+        .foregroundStyle(.secondary)
+            .padding(8)
+            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
+            .padding(12)
     }
 
-    private func drawEdges(context: inout GraphicsContext, positions: [Int: CGPoint]) {
+    private func drawEdges(
+        context: inout GraphicsContext,
+        frame: RenderFrame,
+        positions: [Int: CGPoint]
+    ) {
         var activePath = Path()
         var inactivePath = Path()
         var sharedPath = Path()
         var parentPath = Path()
-        for edge in state.edges.values {
-            if mode == .anomalies
-                && (!anomalyNodeIDs.contains(edge.from) || !anomalyNodeIDs.contains(edge.to)) {
-                continue
-            }
+        for item in frame.physicalLinks {
+            let edge = item.edge
             guard let from = positions[edge.from], let to = positions[edge.to] else { continue }
             if edge.active, mode == .sharedMedium, edge.sharedMediumGroup != nil {
                 sharedPath.move(to: from)
@@ -161,10 +135,9 @@ struct NetworkCanvas: View {
             }
         }
         if mode == .rootAdoption {
-            for node in state.nodes.values {
-                guard let parent = node.parent,
-                      let from = positions[node.id],
-                      let to = positions[parent] else { continue }
+            for relation in frame.parentRelations {
+                guard let from = positions[relation.child],
+                      let to = positions[relation.parent] else { continue }
                 parentPath.move(to: from)
                 parentPath.addLine(to: to)
             }
@@ -230,24 +203,27 @@ struct NetworkCanvas: View {
         }
     }
 
-    private func drawTransmissions(context: inout GraphicsContext, positions: [Int: CGPoint]) {
-        for flight in state.transmissions.values {
-            if mode == .anomalies
-                && (!anomalyNodeIDs.contains(flight.from)
-                    || !anomalyNodeIDs.contains(flight.to)) {
-                continue
-            }
+    private func drawTransmissions(
+        context: inout GraphicsContext,
+        frame: RenderFrame,
+        positions: [Int: CGPoint]
+    ) {
+        for rendered in frame.transmissions {
+            let flight = rendered.transmission
             guard let from = positions[flight.from], let to = positions[flight.to] else { continue }
-            let span = max(1, flight.endNS - flight.startNS)
-            let elapsed = virtualTimeNS > flight.startNS ? virtualTimeNS - flight.startNS : 0
-            let progress = min(1, Double(elapsed) / Double(span))
+            let progress = rendered.progress
             let point = CGPoint(
                 x: from.x + (to.x - from.x) * progress,
                 y: from.y + (to.y - from.y) * progress
             )
+            let trailStart = max(0, progress - 0.07)
+            let trail = CGPoint(
+                x: from.x + (to.x - from.x) * trailStart,
+                y: from.y + (to.y - from.y) * trailStart
+            )
             var path = Path()
-            path.move(to: from)
-            path.addLine(to: to)
+            path.move(to: trail)
+            path.addLine(to: point)
             let color: Color = switch flight.plane {
             case "data": .yellow
             case "bloom": .cyan
@@ -255,7 +231,7 @@ struct NetworkCanvas: View {
             case "session": .green
             default: .pink
             }
-            context.stroke(path, with: .color(color.opacity(0.42)), lineWidth: 1.5)
+            context.stroke(path, with: .color(color.opacity(0.72)), lineWidth: 2)
             context.fill(
                 Path(ellipseIn: CGRect(x: point.x - 3, y: point.y - 3, width: 6, height: 6)),
                 with: .color(color)

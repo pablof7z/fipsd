@@ -12,6 +12,7 @@ final class WorkbenchModel {
     var events: [SimulationEvent] = []
     var cursor = 0
     var virtualTimeNS: UInt64 = 0
+    var displayProjectionBatch = DisplayProjectionBatch.empty
     var isPlaying = false
     var isRunning = false
     var speed = 1.0
@@ -109,37 +110,6 @@ final class WorkbenchModel {
         status = "Loaded the 10K descending-root wave preset."
     }
 
-    func togglePlayback() {
-        isPlaying.toggle()
-        if isPlaying { startPlaybackLoop() }
-    }
-
-    func stepForward() {
-        guard cursor < events.count else { return }
-        apply(events[cursor])
-        cursor += 1
-    }
-
-    func stepBackward() {
-        guard cursor > 0 else { return }
-        seek(to: events[cursor - 1].timeNS.saturatingSubtract(1))
-    }
-
-    func seek(to timeNS: UInt64) {
-        isPlaying = false
-        state = SimulationState()
-        cursor = 0
-        virtualTimeNS = timeNS
-        while cursor < events.count, events[cursor].timeNS <= timeNS {
-            state.apply(events[cursor])
-            cursor += 1
-        }
-        state.expireTransmissions(at: timeNS)
-    }
-
-    var durationNS: UInt64 { events.last?.timeNS ?? 0 }
-    var timeLabel: String { String(format: "%.3f s", Double(virtualTimeNS) / 1e9) }
-
     func startRun(
         campaign: Data,
         author: String,
@@ -221,30 +191,7 @@ final class WorkbenchModel {
         events.append(contentsOf: newEvents)
     }
 
-    func startPlaybackLoop() {
-        guard playbackTask == nil || playbackTask?.isCancelled == true else { return }
-        playbackTask = Task { [weak self] in
-            while !Task.isCancelled {
-                try? await Task.sleep(for: .milliseconds(16))
-                guard let self, self.isPlaying else { continue }
-                self.advance(byWallNanoseconds: 16_000_000)
-            }
-        }
-    }
-
-    private func advance(byWallNanoseconds delta: UInt64) {
-        let availableEnd = max(events.last?.timeNS ?? 0, virtualTimeNS)
-        let advance = UInt64(Double(delta) * speed)
-        virtualTimeNS = min(virtualTimeNS.saturatingAdd(advance), availableEnd)
-        while cursor < events.count, events[cursor].timeNS <= virtualTimeNS {
-            apply(events[cursor])
-            cursor += 1
-        }
-        state.expireTransmissions(at: virtualTimeNS)
-        if streamComplete, cursor == events.count, virtualTimeNS >= availableEnd { isPlaying = false }
-    }
-
-    private func apply(_ event: SimulationEvent) {
+    func apply(_ event: SimulationEvent) {
         virtualTimeNS = max(virtualTimeNS, event.timeNS)
         state.apply(event)
         if event.kind == "input.initial-topology", state.nodes.count > 500 {
@@ -257,6 +204,7 @@ final class WorkbenchModel {
         events = []
         cursor = 0
         virtualTimeNS = 0
+        displayProjectionBatch = .empty
         streamComplete = false
         summary = RunSummary()
         analysis = ArtifactAnalysis()

@@ -1,7 +1,7 @@
 import SwiftUI
 
-private struct CohortKey: Hashable {
-    let rootGroup: Int
+struct CohortKey: Hashable {
+    let root: Int
     let depthBand: Int
     let transport: String
 }
@@ -12,10 +12,16 @@ private struct CohortBucket {
     var active: Int
 }
 
-private struct CohortFlightKey: Hashable {
+struct CohortFlightKey: Hashable {
     let from: Int
     let to: Int
     let plane: String
+}
+
+struct CohortFlightAggregate: Equatable {
+    let key: CohortFlightKey
+    let count: Int
+    let meanProgress: Double
 }
 
 struct CohortLayout {
@@ -24,20 +30,11 @@ struct CohortLayout {
     private let nodeBuckets: [Int: Int]
 
     init(state: SimulationState, size: CGSize) {
-        let rootCounts = Dictionary(grouping: state.nodes.values, by: \.root)
-            .mapValues(\.count)
-        let majorRoots = rootCounts
-            .sorted { ($0.value, -$0.key) > ($1.value, -$1.key) }
-            .prefix(7)
-            .map(\.key)
-        let rootSlots = Dictionary(uniqueKeysWithValues: majorRoots.enumerated().map {
-            ($0.element, $0.offset)
-        })
         let depths = Self.depths(state.nodes)
         var grouped: [CohortKey: CohortBucket] = [:]
         for node in state.nodes.values {
             let key = CohortKey(
-                rootGroup: rootSlots[node.root] ?? majorRoots.count,
+                root: node.root,
                 depthBand: min(7, (depths[node.id] ?? 0) / 4),
                 transport: node.transportType
             )
@@ -45,17 +42,16 @@ struct CohortLayout {
             if node.active { grouped[key]!.active += 1 }
         }
         buckets = grouped.values.sorted {
-            ($0.key.rootGroup, $0.key.depthBand, $0.key.transport)
-                < ($1.key.rootGroup, $1.key.depthBand, $1.key.transport)
+            ($0.key.root, $0.key.depthBand, $0.key.transport)
+                < ($1.key.root, $1.key.depthBand, $1.key.transport)
         }
-        let rootColumns = max(1, Set(buckets.map(\.key.rootGroup)).count)
         let margin: CGFloat = 54
         let width = max(1, size.width - margin * 2)
         let height = max(1, size.height - margin * 2)
         var points: [Int: CGPoint] = [:]
         var membership: [Int: Int] = [:]
         for (index, bucket) in buckets.enumerated() {
-            let x = margin + width * (CGFloat(bucket.key.rootGroup) + 0.5) / CGFloat(rootColumns)
+            let x = margin + width * Self.rootFraction(bucket.key.root)
             let y = margin + height * (CGFloat(bucket.key.depthBand) + 0.5) / 8
             let offset = Self.transportOffset(bucket.key.transport)
             points[index] = CGPoint(x: x + offset.x, y: y + offset.y)
@@ -100,6 +96,39 @@ struct CohortLayout {
         }
     }
 
+    func position(of nodeID: Int) -> CGPoint? {
+        nodeBuckets[nodeID].flatMap { positions[$0] }
+    }
+
+    func flightAggregates(
+        state: SimulationState,
+        virtualTimeNS: UInt64
+    ) -> [CohortFlightAggregate] {
+        let grouped = Dictionary(grouping: state.transmissions.values) { flight in
+            CohortFlightKey(
+                from: nodeBuckets[flight.from] ?? -1,
+                to: nodeBuckets[flight.to] ?? -1,
+                plane: flight.plane
+            )
+        }
+        return grouped.map { key, flights in
+            let progress = flights.reduce(0.0) { result, flight in
+                let span = max(1, flight.endNS - flight.startNS)
+                let elapsed = virtualTimeNS > flight.startNS
+                    ? virtualTimeNS - flight.startNS : 0
+                return result + min(1, Double(elapsed) / Double(span))
+            } / Double(flights.count)
+            return CohortFlightAggregate(
+                key: key,
+                count: flights.count,
+                meanProgress: progress
+            )
+        }.sorted {
+            ($0.key.from, $0.key.to, $0.key.plane)
+                < ($1.key.from, $1.key.to, $1.key.plane)
+        }
+    }
+
     private func drawGrid(context: inout GraphicsContext) {
         for (index, point) in positions {
             let bucket = buckets[index]
@@ -117,31 +146,33 @@ struct CohortLayout {
         state: SimulationState,
         virtualTimeNS: UInt64
     ) {
-        let grouped = Dictionary(grouping: state.transmissions.values) { flight in
-            CohortFlightKey(
-                from: nodeBuckets[flight.from] ?? -1,
-                to: nodeBuckets[flight.to] ?? -1,
-                plane: flight.plane
+        for aggregate in flightAggregates(state: state, virtualTimeNS: virtualTimeNS) {
+            let key = aggregate.key
+            guard let from = positions[key.from], let to = positions[key.to] else { continue }
+            let progress = aggregate.meanProgress
+            let trailProgress = max(0, progress - 0.07)
+            let trail = CGPoint(
+                x: from.x + (to.x - from.x) * trailProgress,
+                y: from.y + (to.y - from.y) * trailProgress
             )
-        }
-        for (key, flights) in grouped {
-            guard let from = positions[key.from], let to = positions[key.to],
-                  let sample = flights.first else { continue }
             var path = Path()
-            path.move(to: from)
-            path.addLine(to: to)
-            let color = Self.planeColor(key.plane)
-            let width = min(8, 1 + log2(Double(flights.count + 1)))
-            context.stroke(path, with: .color(color.opacity(0.5)), lineWidth: width)
-            let span = max(1, sample.endNS - sample.startNS)
-            let elapsed = virtualTimeNS > sample.startNS ? virtualTimeNS - sample.startNS : 0
-            let progress = min(1, Double(elapsed) / Double(span))
             let point = CGPoint(
                 x: from.x + (to.x - from.x) * progress,
                 y: from.y + (to.y - from.y) * progress
             )
+            path.move(to: trail)
+            path.addLine(to: point)
+            let color = Self.planeColor(key.plane)
+            let width = min(8, 1 + log2(Double(aggregate.count + 1)))
+            context.stroke(path, with: .color(color.opacity(0.72)), lineWidth: width)
             let dot = CGRect(x: point.x - 3, y: point.y - 3, width: 6, height: 6)
             context.fill(Path(ellipseIn: dot), with: .color(color))
+            if aggregate.count > 1 {
+                context.draw(
+                    Text("×\(aggregate.count)").font(.system(size: 8)).foregroundStyle(color),
+                    at: CGPoint(x: point.x + 10, y: point.y - 8)
+                )
+            }
         }
     }
 
@@ -169,6 +200,14 @@ struct CohortLayout {
         case "ethernet": CGPoint(x: 12, y: 8)
         default: .zero
         }
+    }
+
+    private static func rootFraction(_ root: Int) -> CGFloat {
+        var value = UInt64(bitPattern: Int64(root)) &+ 0x9E37_79B9_7F4A_7C15
+        value = (value ^ (value >> 30)) &* 0xBF58_476D_1CE4_E5B9
+        value = (value ^ (value >> 27)) &* 0x94D0_49BB_1331_11EB
+        value ^= value >> 31
+        return 0.04 + 0.92 * CGFloat(value & 0xFFFF) / 65_535
     }
 
     private static func transportColor(_ transport: String) -> Color {
