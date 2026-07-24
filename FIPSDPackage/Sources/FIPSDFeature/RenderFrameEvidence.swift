@@ -228,6 +228,7 @@ struct RenderFrameEvidence: Codable, Equatable, Sendable {
     let presentation: RenderPresentationEvidence
     let fidelity: RenderFidelityEvidence
     let primitives: RenderPrimitiveEvidence
+    let layout: RenderLayoutEvidence
     let reconciliation: RenderReconciliationEvidence
     let delta: RenderFrameDeltaEvidence
     let violations: [String]
@@ -251,6 +252,7 @@ struct RenderFrameEvidence: Codable, Equatable, Sendable {
             batch: frame.displayBatch
         )
         primitives = RenderPrimitiveEvidence(frame)
+        layout = RenderLayoutEvidence(frame)
         reconciliation = RenderReconciliationEvidence(frame.reconciliation)
         delta = RenderFrameDeltaEvidence(previous: previous, current: frame)
         var problems = frame.reconciliation.violations

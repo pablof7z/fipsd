@@ -11,6 +11,7 @@
     "presentation",
     "fidelity",
     "primitives",
+    "layout",
     "reconciliation",
     "delta",
     "violations"
@@ -24,6 +25,7 @@
     "presentation": { "$ref": "#/$defs/presentation" },
     "fidelity": { "$ref": "#/$defs/fidelity" },
     "primitives": { "$ref": "#/$defs/primitives" },
+    "layout": { "$ref": "#/$defs/layout" },
     "reconciliation": { "$ref": "#/$defs/reconciliation" },
     "delta": { "$ref": "#/$defs/delta" },
     "violations": {
@@ -349,6 +351,49 @@
         "world_x": { "type": "number" },
         "world_y": { "type": "number" },
         "source": { "type": "string" }
+      }
+    },
+    "layout": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reference_canvas_width",
+        "reference_canvas_height",
+        "content_min_x",
+        "content_min_y",
+        "content_max_x",
+        "content_max_y",
+        "node_scale",
+        "cohort_scale",
+        "nodes",
+        "cohorts",
+        "min_cohort_separation",
+        "cohorts_overlap"
+      ],
+      "properties": {
+        "reference_canvas_width": { "type": "number", "exclusiveMinimum": 0 },
+        "reference_canvas_height": { "type": "number", "exclusiveMinimum": 0 },
+        "content_min_x": { "type": "number" },
+        "content_min_y": { "type": "number" },
+        "content_max_x": { "type": "number" },
+        "content_max_y": { "type": "number" },
+        "node_scale": { "type": "number", "minimum": 0 },
+        "cohort_scale": { "type": "number", "minimum": 0 },
+        "nodes": { "type": "array", "items": { "$ref": "#/$defs/mark" } },
+        "cohorts": { "type": "array", "items": { "$ref": "#/$defs/mark" } },
+        "min_cohort_separation": { "type": "number", "minimum": 0 },
+        "cohorts_overlap": { "type": "boolean" }
+      }
+    },
+    "mark": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "pixel_x", "pixel_y", "diameter"],
+      "properties": {
+        "id": { "type": "string" },
+        "pixel_x": { "type": "number" },
+        "pixel_y": { "type": "number" },
+        "diameter": { "type": "number", "minimum": 0 }
       }
     },
     "reconciliation": {

@@ -27,6 +27,20 @@
     "visible_state": "RenderFrame-only projection; canvas has no raw simulation or artifact state"
   },
   "frame_index": 0,
+  "layout": {
+    "cohort_scale": 1,
+    "cohorts": [],
+    "cohorts_overlap": false,
+    "content_max_x": 0,
+    "content_max_y": 0,
+    "content_min_x": 0,
+    "content_min_y": 0,
+    "min_cohort_separation": 0,
+    "node_scale": 1,
+    "nodes": [],
+    "reference_canvas_height": 900,
+    "reference_canvas_width": 1440
+  },
   "presentation": {
     "anomaly_node_ids": [],
     "causal_parents": [],

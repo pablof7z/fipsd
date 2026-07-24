@@ -5,12 +5,18 @@ struct CohortArtifactCanvas {
     let size: CGSize
 
     func draw(context: inout GraphicsContext) {
-        let margin: CGFloat = 56
-        let largest = frame.artifactCohorts.map(\.population).max() ?? 1
-        for cohort in frame.artifactCohorts {
-            let point = cohort.worldPoint.projected(in: size, margin: margin)
+        // Reconcile both intents: draw from the engine-authoritative world
+        // coordinates (render-truth `worldPoint`) but place them with the
+        // fit-to-content viewport so a sparse cohort set fills the canvas
+        // instead of huddling in a corner — matching CohortCanvas's approach.
+        let cohorts = frame.artifactCohorts
+        guard !cohorts.isEmpty else { return }
+        let viewport = WorldViewport(points: cohorts.map(\.worldPoint), in: size)
+        let largest = cohorts.map(\.population).max() ?? 1
+        for cohort in cohorts {
+            let point = viewport.project(cohort.worldPoint)
             let ratio = sqrt(Double(cohort.population) / Double(max(1, largest)))
-            let diameter = 18 + 36 * ratio
+            let diameter = max(14, min(44, 14 + CGFloat(ratio) * 30))
             let rect = CGRect(
                 x: point.x - diameter / 2, y: point.y - diameter / 2,
                 width: diameter, height: diameter

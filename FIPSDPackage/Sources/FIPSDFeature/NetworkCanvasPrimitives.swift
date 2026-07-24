@@ -6,9 +6,7 @@ extension NetworkCanvas {
         frame: RenderFrame,
         positions: [Int: CGPoint]
     ) {
-        let diameter = frame.nodes.count > 5_000
-            ? 2.2
-            : frame.nodes.count > 500 ? 3.2 : 6
+        let diameter = RenderMarkMetrics.nodeDiameter(nodeCount: frame.nodes.count)
         for rendered in frame.nodes {
             let node = rendered.state
             guard let point = positions[node.id] else { continue }

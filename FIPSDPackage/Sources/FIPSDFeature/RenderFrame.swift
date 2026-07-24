@@ -189,8 +189,9 @@ struct RenderFrame: Equatable, Sendable {
     }
 
     func positions(in size: CGSize) -> [Int: CGPoint] {
-        Dictionary(uniqueKeysWithValues: nodes.map {
-            ($0.state.id, $0.worldPoint.projected(in: size))
+        let viewport = WorldViewport(points: nodes.map(\.worldPoint), in: size)
+        return Dictionary(uniqueKeysWithValues: nodes.map {
+            ($0.state.id, viewport.project($0.worldPoint))
         })
     }
 

@@ -255,6 +255,106 @@ struct RenderCohortTransmissionEvidence: Codable, Equatable, Sendable {
     }
 }
 
+/// A single rendered mark's on-screen geometry, projected at
+/// `WorldViewport.referenceCanvas` so the layout is reviewable from the log
+/// alone without knowing the live window size.
+struct RenderMarkEvidence: Codable, Equatable, Sendable {
+    let id: String
+    let pixelX: Double
+    let pixelY: Double
+    let diameter: Double
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case pixelX = "pixel_x"
+        case pixelY = "pixel_y"
+        case diameter
+    }
+}
+
+/// Fit-to-content layout of a frame: exact pixel positions and sizes of every
+/// node and cohort mark, plus the fit parameters and the closest pair of cohort
+/// bubbles — enough to tell, from the JSONL, whether the frame filled the canvas
+/// and whether any marks overlapped.
+struct RenderLayoutEvidence: Codable, Equatable, Sendable {
+    let referenceCanvasWidth: Double
+    let referenceCanvasHeight: Double
+    let contentMinX: Double
+    let contentMinY: Double
+    let contentMaxX: Double
+    let contentMaxY: Double
+    let nodeScale: Double
+    let cohortScale: Double
+    let nodes: [RenderMarkEvidence]
+    let cohorts: [RenderMarkEvidence]
+    let minCohortSeparation: Double
+    let cohortsOverlap: Bool
+
+    init(_ frame: RenderFrame) {
+        let size = WorldViewport.referenceCanvas
+        let nodeViewport = WorldViewport(points: frame.nodes.map(\.worldPoint), in: size)
+        let cohortViewport = WorldViewport(points: frame.cohorts.map(\.worldPoint), in: size)
+        referenceCanvasWidth = Double(size.width)
+        referenceCanvasHeight = Double(size.height)
+        contentMinX = cohortViewport.contentMin.x
+        contentMinY = cohortViewport.contentMin.y
+        contentMaxX = cohortViewport.contentMax.x
+        contentMaxY = cohortViewport.contentMax.y
+        nodeScale = Double(nodeViewport.scale)
+        cohortScale = Double(cohortViewport.scale)
+        let nodeDiameter = Double(RenderMarkMetrics.nodeDiameter(nodeCount: frame.nodes.count))
+        nodes = frame.nodes.map { node in
+            let point = nodeViewport.project(node.worldPoint)
+            return RenderMarkEvidence(
+                id: "\(node.state.id)",
+                pixelX: Double(point.x),
+                pixelY: Double(point.y),
+                diameter: nodeDiameter
+            )
+        }
+        cohorts = frame.cohorts.map { cohort in
+            let point = cohortViewport.project(cohort.worldPoint)
+            return RenderMarkEvidence(
+                id: "\(cohort.key.root):\(cohort.key.depthBand):\(cohort.key.transport)",
+                pixelX: Double(point.x),
+                pixelY: Double(point.y),
+                diameter: Double(RenderMarkMetrics.cohortDiameter(nodeCount: cohort.nodeIDs.count))
+            )
+        }
+        var nearest = Double.greatestFiniteMagnitude
+        var overlap = false
+        for outer in 0..<cohorts.count {
+            for inner in (outer + 1)..<cohorts.count {
+                let left = cohorts[outer]
+                let right = cohorts[inner]
+                let distance = (
+                    (left.pixelX - right.pixelX) * (left.pixelX - right.pixelX)
+                        + (left.pixelY - right.pixelY) * (left.pixelY - right.pixelY)
+                ).squareRoot()
+                nearest = min(nearest, distance)
+                if distance < (left.diameter + right.diameter) / 2 { overlap = true }
+            }
+        }
+        minCohortSeparation = cohorts.count > 1 ? nearest : 0
+        cohortsOverlap = overlap
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case referenceCanvasWidth = "reference_canvas_width"
+        case referenceCanvasHeight = "reference_canvas_height"
+        case contentMinX = "content_min_x"
+        case contentMinY = "content_min_y"
+        case contentMaxX = "content_max_x"
+        case contentMaxY = "content_max_y"
+        case nodeScale = "node_scale"
+        case cohortScale = "cohort_scale"
+        case nodes
+        case cohorts
+        case minCohortSeparation = "min_cohort_separation"
+        case cohortsOverlap = "cohorts_overlap"
+    }
+}
+
 struct RenderPrimitiveEvidence: Codable, Equatable, Sendable {
     let nodes: [RenderNodeEvidence]
     let physicalLinks: [RenderLinkEvidence]

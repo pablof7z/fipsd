@@ -7,8 +7,9 @@ struct CohortLayout {
 
     init(frame: RenderFrame, size: CGSize) {
         self.frame = frame
+        let viewport = WorldViewport(points: frame.cohorts.map(\.worldPoint), in: size)
         positions = Dictionary(uniqueKeysWithValues: frame.cohorts.map {
-            ($0.key, $0.worldPoint.projected(in: size))
+            ($0.key, viewport.project($0.worldPoint))
         })
         nodeBuckets = Dictionary(
             uniqueKeysWithValues: frame.cohorts.flatMap { cohort in
@@ -22,7 +23,7 @@ struct CohortLayout {
         drawFlights(context: &context)
         for bucket in frame.cohorts {
             guard let point = positions[bucket.key] else { continue }
-            let diameter = min(44, 8 + log2(Double(max(1, bucket.nodeIDs.count))) * 4)
+            let diameter = RenderMarkMetrics.cohortDiameter(nodeCount: bucket.nodeIDs.count)
             let rect = CGRect(
                 x: point.x - diameter / 2,
                 y: point.y - diameter / 2,
@@ -68,12 +69,22 @@ struct CohortLayout {
     }
 
     private func drawGrid(context: inout GraphicsContext) {
-        for (key, point) in positions {
+        // Iterate cohorts in their stable sorted order (not dictionary order) and
+        // skip labels that would land on top of one already drawn, so overlapping
+        // cohorts don't smear their depth bands into an unreadable blur.
+        var drawn: [CGPoint] = []
+        for bucket in frame.cohorts {
+            guard let point = positions[bucket.key] else { continue }
+            let anchor = CGPoint(x: point.x, y: point.y + 25)
+            if drawn.contains(where: { hypot($0.x - anchor.x, $0.y - anchor.y) < 22 }) {
+                continue
+            }
+            drawn.append(anchor)
             context.draw(
-                Text("d\(key.depthBand * 4)+")
+                Text("d\(bucket.key.depthBand * 4)+")
                     .font(.system(size: 8))
                     .foregroundStyle(.secondary),
-                at: CGPoint(x: point.x, y: point.y + 25)
+                at: anchor
             )
         }
     }

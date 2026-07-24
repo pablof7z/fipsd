@@ -17,6 +17,11 @@ Each line conforms to
 - the selected visualization mode and node selection used by presentation-only
   rings, plus the exact independently checked anomaly-node filter;
 - a source-state path for every primitive;
+- the fit-to-content `layout`: each node and cohort mark's projected pixel
+  position and diameter at a fixed reference canvas, the fitted content bounding
+  box and scale, and the closest cohort-pair separation plus an overlap flag —
+  so a run's on-screen geometry is reviewable from the log without the live
+  window size;
 - reconciliation counts and intentionally omitted mass;
 - frame-to-frame state, relation, transmission, cohort, and layout-only deltas;
 - violations for malformed sources, unattributed structural changes,
