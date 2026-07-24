@@ -1,0 +1,318 @@
+{
+  "api_version": "experiments.fips.network/reproduction-bundle/v1alpha1",
+  "bundle_id": "bundle-987fd1bc7b3884705ce272d77c39794f",
+  "normalized_plan": {
+    "api_version": "experiments.fips.network/normalized-plan/v1alpha1",
+    "axes": [],
+    "campaign": {
+      "accounting": {
+        "causal_lineage": true,
+        "network_overhead": "configured",
+        "reconcile_serialized_frames": true,
+        "transport_overhead": true
+      },
+      "adversaries": {
+        "actions": [],
+        "budgets": {},
+        "mode": "none"
+      },
+      "apiVersion": "experiments.fips.network/v1alpha1",
+      "assertions": [
+        {
+          "eventually": {
+            "after_input_quiescence": {
+              "nanoseconds": 30000000000
+            },
+            "condition": "all_connected_nodes_agree_on_minimum_root"
+          }
+        },
+        {
+          "always": {
+            "condition": "no_forwarding_loops"
+          }
+        },
+        {
+          "always": {
+            "condition": "per_peer_announcements_obey_debounce"
+          }
+        },
+        {
+          "reconcile": {
+            "condition": "measured_bytes_equal_serialized_frames"
+          }
+        },
+        {
+          "deterministic": {
+            "condition": "same_seed_same_event_order_and_result"
+          }
+        }
+      ],
+      "engine": {
+        "deterministic": true,
+        "modes": "compact-discrete-event",
+        "variant": "fips-80c956a-baseline"
+      },
+      "events": [
+        {
+          "action": "introduce-lower-root-identities",
+          "id": "descending-root-arrivals"
+        }
+      ],
+      "fidelity": {
+        "billion_node_representation": "not-requested",
+        "bloom": "exact-bits",
+        "crypto": "operation-count",
+        "protocol": "semantic-exact",
+        "serialization": "executable-codec"
+      },
+      "identities": {
+        "arrivals": {
+          "address_policy": "strictly-lower-than-current-root",
+          "attachment": "random",
+          "attacker_budget": {
+            "identities": 8,
+            "mode": "bounded",
+            "operations": 8
+          },
+          "count": 8,
+          "schedule": {
+            "interval": {
+              "nanoseconds": 1000000000
+            },
+            "start": {
+              "nanoseconds": 1000000000
+            }
+          }
+        },
+        "initial": {
+          "distribution": "uniform-128"
+        }
+      },
+      "instrumentation": {
+        "causal_cost_ledger": true,
+        "control_and_useful_bytes": true,
+        "queue_wait": true,
+        "quiescence_markers": [
+          "root",
+          "tree"
+        ],
+        "root_agreement_by_depth": true,
+        "transition_stages": true
+      },
+      "kind": "Campaign",
+      "links": {
+        "bandwidth_bps": 10000000000,
+        "drop_policy": "tail-drop",
+        "duplication_ppm": 0,
+        "jitter": {
+          "nanoseconds": 10000000
+        },
+        "latency": {
+          "nanoseconds": 20000000
+        },
+        "loss_ppm": 0,
+        "mtu_bytes": 1500,
+        "ordering": "datagram",
+        "queue_bytes": 1048576
+      },
+      "metadata": {
+        "description": "Interactive Wind Tunnel experiment",
+        "labels": {
+          "authoring.provider": "manual"
+        },
+        "name": "interactive-root-wave"
+      },
+      "objectives": {
+        "maximize": [
+          "control_bytes_per_root_arrival"
+        ]
+      },
+      "protocol": {
+        "parameters": {
+          "bloom_max_fpr_ppm": 200000,
+          "bloom_update_debounce": {
+            "nanoseconds": 500000000
+          },
+          "coord_cache_entries": 64,
+          "coord_cache_ttl": {
+            "nanoseconds": 5000000000
+          },
+          "lookup_attempts": 3,
+          "lookup_backoff": {
+            "nanoseconds": 100000000
+          },
+          "lookup_jitter": {
+            "nanoseconds": 10000000
+          },
+          "lookup_ttl": 64,
+          "parent_hold_down": {
+            "nanoseconds": 0
+          },
+          "parent_hysteresis_ppm": 0,
+          "tree_announce_debounce": {
+            "nanoseconds": 500000000
+          }
+        },
+        "variant": "fips-80c956a-baseline"
+      },
+      "resources": {
+        "assignment": "uniform",
+        "node_profiles": [
+          {
+            "cpu_units": 1000,
+            "memory_bytes": 1073741824,
+            "name": "baseline",
+            "queue_bytes": 1048576,
+            "table_entries": 100000
+          }
+        ]
+      },
+      "scale": {
+        "nodes": 1000
+      },
+      "seed": 424242,
+      "topology": {
+        "average_degree": 4,
+        "connected": true,
+        "generator": "random-regular"
+      },
+      "traffic": {
+        "model": "uniform-random",
+        "parameters": {
+          "burst_interval_ns": 250000000,
+          "burst_size": 16,
+          "flow_count": 200,
+          "segments_per_stream": 32,
+          "start_ns": 500000000
+        },
+        "payload_bytes": 512,
+        "rate_bps": 5000000
+      },
+      "transports": {
+        "assignment": "random-mixed",
+        "profiles": [
+          {
+            "bandwidth_bps": 100000000,
+            "jitter": {
+              "nanoseconds": 2000000
+            },
+            "latency": {
+              "nanoseconds": 8000000
+            },
+            "loss_ppm": 1000,
+            "mtu_bytes": 1500,
+            "name": "wifi",
+            "queue_bytes": 1048576,
+            "type": "wifi",
+            "weight": 50
+          },
+          {
+            "bandwidth_bps": 1000000,
+            "jitter": {
+              "nanoseconds": 5000000
+            },
+            "latency": {
+              "nanoseconds": 20000000
+            },
+            "loss_ppm": 5000,
+            "mtu_bytes": 244,
+            "name": "bluetooth",
+            "queue_bytes": 1048576,
+            "type": "ble",
+            "weight": 15
+          },
+          {
+            "bandwidth_bps": 10000000,
+            "jitter": {
+              "nanoseconds": 50000000
+            },
+            "latency": {
+              "nanoseconds": 200000000
+            },
+            "loss_ppm": 500,
+            "mtu_bytes": 1280,
+            "name": "tor",
+            "queue_bytes": 1048576,
+            "type": "tor",
+            "weight": 15
+          },
+          {
+            "bandwidth_bps": 1000000000,
+            "jitter": {
+              "nanoseconds": 250000
+            },
+            "latency": {
+              "nanoseconds": 1000000
+            },
+            "loss_ppm": 0,
+            "mtu_bytes": 1500,
+            "name": "ethernet",
+            "queue_bytes": 1048576,
+            "type": "ethernet",
+            "weight": 20
+          }
+        ]
+      }
+    },
+    "campaign_sha256": "9150f938609524fe656760fe0260e97864f463ebe96f46ebfa4f6965d337d2aa",
+    "seed": 424242
+  },
+  "seed": 424242,
+  "engine": "fips-individual-reference",
+  "variant": "fips-80c956a-baseline",
+  "fidelity": {
+    "wire": "modeled",
+    "protocol": "semantic-exact",
+    "compute": "operation-counted",
+    "scale": "individual",
+    "bloom": "exact-bits",
+    "represented_nodes": 1000,
+    "approximations": [
+      {
+        "method": "abstract-endpoint-media-profile-v1",
+        "parameters": {
+          "assignment": "seeded-weighted-per-node"
+        },
+        "validated_range": "configured endpoint bandwidth, latency, loss, MTU, queue, and overhead bounds",
+        "uncertainty": "access-media values are abstract inputs, not measurements of Tor, Bluetooth, Wi-Fi, or Ethernet implementations"
+      },
+      {
+        "method": "routed-synthetic-session-data-v1",
+        "parameters": {
+          "routing": "stable-shortest-active-path"
+        },
+        "validated_range": "individual-node topologies within the declared 100000-flow budget",
+        "uncertainty": "session-data framing is semantically modeled; per-hop queueing, loss, MTU, and delivery follow configured link inputs"
+      }
+    ],
+    "sampled_regions": []
+  },
+  "provenance": {
+    "engine_name": "fips-individual-reference",
+    "engine_version": "m2-v1",
+    "engine_source_revision": "ca7ece481e676d72267ae35c63d66ee1b691ce26",
+    "schema_versions": {
+      "normalized-plan": "experiments.fips.network/normalized-plan/v1alpha1",
+      "reproduction-bundle": "experiments.fips.network/reproduction-bundle/v1alpha1",
+      "run-artifact": "experiments.fips.network/run-artifact/v1alpha1"
+    },
+    "seed": 424242,
+    "normalized_plan_sha256": "aa61317f09edb55d8e92b03f9c63fd125bc55a809ab9269a9a86a5e235b62660",
+    "fips_commit": "80c956a6fdb85dde1450969a21891c1158e43267",
+    "image_digest": null,
+    "hardware_profile": null
+  },
+  "expected_assertions": [
+    "root-agreement",
+    "loop-freedom",
+    "no-obsolete-root-retention",
+    "per-peer-debounce",
+    "coordinate-consistency",
+    "control-queues-return-to-baseline",
+    "tree-lifecycle-reconciliation",
+    "byte-reconciliation",
+    "deterministic-total-order",
+    "routed-traffic-reconciliation"
+  ],
+  "external_blobs": []
+}

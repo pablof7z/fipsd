@@ -21,19 +21,19 @@ final class FIPSDUITests: XCTestCase {
         XCTAssertFalse(app.buttons["generateRunButton"].exists)
         XCTAssertTrue(app.buttons["runConfiguredButton"].exists)
         XCTAssertTrue(app.buttons["playbackButton"].exists)
-        XCTAssertTrue(app.staticTexts["liveAccountingHeading"].exists)
+        XCTAssertFalse(app.staticTexts["liveAccountingHeading"].exists)
 
         let inspectorToggle = app.buttons["toggleRightInspectorButton"]
         XCTAssertTrue(inspectorToggle.exists)
         inspectorToggle.click()
         XCTAssertTrue(
             app.staticTexts["liveAccountingHeading"]
-                .waitForNonExistence(timeout: 2)
+                .waitForExistence(timeout: 2)
         )
         inspectorToggle.click()
         XCTAssertTrue(
             app.staticTexts["liveAccountingHeading"]
-                .waitForExistence(timeout: 2)
+                .waitForNonExistence(timeout: 2)
         )
     }
 }

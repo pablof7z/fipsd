@@ -7,13 +7,13 @@ struct NetworkCanvas: View {
     @Binding var mode: VisualizationMode
     let cohortState: CohortArtifactState?
     let anomalyNodeIDs: Set<Int>
-
     var body: some View {
         GeometryReader { geometry in
             let positions = positions(in: geometry.size)
             let cohorts = CohortLayout(state: state, size: geometry.size)
-            InteractiveCanvasViewport {
+            InteractiveCanvasViewport { viewport, viewportSize in
                 Canvas { context, _ in
+                    context.concatenate(viewport.drawingTransform(in: viewportSize))
                     if mode == .cohorts {
                         if let cohortState {
                             CohortArtifactCanvas(
@@ -35,9 +35,10 @@ struct NetworkCanvas: View {
                 }
                 .contentShape(Rectangle())
                 .gesture(SpatialTapGesture().onEnded { value in
+                    let point = viewport.contentPoint(at: value.location, in: viewportSize)
                     selection = mode == .cohorts
-                        ? cohorts.nearestRepresentative(to: value.location)
-                        : nearestNode(to: value.location, positions: positions)
+                        ? cohorts.nearestRepresentative(to: point)
+                        : nearestNode(to: point, positions: positions)
                 })
             }
             .overlay(alignment: .topLeading) { legend }
@@ -77,7 +78,6 @@ struct NetworkCanvas: View {
     private func bytes(_ value: Int) -> String {
         ByteCountFormatter.string(fromByteCount: Int64(value), countStyle: .file)
     }
-
     private var legend: some View {
         HStack(spacing: 14) {
             Picker("View", selection: $mode) {

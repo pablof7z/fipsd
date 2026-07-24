@@ -1,0 +1,328 @@
+{
+  "kind": "root-ratchet-report/v1alpha1",
+  "run_id": "run-7ea2f69dc506554c2736acd9",
+  "seed": 424242,
+  "upstream_fips_commit": "80c956a6fdb85dde1450969a21891c1158e43267",
+  "fidelity_statement": "Wire evidence uses executable production codec; protocol fidelity is individually modeled semantic state; compute fidelity is operation-counted compute; scale uses individual nodes across 12 represented nodes; Bloom fidelity uses exact Bloom bits. No approximation metadata applies.",
+  "graph_sha256": "ad2e7e6a64fa58e755e09ecd26e499ea5be7f08d254db625240c3153f7f0d747",
+  "node_count": 12,
+  "transport_profiles": {
+    "udp": 12
+  },
+  "arrivals": 4,
+  "authenticated_sybil_arrivals": 0,
+  "identity_generation_trials": 4,
+  "final_root": "7ffffffffffffffffffffffffffffffc",
+  "root_generations": [
+    "7ffffffffffffffffffffffffffffffc",
+    "7ffffffffffffffffffffffffffffffd",
+    "7ffffffffffffffffffffffffffffffe",
+    "7fffffffffffffffffffffffffffffff",
+    "80000000000000000000000000000000",
+    "80000000000000000000000000000001",
+    "80000000000000000000000000000002",
+    "80000000000000000000000000000003",
+    "80000000000000000000000000000004",
+    "80000000000000000000000000000005",
+    "80000000000000000000000000000006"
+  ],
+  "maximum_depth": 8,
+  "parent_transitions": 14,
+  "quiescence_ns": 5501036160,
+  "tree_announce": {
+    "requested": 141,
+    "superseded": 2,
+    "coalesced": 2,
+    "cancelled": 0,
+    "constructed": 139,
+    "signed": 139,
+    "serialized": 139,
+    "queued": 139,
+    "rejected": 0,
+    "transmitted": 139,
+    "delivered": 139,
+    "transmitted_frame_bytes": 36504,
+    "delivered_frame_bytes": 36504
+  },
+  "links": {
+    "edge-0:0->1": {
+      "accepted_frames": 5,
+      "rejected_frames": 0,
+      "transmitted_bytes": 1108,
+      "lost_bytes": 0,
+      "delivered_bytes": 1108,
+      "rejected_bytes": 0,
+      "useful_payload_bytes": 0,
+      "peak_queue_bytes": 228
+    },
+    "edge-0:1->0": {
+      "accepted_frames": 6,
+      "rejected_frames": 0,
+      "transmitted_bytes": 1464,
+      "lost_bytes": 0,
+      "delivered_bytes": 1464,
+      "rejected_bytes": 0,
+      "useful_payload_bytes": 0,
+      "peak_queue_bytes": 260
+    },
+    "edge-11:0->8": {
+      "accepted_frames": 4,
+      "rejected_frames": 0,
+      "transmitted_bytes": 880,
+      "lost_bytes": 0,
+      "delivered_bytes": 880,
+      "rejected_bytes": 0,
+      "useful_payload_bytes": 0,
+      "peak_queue_bytes": 228
+    },
+    "edge-11:8->0": {
+      "accepted_frames": 3,
+      "rejected_frames": 0,
+      "transmitted_bytes": 716,
+      "lost_bytes": 0,
+      "delivered_bytes": 716,
+      "rejected_bytes": 0,
+      "useful_payload_bytes": 0,
+      "peak_queue_bytes": 260
+    },
+    "edge-12:0->9": {
+      "accepted_frames": 3,
+      "rejected_frames": 0,
+      "transmitted_bytes": 684,
+      "lost_bytes": 0,
+      "delivered_bytes": 684,
+      "rejected_bytes": 0,
+      "useful_payload_bytes": 0,
+      "peak_queue_bytes": 228
+    },
+    "edge-12:9->0": {
+      "accepted_frames": 2,
+      "rejected_frames": 0,
+      "transmitted_bytes": 456,
+      "lost_bytes": 0,
+      "delivered_bytes": 456,
+      "rejected_bytes": 0,
+      "useful_payload_bytes": 0,
+      "peak_queue_bytes": 260
+    },
+    "edge-13:0->10": {
+      "accepted_frames": 3,
+      "rejected_frames": 0,
+      "transmitted_bytes": 684,
+      "lost_bytes": 0,
+      "delivered_bytes": 684,
+      "rejected_bytes": 0,
+      "useful_payload_bytes": 0,
+      "peak_queue_bytes": 228
+    },
+    "edge-13:10->0": {
+      "accepted_frames": 2,
+      "rejected_frames": 0,
+      "transmitted_bytes": 456,
+      "lost_bytes": 0,
+      "delivered_bytes": 456,
+      "rejected_bytes": 0,
+      "useful_payload_bytes": 0,
+      "peak_queue_bytes": 260
+    },
+    "edge-14:0->11": {
+      "accepted_frames": 2,
+      "rejected_frames": 0,
+      "transmitted_bytes": 456,
+      "lost_bytes": 0,
+      "delivered_bytes": 456,
+      "rejected_bytes": 0,
+      "useful_payload_bytes": 0,
+      "peak_queue_bytes": 228
+    },
+    "edge-14:11->0": {
+      "accepted_frames": 1,
+      "rejected_frames": 0,
+      "transmitted_bytes": 196,
+      "lost_bytes": 0,
+      "delivered_bytes": 196,
+      "rejected_bytes": 0,
+      "useful_payload_bytes": 0,
+      "peak_queue_bytes": 196
+    },
+    "edge-1:1->2": {
+      "accepted_frames": 6,
+      "rejected_frames": 0,
+      "transmitted_bytes": 1464,
+      "lost_bytes": 0,
+      "delivered_bytes": 1464,
+      "rejected_bytes": 0,
+      "useful_payload_bytes": 0,
+      "peak_queue_bytes": 260
+    },
+    "edge-1:2->1": {
+      "accepted_frames": 7,
+      "rejected_frames": 0,
+      "transmitted_bytes": 1852,
+      "lost_bytes": 0,
+      "delivered_bytes": 1852,
+      "rejected_bytes": 0,
+      "useful_payload_bytes": 0,
+      "peak_queue_bytes": 292
+    },
+    "edge-2:2->3": {
+      "accepted_frames": 7,
+      "rejected_frames": 0,
+      "transmitted_bytes": 1852,
+      "lost_bytes": 0,
+      "delivered_bytes": 1852,
+      "rejected_bytes": 0,
+      "useful_payload_bytes": 0,
+      "peak_queue_bytes": 292
+    },
+    "edge-2:3->2": {
+      "accepted_frames": 8,
+      "rejected_frames": 0,
+      "transmitted_bytes": 2272,
+      "lost_bytes": 0,
+      "delivered_bytes": 2272,
+      "rejected_bytes": 0,
+      "useful_payload_bytes": 0,
+      "peak_queue_bytes": 324
+    },
+    "edge-3:3->4": {
+      "accepted_frames": 8,
+      "rejected_frames": 0,
+      "transmitted_bytes": 2272,
+      "lost_bytes": 0,
+      "delivered_bytes": 2272,
+      "rejected_bytes": 0,
+      "useful_payload_bytes": 0,
+      "peak_queue_bytes": 324
+    },
+    "edge-3:4->3": {
+      "accepted_frames": 9,
+      "rejected_frames": 0,
+      "transmitted_bytes": 2724,
+      "lost_bytes": 0,
+      "delivered_bytes": 2724,
+      "rejected_bytes": 0,
+      "useful_payload_bytes": 0,
+      "peak_queue_bytes": 356
+    },
+    "edge-4:4->5": {
+      "accepted_frames": 9,
+      "rejected_frames": 0,
+      "transmitted_bytes": 2724,
+      "lost_bytes": 0,
+      "delivered_bytes": 2724,
+      "rejected_bytes": 0,
+      "useful_payload_bytes": 0,
+      "peak_queue_bytes": 356
+    },
+    "edge-4:5->4": {
+      "accepted_frames": 10,
+      "rejected_frames": 0,
+      "transmitted_bytes": 3208,
+      "lost_bytes": 0,
+      "delivered_bytes": 3208,
+      "rejected_bytes": 0,
+      "useful_payload_bytes": 0,
+      "peak_queue_bytes": 388
+    },
+    "edge-5:5->6": {
+      "accepted_frames": 10,
+      "rejected_frames": 0,
+      "transmitted_bytes": 3208,
+      "lost_bytes": 0,
+      "delivered_bytes": 3208,
+      "rejected_bytes": 0,
+      "useful_payload_bytes": 0,
+      "peak_queue_bytes": 388
+    },
+    "edge-5:6->5": {
+      "accepted_frames": 11,
+      "rejected_frames": 0,
+      "transmitted_bytes": 3724,
+      "lost_bytes": 0,
+      "delivered_bytes": 3724,
+      "rejected_bytes": 0,
+      "useful_payload_bytes": 0,
+      "peak_queue_bytes": 420
+    },
+    "edge-6:6->7": {
+      "accepted_frames": 11,
+      "rejected_frames": 0,
+      "transmitted_bytes": 3724,
+      "lost_bytes": 0,
+      "delivered_bytes": 3724,
+      "rejected_bytes": 0,
+      "useful_payload_bytes": 0,
+      "peak_queue_bytes": 420
+    },
+    "edge-6:7->6": {
+      "accepted_frames": 12,
+      "rejected_frames": 0,
+      "transmitted_bytes": 4272,
+      "lost_bytes": 0,
+      "delivered_bytes": 4272,
+      "rejected_bytes": 0,
+      "useful_payload_bytes": 0,
+      "peak_queue_bytes": 452
+    }
+  },
+  "scheduler": {
+    "scheduled": 285,
+    "cancelled": 2,
+    "superseded": 2,
+    "executed": 283,
+    "peak_pending": 19
+  },
+  "graph_memory": {
+    "fixed_bytes_per_node": 39,
+    "fixed_bytes_per_edge": 9,
+    "allocated_bytes": 828
+  },
+  "assertions": [
+    {
+      "id": "root-agreement",
+      "outcome": "pass",
+      "message": "all active nodes advertise the minimum active address"
+    },
+    {
+      "id": "loop-freedom",
+      "outcome": "pass",
+      "message": "every ancestry contains unique stable node IDs"
+    },
+    {
+      "id": "no-obsolete-root-retention",
+      "outcome": "pass",
+      "message": "no active node retains a superseded root at quiescence"
+    },
+    {
+      "id": "per-peer-debounce",
+      "outcome": "pass",
+      "message": "every transmitted per-peer announcement obeys the configured boundary"
+    },
+    {
+      "id": "coordinate-consistency",
+      "outcome": "pass",
+      "message": "parent, root, and ancestry columns agree"
+    },
+    {
+      "id": "control-queues-return-to-baseline",
+      "outcome": "pass",
+      "message": "all transmitted bytes are delivered or deterministically lost"
+    },
+    {
+      "id": "tree-lifecycle-reconciliation",
+      "outcome": "pass",
+      "message": "requested, coalesced, cancelled, constructed, serialized, queued, and rejected totals reconcile"
+    },
+    {
+      "id": "byte-reconciliation",
+      "outcome": "pass",
+      "message": "per-edge transmitted bytes equal delivered plus lost bytes"
+    },
+    {
+      "id": "deterministic-total-order",
+      "outcome": "pass",
+      "message": "event order is a stable virtual-time and ordinal total order"
+    }
+  ]
+}

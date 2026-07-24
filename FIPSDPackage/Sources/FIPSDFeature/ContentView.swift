@@ -5,7 +5,7 @@ public struct ContentView: View {
     @State private var model = WorkbenchModel()
     @State private var agentModel = ClaudeAgentModel()
     @State private var artifactImporterPresented = false
-    @State private var inspectorPresented = true
+    @State private var inspectorPresented = false
 
     public var body: some View {
         HSplitView {

@@ -20,11 +20,11 @@ import Testing
     )
     let size = CGSize(width: 800, height: 600)
     let anchor = CGPoint(x: 200, y: 150)
-    let before = contentPoint(at: anchor, viewport: viewport, size: size)
+    let before = viewport.contentPoint(at: anchor, in: size)
 
     viewport.zoom(by: 2, around: anchor, in: size)
 
-    let after = contentPoint(at: anchor, viewport: viewport, size: size)
+    let after = viewport.contentPoint(at: anchor, in: size)
     #expect(abs(before.x - after.x) < 0.0001)
     #expect(abs(before.y - after.y) < 0.0001)
     #expect(viewport.scale == 2)
@@ -42,14 +42,16 @@ import Testing
     #expect(viewport.scale == CanvasViewportTransform.minimumScale)
 }
 
-private func contentPoint(
-    at screenPoint: CGPoint,
-    viewport: CanvasViewportTransform,
-    size: CGSize
-) -> CGPoint {
-    let center = CGPoint(x: size.width / 2, y: size.height / 2)
-    return CGPoint(
-        x: center.x + (screenPoint.x - center.x - viewport.offset.width) / viewport.scale,
-        y: center.y + (screenPoint.y - center.y - viewport.offset.height) / viewport.scale
+@Test func drawingTransformMatchesContentPointInverse() {
+    let viewport = CanvasViewportTransform(
+        scale: 3.25,
+        offset: CGSize(width: 71, height: -46)
     )
+    let size = CGSize(width: 920, height: 640)
+    let contentPoint = CGPoint(x: 177, y: 508)
+    let viewportPoint = contentPoint.applying(viewport.drawingTransform(in: size))
+    let roundTrip = viewport.contentPoint(at: viewportPoint, in: size)
+
+    #expect(abs(roundTrip.x - contentPoint.x) < 0.0001)
+    #expect(abs(roundTrip.y - contentPoint.y) < 0.0001)
 }

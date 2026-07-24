@@ -1,0 +1,18 @@
+{
+  "artifact_id": "artifact-987fd1bc7b3884705ce272d77c39794f",
+  "run_id": "run-987fd1bc7b3884705ce272d7",
+  "canvas": {
+    "width": 800,
+    "height": 600
+  },
+  "frame_step_ns": 16000000,
+  "frame_count": 651,
+  "event_count": 35219,
+  "frames_with_events": 531,
+  "frames_with_transmission_starts": 445,
+  "frames_with_transmission_ends": 524,
+  "frames_with_node_state_changes": 419,
+  "frames_with_cohort_regrouping": 366,
+  "frames_with_network_movement": 0,
+  "frames_with_cohort_movement": 366
+}

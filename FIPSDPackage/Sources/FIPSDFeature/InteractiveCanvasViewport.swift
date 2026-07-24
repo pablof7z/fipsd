@@ -33,10 +33,30 @@ struct CanvasViewportTransform: Equatable {
         scale = 1
         offset = .zero
     }
+
+    func drawingTransform(in size: CGSize) -> CGAffineTransform {
+        let center = CGPoint(x: size.width / 2, y: size.height / 2)
+        return CGAffineTransform(
+            a: scale,
+            b: 0,
+            c: 0,
+            d: scale,
+            tx: center.x + offset.width - scale * center.x,
+            ty: center.y + offset.height - scale * center.y
+        )
+    }
+
+    func contentPoint(at viewportPoint: CGPoint, in size: CGSize) -> CGPoint {
+        let center = CGPoint(x: size.width / 2, y: size.height / 2)
+        return CGPoint(
+            x: center.x + (viewportPoint.x - center.x - offset.width) / scale,
+            y: center.y + (viewportPoint.y - center.y - offset.height) / scale
+        )
+    }
 }
 
 struct InteractiveCanvasViewport<Content: View>: View {
-    @ViewBuilder let content: () -> Content
+    @ViewBuilder let content: (CanvasViewportTransform, CGSize) -> Content
 
     @State private var transform = CanvasViewportTransform()
     @State private var previousMagnification: CGFloat = 1
@@ -45,10 +65,8 @@ struct InteractiveCanvasViewport<Content: View>: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                content()
+                content(effectiveTransform, geometry.size)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .scaleEffect(transform.scale)
-                    .offset(effectiveOffset)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .contentShape(Rectangle())
@@ -61,11 +79,11 @@ struct InteractiveCanvasViewport<Content: View>: View {
         }
     }
 
-    private var effectiveOffset: CGSize {
-        CGSize(
-            width: transform.offset.width + dragTranslation.width,
-            height: transform.offset.height + dragTranslation.height
-        )
+    private var effectiveTransform: CanvasViewportTransform {
+        var result = transform
+        result.offset.width += dragTranslation.width
+        result.offset.height += dragTranslation.height
+        return result
     }
 
     private var dragGesture: some Gesture {
