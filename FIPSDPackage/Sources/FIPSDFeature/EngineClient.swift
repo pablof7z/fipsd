@@ -21,6 +21,11 @@ struct EngineClient: Sendable {
     let executableURL: URL
 
     static func bundled() throws -> Self {
+        // SwiftPM's `.process(...)` resource rule preserves the `Resources/bin`
+        // and `bin` subdirectories when building via `swift build`/`swift test`,
+        // but Xcode's resource-processing build phase flattens the same
+        // resource straight into the bundle's Resources root when building the
+        // .app target — so the lookup falls back to a subdirectory-less search.
         guard let url = Bundle.module.url(
             forResource: "fips-wind-tunnel",
             withExtension: nil,
@@ -29,6 +34,9 @@ struct EngineClient: Sendable {
             forResource: "fips-wind-tunnel",
             withExtension: nil,
             subdirectory: "bin"
+        ) ?? Bundle.module.url(
+            forResource: "fips-wind-tunnel",
+            withExtension: nil
         ) else { throw EngineClientError.executableMissing }
         return Self(executableURL: url)
     }
